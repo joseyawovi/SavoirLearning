@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fr' and roadmap.title_fr %}{{ roadmap.title_fr }}{% else %}{{ roadmap.title }}{% endif %} - Savoir+ LMS
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Roadmap Header -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">
+                <i class="fas fa-route me-2"></i>
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'fr' and roadmap.title_fr %}
+                    {{ roadmap.title_fr }}
+                {% else %}
+                    {{ roadmap.title }}
+                {% endif %}
+            </h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">
+                {% if LANGUAGE_CODE == 'fr' and roadmap.description_fr %}
+                    {{ roadmap.description_fr }}
+                {% else %}
+                    {{ roadmap.description }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Roadmap Progress -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h4>
+                <i class="fas fa-map me-2"></i>{% trans "Learning Path" %}
+            </h4>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Back to Dashboard" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Rooms List -->
+    <div class="roadmap-container">
+        {% for room_data in rooms %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card {% if room_data.is_completed %}border-success shadow-sm{% elif room_data.is_accessible %}border-primary shadow{% else %}border-secondary{% endif %}">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <!-- Room Order -->
+                                <div class="col-auto">
+                                    <div class="roadmap-step {% if room_data.is_completed %}completed{% elif room_data.is_accessible %}accessible{% else %}locked{% endif %}">
+                                        {% if room_data.is_completed %}
+                                            <i class="fas fa-check"></i>
+                                        {% elif room_data.is_accessible %}
+                                            {{ room_data.room.order|add:1 }}
+                                        {% else %}
+                                            <i class="fas fa-lock"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Room Content -->
+                                <div class="col">
+                                    <h5 class="card-title mb-1">
+                                        {% if LANGUAGE_CODE == 'fr' and room_data.room.title_fr %}
+                                            {{ room_data.room.title_fr }}
+                                        {% else %}
+                                            {{ room_data.room.title }}
+                                        {% endif %}
+                                        
+                                        {% if room_data.is_completed %}
+                                            <span class="badge bg-success ms-2">{% trans "Completed" %}</span>
+                                        {% elif not room_data.is_accessible %}
+                                            <span class="badge bg-secondary ms-2">{% trans "Locked" %}</span>
+                                        {% endif %}
+                                    </h5>
+                                    
+                                    <p class="card-text text-muted mb-2">
+                                        {% if LANGUAGE_CODE == 'fr' and room_data.room.description_fr %}
+                                            {{ room_data.room.description_fr|truncatewords:25 }}
+                                        {% else %}
+                                            {{ room_data.room.description|truncatewords:25 }}
+                                        {% endif %}
+                                    </p>
+                                    
+                                    <!-- Progress Bar -->
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        {% if room_data.total_sections > 0 %}
+                                            {% widthratio room_data.completed_sections room_data.total_sections 100 as section_progress %}
+                                            <div class="progress-bar {% if room_data.is_completed %}bg-success{% else %}bg-primary{% endif %}" 
+                                                 role="progressbar" 
+                                                 style="width: {{ section_progress }}%"
+                                                 aria-valuenow="{{ section_progress }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <small class="text-muted">
+                                        <i class="fas fa-tasks me-1"></i>
+                                        {{ room_data.completed_sections }}/{{ room_data.total_sections }} {% trans "sections completed" %}
+                                    </small>
+                                </div>
+                                
+                                <!-- Action Button -->
+                                <div class="col-auto">
+                                    {% if room_data.is_accessible %}
+                                        <a href="{% url 'room_detail' room_data.room.id %}" class="btn {% if room_data.is_completed %}btn-success{% else %}btn-primary{% endif %}">
+                                            {% if room_data.is_completed %}
+                                                <i class="fas fa-eye me-1"></i>{% trans "Review" %}
+                                            {% else %}
+                                                <i class="fas fa-play me-1"></i>{% trans "Continue" %}
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-secondary" disabled>
+                                            <i class="fas fa-lock me-1"></i>{% trans "Locked" %}
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Prerequisite Info -->
+                            {% if not room_data.is_accessible and room_data.room.prerequisite_room %}
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            {% trans "Complete" %} 
+                                            <strong>
+                                                {% if LANGUAGE_CODE == 'fr' and room_data.room.prerequisite_room.title_fr %}
+                                                    {{ room_data.room.prerequisite_room.title_fr }}
+                                                {% else %}
+                                                    {{ room_data.room.prerequisite_room.title }}
+                                                {% endif %}
+                                            </strong> 
+                                            {% trans "to unlock this room." %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Connection Line -->
+            {% if not forloop.last %}
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="roadmap-connector">
+                            <i class="fas fa-arrow-down text-muted"></i>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% trans "No rooms available in this roadmap yet." %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Roadmap Summary -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5>{% trans "Roadmap Progress" %}</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <h3 class="text-primary">{{ rooms|length }}</h3>
+                                <p class="text-muted mb-0">{% trans "Total Rooms" %}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <h3 class="text-success">
+                                    {% for room_data in rooms %}
+                                        {% if room_data.is_completed %}{{ forloop.counter0|add:1 }}{% endif %}
+                                    {% empty %}0{% endfor %}
+                                </h3>
+                                <p class="text-muted mb-0">{% trans "Completed Rooms" %}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-item">
+                                <h3 class="text-warning">
+                                    {% for room_data in rooms %}
+                                        {% if room_data.is_accessible and not room_data.is_completed %}{{ forloop.counter0|add:1 }}{% endif %}
+                                    {% empty %}0{% endfor %}
+                                </h3>
+                                <p class="text-muted mb-0">{% trans "Available Rooms" %}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.roadmap-step {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.roadmap-step.completed {
+    background-color: #28a745;
+    color: white;
+}
+
+.roadmap-step.accessible {
+    background-color: #007bff;
+    color: white;
+}
+
+.roadmap-step.locked {
+    background-color: #6c757d;
+    color: white;
+}
+
+.roadmap-connector {
+    margin: 1rem 0;
+    font-size: 1.5em;
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.stat-item h3 {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

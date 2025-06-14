@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} - Savoir+ LMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient bg-primary text-white">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <i class="fas fa-hand-wave me-2"></i>
+                        {% trans "Welcome back" %}, {{ user.first_name|default:user.username }}!
+                    </h2>
+                    <p class="card-text">
+                        {% if user.is_paid_user %}
+                            {% trans "You have premium access to all features." %}
+                        {% else %}
+                            {% if user.is_trial_active %}
+                                {% trans "Your trial is active until" %} {{ user.trial_end_date|date:"F d, Y" }}.
+                            {% else %}
+                                {% trans "Your trial has expired. Upgrade to continue learning!" %}
+                            {% endif %}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roadmaps Section -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-map me-2"></i>{% trans "Learning Roadmaps" %}
+            </h3>
+        </div>
+    </div>
+
+    {% for roadmap_item in roadmap_data %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="mb-0">
+                            <i class="fas fa-route me-2 text-primary"></i>
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% if LANGUAGE_CODE == 'fr' and roadmap_item.roadmap.title_fr %}
+                                {{ roadmap_item.roadmap.title_fr }}
+                            {% else %}
+                                {{ roadmap_item.roadmap.title }}
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-0">
+                            {% if LANGUAGE_CODE == 'fr' and roadmap_item.roadmap.description_fr %}
+                                {{ roadmap_item.roadmap.description_fr|truncatewords:20 }}
+                            {% else %}
+                                {{ roadmap_item.roadmap.description|truncatewords:20 }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'roadmap_detail' roadmap_item.roadmap.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>{% trans "View Details" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for room_item in roadmap_item.rooms %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100 {% if room_item.is_completed %}border-success{% elif room_item.is_accessible %}border-primary{% else %}border-secondary{% endif %}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title">
+                                            {% if LANGUAGE_CODE == 'fr' and room_item.room.title_fr %}
+                                                {{ room_item.room.title_fr }}
+                                            {% else %}
+                                                {{ room_item.room.title }}
+                                            {% endif %}
+                                        </h6>
+                                        {% if room_item.is_completed %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                        {% elif not room_item.is_accessible %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="card-text small text-muted">
+                                        {% if LANGUAGE_CODE == 'fr' and room_item.room.description_fr %}
+                                            {{ room_item.room.description_fr|truncatewords:10 }}
+                                        {% else %}
+                                            {{ room_item.room.description|truncatewords:10 }}
+                                        {% endif %}
+                                    </p>
+                                    
+                                    {% if room_item.is_accessible %}
+                                        <a href="{% url 'room_detail' room_item.room.id %}" class="btn btn-sm {% if room_item.is_completed %}btn-success{% else %}btn-primary{% endif %} w-100">
+                                            {% if room_item.is_completed %}
+                                                <i class="fas fa-eye me-1"></i>{% trans "Review" %}
+                                            {% else %}
+                                                <i class="fas fa-play me-1"></i>{% trans "Start" %}
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-secondary w-100" disabled>
+                                            <i class="fas fa-lock me-1"></i>{% trans "Locked" %}
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>
+                {% trans "No learning roadmaps available at the moment. Please check back later!" %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Quick Stats -->
+    {% if user.is_authenticated %}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4 class="mb-3">
+                    <i class="fas fa-chart-line me-2"></i>{% trans "Your Progress" %}
+                </h4>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+                        <h5>{% trans "Rooms Completed" %}</h5>
+                        <h3 class="text-primary">
+                            {{ user.roomcompletion_set.filter.is_completed__True.count }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-certificate fa-3x text-success mb-3"></i>
+                        <h5>{% trans "Certificates Earned" %}</h5>
+                        <h3 class="text-success">
+                            {{ user.certificate_set.filter.is_valid__True.count }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h5>{% trans "Account Status" %}</h5>
+                        <h3 class="{% if user.is_paid_user %}text-success{% else %}text-warning{% endif %}">
+                            {% if user.is_paid_user %}
+                                {% trans "Premium" %}
+                            {% else %}
+                                {% trans "Trial" %}
+                            {% endif %}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

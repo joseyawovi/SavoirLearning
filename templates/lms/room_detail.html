@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fr' and room.title_fr %}{{ room.title_fr }}{% else %}{{ room.title }}{% endif %} - Savoir+ LMS
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Room Header -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="mb-0">
+                        <i class="fas fa-door-open me-2"></i>
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% if LANGUAGE_CODE == 'fr' and room.title_fr %}
+                            {{ room.title_fr }}
+                        {% else %}
+                            {{ room.title }}
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="col-auto">
+                    {% if room_completion and room_completion.is_completed %}
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-check-circle me-1"></i>{% trans "Completed" %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="lead">
+                {% if LANGUAGE_CODE == 'fr' and room.description_fr %}
+                    {{ room.description_fr }}
+                {% else %}
+                    {{ room.description }}
+                {% endif %}
+            </p>
+            
+            <!-- Progress Bar -->
+            <div class="mb-3">
+                <label class="form-label">{% trans "Section Progress" %}</label>
+                <div class="progress">
+                    {% widthratio completed_section_ids|length sections.count 100 as progress_percent %}
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ progress_percent }}%" 
+                         aria-valuenow="{{ progress_percent }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ completed_section_ids|length }}/{{ sections.count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sections -->
+    <div class="row">
+        <div class="col-lg-8">
+            <h4 class="mb-3">
+                <i class="fas fa-list me-2"></i>{% trans "Course Sections" %}
+            </h4>
+            
+            {% for section in sections %}
+                <div class="card mb-3 {% if section.id in completed_section_ids %}border-success{% endif %}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title mb-1">
+                                    {% if section.id in completed_section_ids %}
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                    {% else %}
+                                        <i class="fas fa-circle text-muted me-2"></i>
+                                    {% endif %}
+                                    {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
+                                        {{ section.title_fr }}
+                                    {% else %}
+                                        {{ section.title }}
+                                    {% endif %}
+                                </h5>
+                                <p class="card-text text-muted small mb-0">
+                                    {% if LANGUAGE_CODE == 'fr' and section.content_fr %}
+                                        {{ section.content_fr|truncatewords:15 }}
+                                    {% else %}
+                                        {{ section.content|truncatewords:15 }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <a href="{% url 'section_detail' section.id %}" class="btn btn-outline-primary">
+                                    {% if section.id in completed_section_ids %}
+                                        <i class="fas fa-eye me-1"></i>{% trans "Review" %}
+                                    {% else %}
+                                        <i class="fas fa-play me-1"></i>{% trans "Start" %}
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% trans "No sections available for this room." %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Final Exam Card -->
+            {% if final_questions %}
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-medal me-2"></i>{% trans "Final Exam" %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not all_sections_completed %}
+                            <p class="text-muted">
+                                <i class="fas fa-lock me-2"></i>
+                                {% trans "Complete all sections to unlock the final exam." %}
+                            </p>
+                            <button class="btn btn-secondary w-100" disabled>
+                                <i class="fas fa-lock me-2"></i>{% trans "Locked" %}
+                            </button>
+                        {% elif not user.can_access_quizzes %}
+                            <p class="text-warning">
+                                <i class="fas fa-crown me-2"></i>
+                                {% trans "Premium subscription required for exams." %}
+                            </p>
+                            <a href="{% url 'upgrade_to_premium' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-crown me-2"></i>{% trans "Upgrade Now" %}
+                            </a>
+                        {% elif room_completion and room_completion.is_completed %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                {% trans "Completed!" %}
+                                <br>
+                                {% trans "Score:" %} {{ room_completion.final_exam_score|floatformat:1 }}%
+                            </div>
+                            
+                            {% if user.certificate_set.filter.room=room.is_valid=True.exists %}
+                                {% with certificate=user.certificate_set.filter.room=room.is_valid=True.first %}
+                                    <a href="{% url 'download_certificate' certificate.certificate_id %}" class="btn btn-success w-100">
+                                        <i class="fas fa-download me-2"></i>{% trans "Download Certificate" %}
+                                    </a>
+                                {% endwith %}
+                            {% endif %}
+                        {% else %}
+                            <p>
+                                {% trans "Ready to take the final exam?" %}
+                            </p>
+                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#finalExamModal">
+                                <i class="fas fa-play me-2"></i>{% trans "Start Final Exam" %}
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Room Info -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>{% trans "Room Information" %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>{% trans "Sections:" %}</strong> {{ sections.count }}</p>
+                    <p><strong>{% trans "Completed:" %}</strong> {{ completed_section_ids|length }}</p>
+                    {% if final_questions %}
+                        <p><strong>{% trans "Final Exam Questions:" %}</strong> {{ final_questions.count }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Final Exam Modal -->
+{% if all_sections_completed and user.can_access_quizzes and final_questions %}
+    <div class="modal fade" id="finalExamModal" tabindex="-1" aria-labelledby="finalExamModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="finalExamModalLabel">
+                        <i class="fas fa-medal me-2"></i>{% trans "Final Exam" %}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="{% url 'submit_final_exam' room.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            {% trans "You need to score at least 70% to pass this exam and earn your certificate." %}
+                        </div>
+                        
+                        {% for question in final_questions %}
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    {% trans "Question" %} {{ forloop.counter }}:
+                                </label>
+                                <p>
+                                    {% if LANGUAGE_CODE == 'fr' and question.prompt_fr %}
+                                        {{ question.prompt_fr }}
+                                    {% else %}
+                                        {{ question.prompt }}
+                                    {% endif %}
+                                </p>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="question_{{ question.id }}" 
+                                       placeholder="{% if question.placeholder_hint %}{{ question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
+                                       required>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            {% trans "Cancel" %}
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-paper-plane me-2"></i>{% trans "Submit Exam" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

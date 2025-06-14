@@ -1,0 +1,733 @@
+# French translations for Savoir+ LMS
+# Copyright (C) 2025 Savoir+ LMS
+# This file is distributed under the same license as the Savoir+ package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Savoir+ LMS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-14 12:00+0000\n"
+"PO-Revision-Date: 2025-06-14 12:00+0000\n"
+"Last-Translator: Savoir+ Team\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# User model fields
+msgid "Is Paid User"
+msgstr "Utilisateur payant"
+
+msgid "Trial Start Date"
+msgstr "Date de début d'essai"
+
+msgid "Trial End Date"
+msgstr "Date de fin d'essai"
+
+# Model verbose names
+msgid "Roadmap"
+msgstr "Feuille de route"
+
+msgid "Roadmaps"
+msgstr "Feuilles de route"
+
+msgid "Room"
+msgstr "Salle"
+
+msgid "Rooms"
+msgstr "Salles"
+
+msgid "Section"
+msgstr "Section"
+
+msgid "Sections"
+msgstr "Sections"
+
+msgid "Question"
+msgstr "Question"
+
+msgid "Questions"
+msgstr "Questions"
+
+msgid "User Answer"
+msgstr "Réponse utilisateur"
+
+msgid "User Answers"
+msgstr "Réponses utilisateur"
+
+msgid "Section Completion"
+msgstr "Achèvement de section"
+
+msgid "Section Completions"
+msgstr "Achèvements de section"
+
+msgid "Room Completion"
+msgstr "Achèvement de salle"
+
+msgid "Room Completions"
+msgstr "Achèvements de salle"
+
+msgid "Certificate"
+msgstr "Certificat"
+
+msgid "Certificates"
+msgstr "Certificats"
+
+msgid "Payment"
+msgstr "Paiement"
+
+msgid "Payments"
+msgstr "Paiements"
+
+# Field labels
+msgid "Title"
+msgstr "Titre"
+
+msgid "Title (French)"
+msgstr "Titre (Français)"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description (French)"
+msgstr "Description (Français)"
+
+msgid "Is Active"
+msgstr "Actif"
+
+msgid "Prerequisite Room"
+msgstr "Salle prérequise"
+
+msgid "Order"
+msgstr "Ordre"
+
+msgid "Content"
+msgstr "Contenu"
+
+msgid "Content (French)"
+msgstr "Contenu (Français)"
+
+msgid "Video URL"
+msgstr "URL vidéo"
+
+msgid "Section Quiz"
+msgstr "Quiz de section"
+
+msgid "Final Exam"
+msgstr "Examen final"
+
+msgid "Question Type"
+msgstr "Type de question"
+
+msgid "Question Prompt"
+msgstr "Question"
+
+msgid "Question Prompt (French)"
+msgstr "Question (Français)"
+
+msgid "Correct Answer"
+msgstr "Réponse correcte"
+
+msgid "Placeholder Hint"
+msgstr "Indicateur de format"
+
+msgid "Show placeholder like \"_____ _____\" to indicate answer format"
+msgstr "Afficher un indicateur comme \"_____ _____\" pour indiquer le format de réponse"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Answer"
+msgstr "Réponse"
+
+msgid "Is Correct"
+msgstr "Correct"
+
+msgid "Answered At"
+msgstr "Répondu le"
+
+msgid "Is Completed"
+msgstr "Terminé"
+
+msgid "Completed At"
+msgstr "Terminé le"
+
+msgid "Final Exam Score"
+msgstr "Score examen final"
+
+msgid "Certificate ID"
+msgstr "ID Certificat"
+
+msgid "Issued At"
+msgstr "Émis le"
+
+msgid "Is Valid"
+msgstr "Valide"
+
+msgid "Amount"
+msgstr "Montant"
+
+msgid "Currency"
+msgstr "Devise"
+
+msgid "Payment Method"
+msgstr "Méthode de paiement"
+
+msgid "Transaction ID"
+msgstr "ID Transaction"
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Created At"
+msgstr "Créé le"
+
+msgid "Updated At"
+msgstr "Mis à jour le"
+
+# Payment status choices
+msgid "Pending"
+msgstr "En attente"
+
+msgid "Successful"
+msgstr "Réussi"
+
+msgid "Failed"
+msgstr "Échoué"
+
+msgid "Cancelled"
+msgstr "Annulé"
+
+# Navigation and common UI
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Login"
+msgstr "Connexion"
+
+msgid "Register"
+msgstr "S'inscrire"
+
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgid "Trial"
+msgstr "Essai"
+
+msgid "Premium"
+msgstr "Premium"
+
+msgid "Upgrade to Premium"
+msgstr "Passer à Premium"
+
+msgid "All rights reserved."
+msgstr "Tous droits réservés."
+
+msgid "Empowering learners through quality education"
+msgstr "Autonomiser les apprenants grâce à une éducation de qualité"
+
+# Authentication
+msgid "Login to Savoir+"
+msgstr "Se connecter à Savoir+"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Enter your username"
+msgstr "Entrez votre nom d'utilisateur"
+
+msgid "Enter your password"
+msgstr "Entrez votre mot de passe"
+
+msgid "Don't have an account?"
+msgstr "Vous n'avez pas de compte ?"
+
+msgid "Register here"
+msgstr "Inscrivez-vous ici"
+
+msgid "Join Savoir+"
+msgstr "Rejoignez Savoir+"
+
+msgid "Get your 15-day free trial!"
+msgstr "Obtenez votre essai gratuit de 15 jours !"
+
+msgid "First name"
+msgstr "Prénom"
+
+msgid "Last name"
+msgstr "Nom"
+
+msgid "Email address"
+msgstr "Adresse e-mail"
+
+msgid "Confirm password"
+msgstr "Confirmer le mot de passe"
+
+msgid "You'll get a 15-day free trial with access to all course content. Quiz and exam features require a premium subscription."
+msgstr "Vous obtiendrez un essai gratuit de 15 jours avec accès à tout le contenu des cours. Les fonctionnalités de quiz et d'examen nécessitent un abonnement premium."
+
+msgid "Create Account"
+msgstr "Créer un compte"
+
+msgid "Already have an account?"
+msgstr "Vous avez déjà un compte ?"
+
+msgid "Login here"
+msgstr "Connectez-vous ici"
+
+# Dashboard
+msgid "Welcome back"
+msgstr "Bon retour"
+
+msgid "You have premium access to all features."
+msgstr "Vous avez un accès premium à toutes les fonctionnalités."
+
+msgid "Your trial is active until"
+msgstr "Votre essai est actif jusqu'au"
+
+msgid "Your trial has expired. Upgrade to continue learning!"
+msgstr "Votre essai a expiré. Passez à la version payante pour continuer à apprendre !"
+
+msgid "Learning Roadmaps"
+msgstr "Feuilles de route d'apprentissage"
+
+msgid "View Details"
+msgstr "Voir les détails"
+
+msgid "Review"
+msgstr "Réviser"
+
+msgid "Start"
+msgstr "Commencer"
+
+msgid "Continue"
+msgstr "Continuer"
+
+msgid "Locked"
+msgstr "Verrouillé"
+
+msgid "Your Progress"
+msgstr "Votre progression"
+
+msgid "Rooms Completed"
+msgstr "Salles terminées"
+
+msgid "Certificates Earned"
+msgstr "Certificats obtenus"
+
+msgid "Account Status"
+msgstr "Statut du compte"
+
+# Room and Section views
+msgid "Completed"
+msgstr "Terminé"
+
+msgid "Section Progress"
+msgstr "Progression de la section"
+
+msgid "Course Sections"
+msgstr "Sections du cours"
+
+msgid "No sections available for this room."
+msgstr "Aucune section disponible pour cette salle."
+
+msgid "Complete all sections to unlock the final exam."
+msgstr "Terminez toutes les sections pour débloquer l'examen final."
+
+msgid "Premium subscription required for exams."
+msgstr "Abonnement premium requis pour les examens."
+
+msgid "Upgrade Now"
+msgstr "Passer à la version payante maintenant"
+
+msgid "Score:"
+msgstr "Score :"
+
+msgid "Download Certificate"
+msgstr "Télécharger le certificat"
+
+msgid "Ready to take the final exam?"
+msgstr "Prêt à passer l'examen final ?"
+
+msgid "Start Final Exam"
+msgstr "Commencer l'examen final"
+
+msgid "Room Information"
+msgstr "Informations sur la salle"
+
+msgid "Sections:"
+msgstr "Sections :"
+
+msgid "Final Exam Questions:"
+msgstr "Questions d'examen final :"
+
+msgid "You need to score at least 70% to pass this exam and earn your certificate."
+msgstr "Vous devez obtenir au moins 70% pour réussir cet examen et obtenir votre certificat."
+
+msgid "Question"
+msgstr "Question"
+
+msgid "Enter your answer..."
+msgstr "Entrez votre réponse..."
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Submit Exam"
+msgstr "Soumettre l'examen"
+
+# Section detail
+msgid "Video Lesson"
+msgstr "Leçon vidéo"
+
+msgid "Lesson Content"
+msgstr "Contenu de la leçon"
+
+msgid "Quiz access requires a premium subscription."
+msgstr "L'accès aux quiz nécessite un abonnement premium."
+
+msgid "Submit"
+msgstr "Soumettre"
+
+msgid "Correct!"
+msgstr "Correct !"
+
+msgid "Incorrect. Try again."
+msgstr "Incorrect. Réessayez."
+
+msgid "Progress"
+msgstr "Progression"
+
+msgid "Section Completed!"
+msgstr "Section terminée !"
+
+msgid "Complete all quiz questions to finish this section."
+msgstr "Répondez à toutes les questions du quiz pour terminer cette section."
+
+msgid "This section has no quiz questions."
+msgstr "Cette section n'a pas de questions de quiz."
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Back to Room"
+msgstr "Retour à la salle"
+
+msgid "Please enter an answer."
+msgstr "Veuillez entrer une réponse."
+
+msgid "Submitting..."
+msgstr "Envoi en cours..."
+
+msgid "An error occurred. Please try again."
+msgstr "Une erreur s'est produite. Veuillez réessayer."
+
+# Roadmap view
+msgid "Learning Path"
+msgstr "Parcours d'apprentissage"
+
+msgid "Back to Dashboard"
+msgstr "Retour au tableau de bord"
+
+msgid "sections completed"
+msgstr "sections terminées"
+
+msgid "Complete"
+msgstr "Terminer"
+
+msgid "to unlock this room."
+msgstr "pour débloquer cette salle."
+
+msgid "No rooms available in this roadmap yet."
+msgstr "Aucune salle disponible dans cette feuille de route pour le moment."
+
+msgid "Roadmap Progress"
+msgstr "Progression de la feuille de route"
+
+msgid "Total Rooms"
+msgstr "Total des salles"
+
+msgid "Completed Rooms"
+msgstr "Salles terminées"
+
+msgid "Available Rooms"
+msgstr "Salles disponibles"
+
+# Upgrade page
+msgid "Upgrade to Premium"
+msgstr "Passer à Premium"
+
+msgid "Unlock the full learning experience"
+msgstr "Débloquez l'expérience d'apprentissage complète"
+
+msgid "Your Trial Status"
+msgstr "Statut de votre essai"
+
+msgid "Trial active until"
+msgstr "Essai actif jusqu'au"
+
+msgid "Trial expired on"
+msgstr "Essai expiré le"
+
+msgid "Trial User"
+msgstr "Utilisateur d'essai"
+
+msgid "What's Included"
+msgstr "Ce qui est inclus"
+
+msgid "Trial Account"
+msgstr "Compte d'essai"
+
+msgid "Premium Account"
+msgstr "Compte Premium"
+
+msgid "Access to all video content"
+msgstr "Accès à tout le contenu vidéo"
+
+msgid "Read all lesson materials"
+msgstr "Lire tous les supports de cours"
+
+msgid "Browse roadmaps and courses"
+msgstr "Parcourir les feuilles de route et les cours"
+
+msgid "Quiz access (locked)"
+msgstr "Accès aux quiz (verrouillé)"
+
+msgid "Final exams (locked)"
+msgstr "Examens finaux (verrouillés)"
+
+msgid "Certificate generation (locked)"
+msgstr "Génération de certificats (verrouillée)"
+
+msgid "Full quiz access"
+msgstr "Accès complet aux quiz"
+
+msgid "Take final exams"
+msgstr "Passer les examens finaux"
+
+msgid "Download certificates"
+msgstr "Télécharger les certificats"
+
+msgid "Priority support"
+msgstr "Support prioritaire"
+
+msgid "Premium Pricing"
+msgstr "Prix Premium"
+
+msgid "One-time payment for lifetime access"
+msgstr "Paiement unique pour un accès à vie"
+
+msgid "This is a mock payment integration. In production, this would connect to Flutterwave or MTN MoMo."
+msgstr "Il s'agit d'une intégration de paiement fictive. En production, cela se connecterait à Flutterwave ou MTN MoMo."
+
+msgid "Phone Number"
+msgstr "Numéro de téléphone"
+
+msgid "Select payment method"
+msgstr "Sélectionnez la méthode de paiement"
+
+msgid "MTN Mobile Money"
+msgstr "MTN Mobile Money"
+
+msgid "Moov Money"
+msgstr "Moov Money"
+
+msgid "Flutterwave"
+msgstr "Flutterwave"
+
+msgid "Proceed to Payment"
+msgstr "Procéder au paiement"
+
+msgid "Frequently Asked Questions"
+msgstr "Questions fréquemment posées"
+
+msgid "What happens after I upgrade?"
+msgstr "Que se passe-t-il après ma mise à niveau ?"
+
+msgid "Once your payment is processed, your account will be immediately upgraded to premium status. You'll have access to all quizzes, final exams, and certificate generation features."
+msgstr "Une fois votre paiement traité, votre compte sera immédiatement mis à niveau vers le statut premium. Vous aurez accès à tous les quiz, examens finaux et fonctionnalités de génération de certificats."
+
+msgid "Is this a one-time payment?"
+msgstr "S'agit-il d'un paiement unique ?"
+
+msgid "Yes, this is a one-time payment that gives you lifetime access to all premium features on Savoir+."
+msgstr "Oui, il s'agit d'un paiement unique qui vous donne un accès à vie à toutes les fonctionnalités premium de Savoir+."
+
+msgid "What payment methods are supported?"
+msgstr "Quelles méthodes de paiement sont prises en charge ?"
+
+msgid "We support MTN Mobile Money, Moov Money, and other payment methods through Flutterwave, making it easy to pay from anywhere in Togo and neighboring countries."
+msgstr "Nous prenons en charge MTN Mobile Money, Moov Money et d'autres méthodes de paiement via Flutterwave, facilitant le paiement depuis n'importe où au Togo et dans les pays voisins."
+
+msgid "Please fill in all fields."
+msgstr "Veuillez remplir tous les champs."
+
+msgid "Processing..."
+msgstr "Traitement en cours..."
+
+msgid "Payment successful! Your account has been upgraded to premium."
+msgstr "Paiement réussi ! Votre compte a été mis à niveau vers premium."
+
+msgid "Payment failed. Please try again."
+msgstr "Paiement échoué. Veuillez réessayer."
+
+# Messages and notifications
+msgid "Welcome to Savoir+! Your 15-day trial has started."
+msgstr "Bienvenue sur Savoir+ ! Votre essai de 15 jours a commencé."
+
+msgid "You need to complete the prerequisite room first."
+msgstr "Vous devez d'abord terminer la salle prérequise."
+
+msgid "Quiz access requires a premium subscription."
+msgstr "L'accès aux quiz nécessite un abonnement premium."
+
+msgid "Final exam access requires a premium subscription."
+msgstr "L'accès à l'examen final nécessite un abonnement premium."
+
+msgid "You must complete all sections before taking the final exam."
+msgstr "Vous devez terminer toutes les sections avant de passer l'examen final."
+
+msgid "Congratulations! You passed the final exam. Your certificate is ready for download."
+msgstr "Félicitations ! Vous avez réussi l'examen final. Votre certificat est prêt à être téléchargé."
+
+msgid "You scored {score}%. You need at least 70% to pass. Please try again."
+msgstr "Vous avez obtenu {score}%. Vous avez besoin d'au moins 70% pour réussir. Veuillez réessayer."
+
+msgid "You already have a premium subscription."
+msgstr "Vous avez déjà un abonnement premium."
+
+# Certificate-related
+msgid "Certificate of Completion"
+msgstr "Certificat d'achèvement"
+
+msgid "This is to certify that"
+msgstr "Ceci certifie que"
+
+msgid "has successfully completed the course"
+msgstr "a terminé avec succès le cours"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "This certificate can be verified at: savoirplus.com/verify/{certificate_id}"
+msgstr "Ce certificat peut être vérifié à : savoirplus.com/verify/{certificate_id}"
+
+# Trial status
+msgid "Trial account"
+msgstr "Compte d'essai"
+
+msgid "Trial expires on"
+msgstr "L'essai expire le"
+
+msgid "Trial expired"
+msgstr "Essai expiré"
+
+# Common actions
+msgid "Home"
+msgstr "Accueil"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Remove"
+msgstr "Supprimer"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Filter"
+msgstr "Filtrer"
+
+msgid "Sort"
+msgstr "Trier"
+
+msgid "Upload"
+msgstr "Télécharger"
+
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Export"
+msgstr "Exporter"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Previous"
+msgstr "Précédent"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Open"
+msgstr "Ouvrir"
+
+msgid "Show"
+msgstr "Afficher"
+
+msgid "Hide"
+msgstr "Masquer"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
+
+msgid "OK"
+msgstr "OK"
+
+# Error messages
+msgid "Page not found"
+msgstr "Page non trouvée"
+
+msgid "Access denied"
+msgstr "Accès refusé"
+
+msgid "Server error"
+msgstr "Erreur serveur"
+
+msgid "Connection error"
+msgstr "Erreur de connexion"
+
+msgid "Invalid data"
+msgstr "Données invalides"
+
+msgid "Required field"
+msgstr "Champ requis"
+
+msgid "Please try again later"
+msgstr "Veuillez réessayer plus tard"
+
+# Empty states
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "No results found"
+msgstr "Aucun résultat trouvé"
+
+msgid "Nothing to display"
+msgstr "Rien à afficher"
+
+msgid "No learning roadmaps available at the moment. Please check back later!"
+msgstr "Aucune feuille de route d'apprentissage disponible pour le moment. Veuillez revenir plus tard !"

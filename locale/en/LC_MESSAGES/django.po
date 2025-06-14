@@ -1,0 +1,733 @@
+# English translations for Savoir+ LMS
+# Copyright (C) 2025 Savoir+ LMS
+# This file is distributed under the same license as the Savoir+ package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Savoir+ LMS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-14 12:00+0000\n"
+"PO-Revision-Date: 2025-06-14 12:00+0000\n"
+"Last-Translator: Savoir+ Team\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# User model fields
+msgid "Is Paid User"
+msgstr "Is Paid User"
+
+msgid "Trial Start Date"
+msgstr "Trial Start Date"
+
+msgid "Trial End Date"
+msgstr "Trial End Date"
+
+# Model verbose names
+msgid "Roadmap"
+msgstr "Roadmap"
+
+msgid "Roadmaps"
+msgstr "Roadmaps"
+
+msgid "Room"
+msgstr "Room"
+
+msgid "Rooms"
+msgstr "Rooms"
+
+msgid "Section"
+msgstr "Section"
+
+msgid "Sections"
+msgstr "Sections"
+
+msgid "Question"
+msgstr "Question"
+
+msgid "Questions"
+msgstr "Questions"
+
+msgid "User Answer"
+msgstr "User Answer"
+
+msgid "User Answers"
+msgstr "User Answers"
+
+msgid "Section Completion"
+msgstr "Section Completion"
+
+msgid "Section Completions"
+msgstr "Section Completions"
+
+msgid "Room Completion"
+msgstr "Room Completion"
+
+msgid "Room Completions"
+msgstr "Room Completions"
+
+msgid "Certificate"
+msgstr "Certificate"
+
+msgid "Certificates"
+msgstr "Certificates"
+
+msgid "Payment"
+msgstr "Payment"
+
+msgid "Payments"
+msgstr "Payments"
+
+# Field labels
+msgid "Title"
+msgstr "Title"
+
+msgid "Title (French)"
+msgstr "Title (French)"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description (French)"
+msgstr "Description (French)"
+
+msgid "Is Active"
+msgstr "Is Active"
+
+msgid "Prerequisite Room"
+msgstr "Prerequisite Room"
+
+msgid "Order"
+msgstr "Order"
+
+msgid "Content"
+msgstr "Content"
+
+msgid "Content (French)"
+msgstr "Content (French)"
+
+msgid "Video URL"
+msgstr "Video URL"
+
+msgid "Section Quiz"
+msgstr "Section Quiz"
+
+msgid "Final Exam"
+msgstr "Final Exam"
+
+msgid "Question Type"
+msgstr "Question Type"
+
+msgid "Question Prompt"
+msgstr "Question Prompt"
+
+msgid "Question Prompt (French)"
+msgstr "Question Prompt (French)"
+
+msgid "Correct Answer"
+msgstr "Correct Answer"
+
+msgid "Placeholder Hint"
+msgstr "Placeholder Hint"
+
+msgid "Show placeholder like \"_____ _____\" to indicate answer format"
+msgstr "Show placeholder like \"_____ _____\" to indicate answer format"
+
+msgid "User"
+msgstr "User"
+
+msgid "Answer"
+msgstr "Answer"
+
+msgid "Is Correct"
+msgstr "Is Correct"
+
+msgid "Answered At"
+msgstr "Answered At"
+
+msgid "Is Completed"
+msgstr "Is Completed"
+
+msgid "Completed At"
+msgstr "Completed At"
+
+msgid "Final Exam Score"
+msgstr "Final Exam Score"
+
+msgid "Certificate ID"
+msgstr "Certificate ID"
+
+msgid "Issued At"
+msgstr "Issued At"
+
+msgid "Is Valid"
+msgstr "Is Valid"
+
+msgid "Amount"
+msgstr "Amount"
+
+msgid "Currency"
+msgstr "Currency"
+
+msgid "Payment Method"
+msgstr "Payment Method"
+
+msgid "Transaction ID"
+msgstr "Transaction ID"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Created At"
+msgstr "Created At"
+
+msgid "Updated At"
+msgstr "Updated At"
+
+# Payment status choices
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Successful"
+msgstr "Successful"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "Cancelled"
+msgstr "Cancelled"
+
+# Navigation and common UI
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Trial"
+msgstr "Trial"
+
+msgid "Premium"
+msgstr "Premium"
+
+msgid "Upgrade to Premium"
+msgstr "Upgrade to Premium"
+
+msgid "All rights reserved."
+msgstr "All rights reserved."
+
+msgid "Empowering learners through quality education"
+msgstr "Empowering learners through quality education"
+
+# Authentication
+msgid "Login to Savoir+"
+msgstr "Login to Savoir+"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Enter your username"
+msgstr "Enter your username"
+
+msgid "Enter your password"
+msgstr "Enter your password"
+
+msgid "Don't have an account?"
+msgstr "Don't have an account?"
+
+msgid "Register here"
+msgstr "Register here"
+
+msgid "Join Savoir+"
+msgstr "Join Savoir+"
+
+msgid "Get your 15-day free trial!"
+msgstr "Get your 15-day free trial!"
+
+msgid "First name"
+msgstr "First name"
+
+msgid "Last name"
+msgstr "Last name"
+
+msgid "Email address"
+msgstr "Email address"
+
+msgid "Confirm password"
+msgstr "Confirm password"
+
+msgid "You'll get a 15-day free trial with access to all course content. Quiz and exam features require a premium subscription."
+msgstr "You'll get a 15-day free trial with access to all course content. Quiz and exam features require a premium subscription."
+
+msgid "Create Account"
+msgstr "Create Account"
+
+msgid "Already have an account?"
+msgstr "Already have an account?"
+
+msgid "Login here"
+msgstr "Login here"
+
+# Dashboard
+msgid "Welcome back"
+msgstr "Welcome back"
+
+msgid "You have premium access to all features."
+msgstr "You have premium access to all features."
+
+msgid "Your trial is active until"
+msgstr "Your trial is active until"
+
+msgid "Your trial has expired. Upgrade to continue learning!"
+msgstr "Your trial has expired. Upgrade to continue learning!"
+
+msgid "Learning Roadmaps"
+msgstr "Learning Roadmaps"
+
+msgid "View Details"
+msgstr "View Details"
+
+msgid "Review"
+msgstr "Review"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Continue"
+msgstr "Continue"
+
+msgid "Locked"
+msgstr "Locked"
+
+msgid "Your Progress"
+msgstr "Your Progress"
+
+msgid "Rooms Completed"
+msgstr "Rooms Completed"
+
+msgid "Certificates Earned"
+msgstr "Certificates Earned"
+
+msgid "Account Status"
+msgstr "Account Status"
+
+# Room and Section views
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Section Progress"
+msgstr "Section Progress"
+
+msgid "Course Sections"
+msgstr "Course Sections"
+
+msgid "No sections available for this room."
+msgstr "No sections available for this room."
+
+msgid "Complete all sections to unlock the final exam."
+msgstr "Complete all sections to unlock the final exam."
+
+msgid "Premium subscription required for exams."
+msgstr "Premium subscription required for exams."
+
+msgid "Upgrade Now"
+msgstr "Upgrade Now"
+
+msgid "Score:"
+msgstr "Score:"
+
+msgid "Download Certificate"
+msgstr "Download Certificate"
+
+msgid "Ready to take the final exam?"
+msgstr "Ready to take the final exam?"
+
+msgid "Start Final Exam"
+msgstr "Start Final Exam"
+
+msgid "Room Information"
+msgstr "Room Information"
+
+msgid "Sections:"
+msgstr "Sections:"
+
+msgid "Final Exam Questions:"
+msgstr "Final Exam Questions:"
+
+msgid "You need to score at least 70% to pass this exam and earn your certificate."
+msgstr "You need to score at least 70% to pass this exam and earn your certificate."
+
+msgid "Question"
+msgstr "Question"
+
+msgid "Enter your answer..."
+msgstr "Enter your answer..."
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Submit Exam"
+msgstr "Submit Exam"
+
+# Section detail
+msgid "Video Lesson"
+msgstr "Video Lesson"
+
+msgid "Lesson Content"
+msgstr "Lesson Content"
+
+msgid "Quiz access requires a premium subscription."
+msgstr "Quiz access requires a premium subscription."
+
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Correct!"
+msgstr "Correct!"
+
+msgid "Incorrect. Try again."
+msgstr "Incorrect. Try again."
+
+msgid "Progress"
+msgstr "Progress"
+
+msgid "Section Completed!"
+msgstr "Section Completed!"
+
+msgid "Complete all quiz questions to finish this section."
+msgstr "Complete all quiz questions to finish this section."
+
+msgid "This section has no quiz questions."
+msgstr "This section has no quiz questions."
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Back to Room"
+msgstr "Back to Room"
+
+msgid "Please enter an answer."
+msgstr "Please enter an answer."
+
+msgid "Submitting..."
+msgstr "Submitting..."
+
+msgid "An error occurred. Please try again."
+msgstr "An error occurred. Please try again."
+
+# Roadmap view
+msgid "Learning Path"
+msgstr "Learning Path"
+
+msgid "Back to Dashboard"
+msgstr "Back to Dashboard"
+
+msgid "sections completed"
+msgstr "sections completed"
+
+msgid "Complete"
+msgstr "Complete"
+
+msgid "to unlock this room."
+msgstr "to unlock this room."
+
+msgid "No rooms available in this roadmap yet."
+msgstr "No rooms available in this roadmap yet."
+
+msgid "Roadmap Progress"
+msgstr "Roadmap Progress"
+
+msgid "Total Rooms"
+msgstr "Total Rooms"
+
+msgid "Completed Rooms"
+msgstr "Completed Rooms"
+
+msgid "Available Rooms"
+msgstr "Available Rooms"
+
+# Upgrade page
+msgid "Upgrade to Premium"
+msgstr "Upgrade to Premium"
+
+msgid "Unlock the full learning experience"
+msgstr "Unlock the full learning experience"
+
+msgid "Your Trial Status"
+msgstr "Your Trial Status"
+
+msgid "Trial active until"
+msgstr "Trial active until"
+
+msgid "Trial expired on"
+msgstr "Trial expired on"
+
+msgid "Trial User"
+msgstr "Trial User"
+
+msgid "What's Included"
+msgstr "What's Included"
+
+msgid "Trial Account"
+msgstr "Trial Account"
+
+msgid "Premium Account"
+msgstr "Premium Account"
+
+msgid "Access to all video content"
+msgstr "Access to all video content"
+
+msgid "Read all lesson materials"
+msgstr "Read all lesson materials"
+
+msgid "Browse roadmaps and courses"
+msgstr "Browse roadmaps and courses"
+
+msgid "Quiz access (locked)"
+msgstr "Quiz access (locked)"
+
+msgid "Final exams (locked)"
+msgstr "Final exams (locked)"
+
+msgid "Certificate generation (locked)"
+msgstr "Certificate generation (locked)"
+
+msgid "Full quiz access"
+msgstr "Full quiz access"
+
+msgid "Take final exams"
+msgstr "Take final exams"
+
+msgid "Download certificates"
+msgstr "Download certificates"
+
+msgid "Priority support"
+msgstr "Priority support"
+
+msgid "Premium Pricing"
+msgstr "Premium Pricing"
+
+msgid "One-time payment for lifetime access"
+msgstr "One-time payment for lifetime access"
+
+msgid "This is a mock payment integration. In production, this would connect to Flutterwave or MTN MoMo."
+msgstr "This is a mock payment integration. In production, this would connect to Flutterwave or MTN MoMo."
+
+msgid "Phone Number"
+msgstr "Phone Number"
+
+msgid "Select payment method"
+msgstr "Select payment method"
+
+msgid "MTN Mobile Money"
+msgstr "MTN Mobile Money"
+
+msgid "Moov Money"
+msgstr "Moov Money"
+
+msgid "Flutterwave"
+msgstr "Flutterwave"
+
+msgid "Proceed to Payment"
+msgstr "Proceed to Payment"
+
+msgid "Frequently Asked Questions"
+msgstr "Frequently Asked Questions"
+
+msgid "What happens after I upgrade?"
+msgstr "What happens after I upgrade?"
+
+msgid "Once your payment is processed, your account will be immediately upgraded to premium status. You'll have access to all quizzes, final exams, and certificate generation features."
+msgstr "Once your payment is processed, your account will be immediately upgraded to premium status. You'll have access to all quizzes, final exams, and certificate generation features."
+
+msgid "Is this a one-time payment?"
+msgstr "Is this a one-time payment?"
+
+msgid "Yes, this is a one-time payment that gives you lifetime access to all premium features on Savoir+."
+msgstr "Yes, this is a one-time payment that gives you lifetime access to all premium features on Savoir+."
+
+msgid "What payment methods are supported?"
+msgstr "What payment methods are supported?"
+
+msgid "We support MTN Mobile Money, Moov Money, and other payment methods through Flutterwave, making it easy to pay from anywhere in Togo and neighboring countries."
+msgstr "We support MTN Mobile Money, Moov Money, and other payment methods through Flutterwave, making it easy to pay from anywhere in Togo and neighboring countries."
+
+msgid "Please fill in all fields."
+msgstr "Please fill in all fields."
+
+msgid "Processing..."
+msgstr "Processing..."
+
+msgid "Payment successful! Your account has been upgraded to premium."
+msgstr "Payment successful! Your account has been upgraded to premium."
+
+msgid "Payment failed. Please try again."
+msgstr "Payment failed. Please try again."
+
+# Messages and notifications
+msgid "Welcome to Savoir+! Your 15-day trial has started."
+msgstr "Welcome to Savoir+! Your 15-day trial has started."
+
+msgid "You need to complete the prerequisite room first."
+msgstr "You need to complete the prerequisite room first."
+
+msgid "Quiz access requires a premium subscription."
+msgstr "Quiz access requires a premium subscription."
+
+msgid "Final exam access requires a premium subscription."
+msgstr "Final exam access requires a premium subscription."
+
+msgid "You must complete all sections before taking the final exam."
+msgstr "You must complete all sections before taking the final exam."
+
+msgid "Congratulations! You passed the final exam. Your certificate is ready for download."
+msgstr "Congratulations! You passed the final exam. Your certificate is ready for download."
+
+msgid "You scored {score}%. You need at least 70% to pass. Please try again."
+msgstr "You scored {score}%. You need at least 70% to pass. Please try again."
+
+msgid "You already have a premium subscription."
+msgstr "You already have a premium subscription."
+
+# Certificate-related
+msgid "Certificate of Completion"
+msgstr "Certificate of Completion"
+
+msgid "This is to certify that"
+msgstr "This is to certify that"
+
+msgid "has successfully completed the course"
+msgstr "has successfully completed the course"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "This certificate can be verified at: savoirplus.com/verify/{certificate_id}"
+msgstr "This certificate can be verified at: savoirplus.com/verify/{certificate_id}"
+
+# Trial status
+msgid "Trial account"
+msgstr "Trial account"
+
+msgid "Trial expires on"
+msgstr "Trial expires on"
+
+msgid "Trial expired"
+msgstr "Trial expired"
+
+# Common actions
+msgid "Home"
+msgstr "Home"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Add"
+msgstr "Add"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Sort"
+msgstr "Sort"
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Print"
+msgstr "Print"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Next"
+msgstr "Next"
+
+msgid "Previous"
+msgstr "Previous"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Open"
+msgstr "Open"
+
+msgid "Show"
+msgstr "Show"
+
+msgid "Hide"
+msgstr "Hide"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
+
+msgid "OK"
+msgstr "OK"
+
+# Error messages
+msgid "Page not found"
+msgstr "Page not found"
+
+msgid "Access denied"
+msgstr "Access denied"
+
+msgid "Server error"
+msgstr "Server error"
+
+msgid "Connection error"
+msgstr "Connection error"
+
+msgid "Invalid data"
+msgstr "Invalid data"
+
+msgid "Required field"
+msgstr "Required field"
+
+msgid "Please try again later"
+msgstr "Please try again later"
+
+# Empty states
+msgid "No data available"
+msgstr "No data available"
+
+msgid "No results found"
+msgstr "No results found"
+
+msgid "Nothing to display"
+msgstr "Nothing to display"
+
+msgid "No learning roadmaps available at the moment. Please check back later!"
+msgstr "No learning roadmaps available at the moment. Please check back later!"

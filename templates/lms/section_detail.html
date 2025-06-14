@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% if LANGUAGE_CODE == 'fr' and section.title_fr %}{{ section.title_fr }}{% else %}{{ section.title }}{% endif %} - Savoir+ LMS
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'room_detail' section.room.id %}">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% if LANGUAGE_CODE == 'fr' and section.room.title_fr %}
+                        {{ section.room.title_fr }}
+                    {% else %}
+                        {{ section.room.title }}
+                    {% endif %}
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
+                    {{ section.title_fr }}
+                {% else %}
+                    {{ section.title }}
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Section Header -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-info text-white">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="mb-0">
+                        <i class="fas fa-book-open me-2"></i>
+                        {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
+                            {{ section.title_fr }}
+                        {% else %}
+                            {{ section.title }}
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="col-auto">
+                    {% if section_completion and section_completion.is_completed %}
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-check-circle me-1"></i>{% trans "Completed" %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Video Section -->
+            {% if section.video_url %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-play-circle me-2"></i>{% trans "Video Lesson" %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ratio ratio-16x9">
+                            {% if 'youtube.com' in section.video_url or 'youtu.be' in section.video_url %}
+                                {% if 'youtu.be' in section.video_url %}
+                                    {% with video_id=section.video_url|slice:"17:" %}
+                                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" 
+                                                title="YouTube video player" 
+                                                frameborder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowfullscreen></iframe>
+                                    {% endwith %}
+                                {% else %}
+                                    {% with video_id=section.video_url|cut:"https://www.youtube.com/watch?v=" %}
+                                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" 
+                                                title="YouTube video player" 
+                                                frameborder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowfullscreen></iframe>
+                                    {% endwith %}
+                                {% endif %}
+                            {% else %}
+                                <iframe src="{{ section.video_url }}" 
+                                        title="Video Player" 
+                                        frameborder="0" 
+                                        allowfullscreen></iframe>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Text Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-text me-2"></i>{% trans "Lesson Content" %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="content-text">
+                        {% if LANGUAGE_CODE == 'fr' and section.content_fr %}
+                            {{ section.content_fr|linebreaks }}
+                        {% else %}
+                            {{ section.content|linebreaks }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            {% if questions_data %}
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>{% trans "Section Quiz" %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not user.can_access_quizzes %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-crown me-2"></i>
+                                {% trans "Quiz access requires a premium subscription." %}
+                                <a href="{% url 'upgrade_to_premium' %}" class="btn btn-warning btn-sm ms-2">
+                                    {% trans "Upgrade Now" %}
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% for question_data in questions_data %}
+                            <div class="quiz-question mb-4" id="question-{{ question_data.question.id }}">
+                                <div class="card {% if question_data.user_answer and question_data.user_answer.is_correct %}border-success{% elif question_data.user_answer %}border-danger{% endif %}">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            {% trans "Question" %} {{ forloop.counter }}:
+                                        </h6>
+                                        <p class="card-text">
+                                            {% if LANGUAGE_CODE == 'fr' and question_data.question.prompt_fr %}
+                                                {{ question_data.question.prompt_fr }}
+                                            {% else %}
+                                                {{ question_data.question.prompt }}
+                                            {% endif %}
+                                        </p>
+
+                                        {% if user.can_access_quizzes %}
+                                            <form class="quiz-form" data-question-id="{{ question_data.question.id }}">
+                                                {% csrf_token %}
+                                                <div class="input-group mb-3">
+                                                    <input type="text" 
+                                                           class="form-control quiz-answer" 
+                                                           name="answer" 
+                                                           placeholder="{% if question_data.question.placeholder_hint %}{{ question_data.question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
+                                                           {% if question_data.user_answer %}value="{{ question_data.user_answer.answer }}"{% endif %}
+                                                           {% if question_data.user_answer and question_data.user_answer.is_correct %}readonly{% endif %}>
+                                                    <button class="btn btn-primary quiz-submit" type="submit" 
+                                                            {% if question_data.user_answer and question_data.user_answer.is_correct %}disabled{% endif %}>
+                                                        <i class="fas fa-paper-plane me-1"></i>{% trans "Submit" %}
+                                                    </button>
+                                                </div>
+                                            </form>
+
+                                            <div class="quiz-result" id="result-{{ question_data.question.id }}">
+                                                {% if question_data.user_answer %}
+                                                    {% if question_data.user_answer.is_correct %}
+                                                        <div class="alert alert-success">
+                                                            <i class="fas fa-check-circle me-2"></i>{% trans "Correct!" %}
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="alert alert-danger">
+                                                            <i class="fas fa-times-circle me-2"></i>{% trans "Incorrect. Try again." %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       placeholder="{% if question_data.question.placeholder_hint %}{{ question_data.question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
+                                                       disabled>
+                                                <button class="btn btn-secondary" disabled>
+                                                    <i class="fas fa-lock me-1"></i>{% trans "Locked" %}
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Progress Card -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>{% trans "Progress" %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if section_completion and section_completion.is_completed %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>{% trans "Section Completed!" %}
+                            <br>
+                            <small>{{ section_completion.completed_at|date:"F d, Y" }}</small>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">
+                            {% if questions_data %}
+                                {% trans "Complete all quiz questions to finish this section." %}
+                            {% else %}
+                                {% trans "This section has no quiz questions." %}
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Navigation Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-compass me-2"></i>{% trans "Navigation" %}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'room_detail' section.room.id %}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Room" %}
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-home me-2"></i>{% trans "Dashboard" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle quiz form submissions
+    document.querySelectorAll('.quiz-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const questionId = this.dataset.questionId;
+            const answerInput = this.querySelector('.quiz-answer');
+            const submitBtn = this.querySelector('.quiz-submit');
+            const resultDiv = document.getElementById('result-' + questionId);
+            
+            if (!answerInput.value.trim()) {
+                alert('{% trans "Please enter an answer." %}');
+                return;
+            }
+            
+            // Disable form during submission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{% trans "Submitting..." %}';
+            
+            // Submit answer
+            fetch('{% url "submit_quiz_answer" 0 %}'.replace('0', questionId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: 'answer=' + encodeURIComponent(answerInput.value)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.is_correct) {
+                        resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>' + data.message + '</div>';
+                        answerInput.readOnly = true;
+                        submitBtn.style.display = 'none';
+                        
+                        // Add success border to question card
+                        document.getElementById('question-' + questionId).querySelector('.card').className = 'card border-success';
+                        
+                        // Reload page after a short delay to update completion status
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>' + data.message + '</div>';
+                        
+                        // Add danger border to question card
+                        document.getElementById('question-' + questionId).querySelector('.card').className = 'card border-danger';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>' + data.error + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>{% trans "An error occurred. Please try again." %}</div>';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>{% trans "Submit" %}';
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
