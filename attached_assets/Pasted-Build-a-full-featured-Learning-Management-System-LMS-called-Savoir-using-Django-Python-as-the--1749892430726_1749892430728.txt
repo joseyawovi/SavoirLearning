@@ -1,0 +1,150 @@
+Build a full-featured Learning Management System (LMS) called Savoir+, using Django (Python) as the backend framework. The platform is inspired by TryHackMe and should support:
+
+🏗️ Core Architecture:
+Organize the platform into Rooms (courses)
+
+Each Room contains multiple Sections
+
+Each Section includes:
+
+A video (URL or embedded)
+
+Text lesson content in both French and English
+
+Input-based quizzes (not multiple choice):
+
+Each question has a prompt
+
+The input field shows placeholders with hyphens/underscores to indicate the number of characters (e.g., ____ ____)
+
+User answers are validated case-insensitively
+
+Completing all sections unlocks a final assessment
+
+Passing the final assessment allows the user to download a certificate (PDF)
+
+🌍 Multilingual Support:
+Use Django’s built-in i18n (internationalization) tools
+
+UI should fully support English and French
+
+Text content for each lesson and question should be stored in both languages
+
+Add a language switcher (FR/EN toggle)
+
+🧑‍💻 User Authentication & Access Control:
+Users can register/login
+
+Every user gets a 15-day free trial
+
+Trial users can watch videos and read lessons
+
+Quiz inputs and final exam are locked
+
+They see upgrade prompts or banners
+
+Paid users:
+
+Can take quizzes
+
+Can access final exams and earn certificates
+
+🗺️ Roadmap Feature:
+Add a Roadmap module to guide learners through structured learning paths
+
+Roadmaps are a tree or list of Rooms
+
+Some Rooms require previous ones to be completed
+
+Users can view roadmap and see which Rooms are completed/locked
+
+💳 Mobile Payments (Africa):
+Integrate mobile payment system that works in Togo and neighboring countries
+
+Use Flutterwave, PayDunya, or MTN MoMo API
+
+After successful payment, update the user’s access to is_paid_user = True
+
+Store all transactions in a Payment model
+
+🧠 Admin Dashboard (Django Admin or Custom UI):
+Create/manage:
+
+Users
+
+Rooms
+
+Sections
+
+Quizzes (with input answers)
+
+Roadmaps
+
+Content fields should allow:
+
+Video URLs
+
+Rich text (French and English)
+
+Correct answers for input fields
+
+Character count placeholders
+
+🧾 Certificate Generation:
+After a user passes the final exam:
+
+Generate a PDF certificate
+
+Include:
+
+User name
+
+Room title
+
+Completion date
+
+Unique certificate ID
+
+Provide a certificate verification URL
+
+🧪 Sample MVP Content:
+Create 1 Room with:
+
+2 Sections
+
+Videos and bilingual text content
+
+1 input-based quiz per section
+
+A final assessment with 1 question
+
+Add trial logic (limit quiz access)
+
+Include multilingual toggle
+
+Add upgrade-to-premium button (with Flutterwave or mocked)
+
+Add 1 roadmap with 2 Rooms linked in sequence
+
+⚙️ Tech Stack:
+Backend: Django
+
+Models: User, Room, Section, Question, Answer, Certificate, Payment, Roadmap
+
+Middleware: i18n support
+
+REST API (Django REST Framework)
+
+Frontend: Django templates or React (optional)
+
+Responsive design
+
+Language toggle
+
+Trial vs. Paid user access logic
+
+Storage: SQLite or PostgreSQL (for Replit, use SQLite)
+
+Auth: Django built-in authentication
+
+Scaffold the models and backend logic first. Include dummy data and working admin panel, then progressively implement roadmap UI, mobile payment integration, and multilingual features.
