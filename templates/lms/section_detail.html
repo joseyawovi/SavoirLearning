@@ -1,251 +1,291 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}
-    {% get_current_language as LANGUAGE_CODE %}
-    {% if LANGUAGE_CODE == 'fr' and section.title_fr %}{{ section.title_fr }}{% else %}{{ section.title }}{% endif %} - Savoir+ LMS
-{% endblock %}
+{% block title %}{{ section.title }} - Savoir+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a></li>
-            <li class="breadcrumb-item">
-                <a href="{% url 'room_detail' section.room.id %}">
-                    {% get_current_language as LANGUAGE_CODE %}
-                    {% if LANGUAGE_CODE == 'fr' and section.room.title_fr %}
-                        {{ section.room.title_fr }}
-                    {% else %}
-                        {{ section.room.title }}
-                    {% endif %}
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
-                    {{ section.title_fr }}
-                {% else %}
-                    {{ section.title }}
-                {% endif %}
-            </li>
-        </ol>
+<!-- Breadcrumb Navigation -->
+<div class="mb-6">
+    <nav class="flex items-center space-x-2 text-sm">
+        <a href="{% url 'dashboard' %}" class="text-gray-400 hover:text-primary transition-colors">
+            <i class="fas fa-home mr-1"></i>{% trans "Dashboard" %}
+        </a>
+        <i class="fas fa-chevron-right text-gray-600"></i>
+        <a href="{% url 'roadmap_detail' section.room.roadmap.id %}" class="text-gray-400 hover:text-primary transition-colors">
+            {{ section.room.roadmap.title }}
+        </a>
+        <i class="fas fa-chevron-right text-gray-600"></i>
+        <a href="{% url 'room_detail' section.room.id %}" class="text-gray-400 hover:text-primary transition-colors">
+            {{ section.room.title }}
+        </a>
+        <i class="fas fa-chevron-right text-gray-600"></i>
+        <span class="text-white">{{ section.title }}</span>
     </nav>
+</div>
 
-    <!-- Section Header -->
-    <div class="card mb-4 shadow">
-        <div class="card-header bg-info text-white">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="mb-0">
-                        <i class="fas fa-book-open me-2"></i>
-                        {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
-                            {{ section.title_fr }}
-                        {% else %}
-                            {{ section.title }}
-                        {% endif %}
-                    </h2>
-                </div>
-                <div class="col-auto">
-                    {% if section_completion and section_completion.is_completed %}
-                        <span class="badge bg-success fs-6">
-                            <i class="fas fa-check-circle me-1"></i>{% trans "Completed" %}
-                        </span>
-                    {% endif %}
-                </div>
+<!-- Section Header -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-book-open text-white text-xl"></i>
             </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">{{ section.title }}</h1>
+                <p class="text-gray-400">{{ section.room.title }}</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            {% if section_completion.is_completed %}
+            <div class="inline-flex items-center px-4 py-2 bg-success rounded-lg">
+                <i class="fas fa-check mr-2"></i>
+                <span class="font-medium">{% trans "Completed" %}</span>
+            </div>
+            {% else %}
+            <div class="inline-flex items-center px-4 py-2 bg-warning text-dark-bg rounded-lg">
+                <i class="fas fa-play mr-2"></i>
+                <span class="font-medium">In Progress</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Video Content -->
+{% if section.video_url %}
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-semibold text-white mb-4">
+        <i class="fas fa-video text-primary mr-2"></i>
+        {% trans "Video Lesson" %}
+    </h2>
+    <div class="aspect-video bg-dark-bg rounded-lg overflow-hidden">
+        {% if "youtube.com" in section.video_url or "youtu.be" in section.video_url %}
+        <iframe 
+            src="{{ section.video_url|safe }}" 
+            class="w-full h-full" 
+            frameborder="0" 
+            allowfullscreen>
+        </iframe>
+        {% else %}
+        <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+                <i class="fas fa-external-link-alt text-gray-500 text-3xl mb-4"></i>
+                <p class="text-gray-400 mb-4">External video content</p>
+                <a href="{{ section.video_url }}" target="_blank" 
+                   class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors">
+                    <i class="fas fa-play mr-2"></i>
+                    Watch Video
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Text Content -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
+    <h2 class="text-xl font-semibold text-white mb-4">
+        <i class="fas fa-file-text text-primary mr-2"></i>
+        {% trans "Lesson Content" %}
+    </h2>
+    <div class="prose prose-invert max-w-none">
+        <div class="text-gray-300 leading-relaxed">
+            {{ section.content|linebreaks }}
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Section -->
+{% if questions %}
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-brain text-primary mr-2"></i>
+            Section Quiz
+        </h2>
+        {% if not user.can_access_quizzes %}
+        <div class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-lg text-sm">
+            <i class="fas fa-lock mr-1"></i>
+            Premium Required
+        </div>
+        {% endif %}
+    </div>
+
+    {% if user.can_access_quizzes %}
+    <!-- Quiz Progress -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-400">{% trans "Progress" %}</span>
+            <span class="text-sm text-gray-300">{{ answered_questions.count }}/{{ questions.count }} questions</span>
+        </div>
+        <div class="w-full h-2 bg-dark-bg rounded-full">
+            <div class="h-2 bg-primary rounded-full transition-all duration-500" 
+                 style="width: {% widthratio answered_questions.count questions.count 100 %}%"></div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <!-- Video Section -->
-            {% if section.video_url %}
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-play-circle me-2"></i>{% trans "Video Lesson" %}
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="ratio ratio-16x9">
-                            {% if 'youtube.com' in section.video_url or 'youtu.be' in section.video_url %}
-                                {% if 'youtu.be' in section.video_url %}
-                                    {% with video_id=section.video_url|slice:"17:" %}
-                                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" 
-                                                title="YouTube video player" 
-                                                frameborder="0" 
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                allowfullscreen></iframe>
-                                    {% endwith %}
-                                {% else %}
-                                    {% with video_id=section.video_url|cut:"https://www.youtube.com/watch?v=" %}
-                                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" 
-                                                title="YouTube video player" 
-                                                frameborder="0" 
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                allowfullscreen></iframe>
-                                    {% endwith %}
-                                {% endif %}
-                            {% else %}
-                                <iframe src="{{ section.video_url }}" 
-                                        title="Video Player" 
-                                        frameborder="0" 
-                                        allowfullscreen></iframe>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
-            <!-- Text Content -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-file-text me-2"></i>{% trans "Lesson Content" %}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="content-text">
-                        {% if LANGUAGE_CODE == 'fr' and section.content_fr %}
-                            {{ section.content_fr|linebreaks }}
-                        {% else %}
-                            {{ section.content|linebreaks }}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quiz Section -->
-            {% if questions_data %}
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-question-circle me-2"></i>{% trans "Section Quiz" %}
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {% if not user.can_access_quizzes %}
-                            <div class="alert alert-warning">
-                                <i class="fas fa-crown me-2"></i>
-                                {% trans "Quiz access requires a premium subscription." %}
-                                <a href="{% url 'upgrade_to_premium' %}" class="btn btn-warning btn-sm ms-2">
-                                    {% trans "Upgrade Now" %}
-                                </a>
-                            </div>
-                        {% endif %}
-
-                        {% for question_data in questions_data %}
-                            <div class="quiz-question mb-4" id="question-{{ question_data.question.id }}">
-                                <div class="card {% if question_data.user_answer and question_data.user_answer.is_correct %}border-success{% elif question_data.user_answer %}border-danger{% endif %}">
-                                    <div class="card-body">
-                                        <h6 class="card-title">
-                                            {% trans "Question" %} {{ forloop.counter }}:
-                                        </h6>
-                                        <p class="card-text">
-                                            {% if LANGUAGE_CODE == 'fr' and question_data.question.prompt_fr %}
-                                                {{ question_data.question.prompt_fr }}
-                                            {% else %}
-                                                {{ question_data.question.prompt }}
-                                            {% endif %}
-                                        </p>
-
-                                        {% if user.can_access_quizzes %}
-                                            <form class="quiz-form" data-question-id="{{ question_data.question.id }}">
-                                                {% csrf_token %}
-                                                <div class="input-group mb-3">
-                                                    <input type="text" 
-                                                           class="form-control quiz-answer" 
-                                                           name="answer" 
-                                                           placeholder="{% if question_data.question.placeholder_hint %}{{ question_data.question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
-                                                           {% if question_data.user_answer %}value="{{ question_data.user_answer.answer }}"{% endif %}
-                                                           {% if question_data.user_answer and question_data.user_answer.is_correct %}readonly{% endif %}>
-                                                    <button class="btn btn-primary quiz-submit" type="submit" 
-                                                            {% if question_data.user_answer and question_data.user_answer.is_correct %}disabled{% endif %}>
-                                                        <i class="fas fa-paper-plane me-1"></i>{% trans "Submit" %}
-                                                    </button>
-                                                </div>
-                                            </form>
-
-                                            <div class="quiz-result" id="result-{{ question_data.question.id }}">
-                                                {% if question_data.user_answer %}
-                                                    {% if question_data.user_answer.is_correct %}
-                                                        <div class="alert alert-success">
-                                                            <i class="fas fa-check-circle me-2"></i>{% trans "Correct!" %}
-                                                        </div>
-                                                    {% else %}
-                                                        <div class="alert alert-danger">
-                                                            <i class="fas fa-times-circle me-2"></i>{% trans "Incorrect. Try again." %}
-                                                        </div>
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                        {% else %}
-                                            <div class="input-group">
-                                                <input type="text" 
-                                                       class="form-control" 
-                                                       placeholder="{% if question_data.question.placeholder_hint %}{{ question_data.question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
-                                                       disabled>
-                                                <button class="btn btn-secondary" disabled>
-                                                    <i class="fas fa-lock me-1"></i>{% trans "Locked" %}
-                                                </button>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Progress Card -->
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-chart-line me-2"></i>{% trans "Progress" %}
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if section_completion and section_completion.is_completed %}
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>{% trans "Section Completed!" %}
-                            <br>
-                            <small>{{ section_completion.completed_at|date:"F d, Y" }}</small>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">
-                            {% if questions_data %}
-                                {% trans "Complete all quiz questions to finish this section." %}
-                            {% else %}
-                                {% trans "This section has no quiz questions." %}
-                            {% endif %}
-                        </p>
+    <!-- Questions -->
+    <div class="space-y-6">
+        {% for question in questions %}
+        <div class="quiz-question bg-dark-bg border border-dark-border rounded-lg p-6" data-question-id="{{ question.id }}">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-white mb-2">
+                        <span class="inline-flex items-center justify-center w-8 h-8 bg-primary rounded-full text-sm font-bold mr-3">
+                            {{ forloop.counter }}
+                        </span>
+                        {{ question.prompt }}
+                    </h3>
+                    {% if question.placeholder_hint %}
+                    <p class="text-gray-400 text-sm mb-4">
+                        <i class="fas fa-lightbulb mr-1"></i>
+                        Format: <span class="font-mono bg-gray-800 px-2 py-1 rounded">{{ question.placeholder_hint }}</span>
+                    </p>
                     {% endif %}
                 </div>
+                {% with user_answer=question.user_answer %}
+                {% if user_answer %}
+                <div class="ml-4">
+                    {% if user_answer.is_correct %}
+                    <div class="inline-flex items-center px-3 py-1 bg-success rounded-lg text-sm">
+                        <i class="fas fa-check mr-1"></i>
+                        {% trans "Correct!" %}
+                    </div>
+                    {% else %}
+                    <div class="inline-flex items-center px-3 py-1 bg-danger rounded-lg text-sm">
+                        <i class="fas fa-times mr-1"></i>
+                        Try Again
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
             </div>
 
-            <!-- Navigation Card -->
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-compass me-2"></i>{% trans "Navigation" %}
-                    </h6>
+            <!-- Answer Input -->
+            <form class="quiz-form" data-question-id="{{ question.id }}">
+                {% csrf_token %}
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <input type="text" 
+                               name="answer" 
+                               placeholder="{% trans 'Enter your answer...' %}"
+                               value="{% with user_answer=question.user_answer %}{% if user_answer %}{{ user_answer.answer }}{% endif %}{% endwith %}"
+                               class="w-full px-4 py-3 bg-dark-card border border-dark-border rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-primary transition-colors font-mono"
+                               {% with user_answer=question.user_answer %}{% if user_answer.is_correct %}disabled{% endif %}{% endwith %}
+                               autocomplete="off">
+                    </div>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            {% with user_answer=question.user_answer %}{% if user_answer.is_correct %}disabled{% endif %}{% endwith %}>
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        {% trans "Submit" %}
+                    </button>
                 </div>
-                <div class="card-body">
-                    <a href="{% url 'room_detail' section.room.id %}" class="btn btn-outline-primary w-100 mb-2">
-                        <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Room" %}
-                    </a>
-                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-home me-2"></i>{% trans "Dashboard" %}
-                    </a>
+            </form>
+
+            <!-- Feedback Area -->
+            <div class="quiz-feedback mt-4 hidden">
+                <div class="p-4 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="feedback-icon mr-3"></div>
+                        <div class="feedback-message"></div>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
+    </div>
+
+    <!-- Section Completion Status -->
+    <div class="mt-8 p-6 bg-dark-bg border border-dark-border rounded-lg">
+        {% if section_completion.is_completed %}
+        <div class="text-center">
+            <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">{% trans "Section Completed!" %}</h3>
+            <p class="text-gray-400 mb-4">Great job! You've successfully completed this section.</p>
+            <a href="{% url 'room_detail' section.room.id %}" 
+               class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                {% trans "Back to Room" %}
+            </a>
+        </div>
+        {% elif all_questions_answered %}
+        <div class="text-center">
+            <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation text-dark-bg text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">Almost There!</h3>
+            <p class="text-gray-400 mb-4">{% trans "Complete all quiz questions to finish this section." %}</p>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-brain text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">Keep Learning!</h3>
+            <p class="text-gray-400 mb-4">Answer all quiz questions correctly to complete this section.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- Premium Upgrade Prompt -->
+    <div class="text-center py-12">
+        <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-crown text-dark-bg text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-4">{% trans "Quiz access requires a premium subscription." %}</h3>
+        <p class="text-gray-400 mb-6">Upgrade to access interactive quizzes and test your knowledge with hands-on challenges.</p>
+        <a href="{% url 'upgrade_to_premium' %}" 
+           class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors transform hover:scale-105">
+            <i class="fas fa-star mr-2"></i>
+            {% trans "Upgrade Now" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<!-- No Quiz Section -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
+    <div class="text-center py-8">
+        <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-book text-white text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-white mb-2">Content Only Section</h3>
+        <p class="text-gray-400">{% trans "This section has no quiz questions." %}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Navigation -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6">
+    <h3 class="text-lg font-semibold text-white mb-4">
+        <i class="fas fa-compass text-primary mr-2"></i>
+        {% trans "Navigation" %}
+    </h3>
+    <div class="flex items-center justify-between">
+        <a href="{% url 'room_detail' section.room.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Back to Room" %}
+        </a>
+        
+        {% if next_section %}
+        <a href="{% url 'section_detail' next_section.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
+            Next Section
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+        {% elif section_completion.is_completed %}
+        <a href="{% url 'room_detail' section.room.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-success hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+            Continue Course
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -253,69 +293,110 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle quiz form submissions
-    document.querySelectorAll('.quiz-form').forEach(function(form) {
+    // Quiz form submission
+    document.querySelectorAll('.quiz-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const questionId = this.dataset.questionId;
-            const answerInput = this.querySelector('.quiz-answer');
-            const submitBtn = this.querySelector('.quiz-submit');
-            const resultDiv = document.getElementById('result-' + questionId);
+            const answerInput = this.querySelector('input[name="answer"]');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const feedbackDiv = this.parentElement.querySelector('.quiz-feedback');
             
             if (!answerInput.value.trim()) {
-                alert('{% trans "Please enter an answer." %}');
+                showFeedback(feedbackDiv, 'error', '{% trans "Please enter an answer." %}');
                 return;
             }
             
             // Disable form during submission
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{% trans "Submitting..." %}';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{% trans "Submitting..." %}';
             
             // Submit answer
-            fetch('{% url "submit_quiz_answer" 0 %}'.replace('0', questionId), {
+            fetch(`/quiz/submit/${questionId}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
-                body: 'answer=' + encodeURIComponent(answerInput.value)
+                body: `answer=${encodeURIComponent(answerInput.value)}`
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    if (data.is_correct) {
-                        resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>' + data.message + '</div>';
-                        answerInput.readOnly = true;
-                        submitBtn.style.display = 'none';
+                    if (data.correct) {
+                        showFeedback(feedbackDiv, 'success', '{% trans "Correct!" %}');
+                        answerInput.disabled = true;
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Correct';
+                        submitBtn.className = submitBtn.className.replace('bg-primary hover:bg-primary-dark', 'bg-success');
                         
-                        // Add success border to question card
-                        document.getElementById('question-' + questionId).querySelector('.card').className = 'card border-success';
+                        // Update question status
+                        const questionDiv = this.closest('.quiz-question');
+                        const statusDiv = questionDiv.querySelector('.ml-4') || document.createElement('div');
+                        statusDiv.className = 'ml-4';
+                        statusDiv.innerHTML = '<div class="inline-flex items-center px-3 py-1 bg-success rounded-lg text-sm"><i class="fas fa-check mr-1"></i>{% trans "Correct!" %}</div>';
+                        if (!questionDiv.querySelector('.ml-4')) {
+                            questionDiv.querySelector('.flex-1').parentElement.appendChild(statusDiv);
+                        }
                         
-                        // Reload page after a short delay to update completion status
+                        // Update progress bar
+                        updateProgress();
+                        
+                        // Check if section is completed
                         setTimeout(() => {
-                            window.location.reload();
+                            if (data.section_completed) {
+                                location.reload();
+                            }
                         }, 1500);
                     } else {
-                        resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>' + data.message + '</div>';
-                        
-                        // Add danger border to question card
-                        document.getElementById('question-' + questionId).querySelector('.card').className = 'card border-danger';
+                        showFeedback(feedbackDiv, 'error', '{% trans "Incorrect. Try again." %}');
                     }
                 } else {
-                    resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>' + data.error + '</div>';
+                    showFeedback(feedbackDiv, 'error', data.error || '{% trans "An error occurred. Please try again." %}');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                resultDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>{% trans "An error occurred. Please try again." %}</div>';
+                showFeedback(feedbackDiv, 'error', '{% trans "An error occurred. Please try again." %}');
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>{% trans "Submit" %}';
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>{% trans "Submit" %}';
             });
         });
     });
+    
+    function showFeedback(feedbackDiv, type, message) {
+        const iconClass = type === 'success' ? 'fas fa-check text-success' : 'fas fa-times text-danger';
+        const bgClass = type === 'success' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-700';
+        
+        feedbackDiv.innerHTML = `
+            <div class="p-4 rounded-lg border ${bgClass}">
+                <div class="flex items-center">
+                    <i class="${iconClass} mr-3"></i>
+                    <div class="text-white">${message}</div>
+                </div>
+            </div>
+        `;
+        feedbackDiv.classList.remove('hidden');
+        
+        setTimeout(() => {
+            feedbackDiv.classList.add('hidden');
+        }, 3000);
+    }
+    
+    function updateProgress() {
+        const totalQuestions = document.querySelectorAll('.quiz-question').length;
+        const answeredQuestions = document.querySelectorAll('.quiz-question input:disabled').length;
+        const progressBar = document.querySelector('.w-full.h-2 .h-2');
+        const progressText = document.querySelector('.text-sm.text-gray-300');
+        
+        if (progressBar && progressText) {
+            const percentage = (answeredQuestions / totalQuestions) * 100;
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = `${answeredQuestions}/${totalQuestions} questions`;
+        }
+    }
 });
 </script>
 {% endblock %}

@@ -1,237 +1,405 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}
-    {% get_current_language as LANGUAGE_CODE %}
-    {% if LANGUAGE_CODE == 'fr' and room.title_fr %}{{ room.title_fr }}{% else %}{{ room.title }}{% endif %} - Savoir+ LMS
-{% endblock %}
+{% block title %}{{ room.title }} - Savoir+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- Room Header -->
-    <div class="card mb-4 shadow">
-        <div class="card-header bg-primary text-white">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="mb-0">
-                        <i class="fas fa-door-open me-2"></i>
-                        {% get_current_language as LANGUAGE_CODE %}
-                        {% if LANGUAGE_CODE == 'fr' and room.title_fr %}
-                            {{ room.title_fr }}
-                        {% else %}
-                            {{ room.title }}
-                        {% endif %}
-                    </h2>
-                </div>
-                <div class="col-auto">
-                    {% if room_completion and room_completion.is_completed %}
-                        <span class="badge bg-success fs-6">
-                            <i class="fas fa-check-circle me-1"></i>{% trans "Completed" %}
-                        </span>
+<!-- Breadcrumb Navigation -->
+<div class="mb-6">
+    <nav class="flex items-center space-x-2 text-sm">
+        <a href="{% url 'dashboard' %}" class="text-gray-400 hover:text-primary transition-colors">
+            <i class="fas fa-home mr-1"></i>{% trans "Dashboard" %}
+        </a>
+        <i class="fas fa-chevron-right text-gray-600"></i>
+        <a href="{% url 'roadmap_detail' room.roadmap.id %}" class="text-gray-400 hover:text-primary transition-colors">
+            {{ room.roadmap.title }}
+        </a>
+        <i class="fas fa-chevron-right text-gray-600"></i>
+        <span class="text-white">{{ room.title }}</span>
+    </nav>
+</div>
+
+<!-- Room Header -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mr-6">
+                <i class="fas fa-door-open text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">{{ room.title }}</h1>
+                <p class="text-gray-400 text-lg">{{ room.description }}</p>
+                <div class="flex items-center mt-3 space-x-4">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <i class="fas fa-book-open mr-1 text-primary"></i>
+                        {{ sections.count }} {% trans "Sections" %}
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <i class="fas fa-brain mr-1 text-primary"></i>
+                        {{ total_questions }} {% trans "Questions" %}
+                    </div>
+                    {% if room.prerequisite_room %}
+                    <div class="flex items-center text-sm text-gray-300">
+                        <i class="fas fa-arrow-left mr-1 text-primary"></i>
+                        {% trans "Requires" %}: {{ room.prerequisite_room.title }}
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-        <div class="card-body">
-            <p class="lead">
-                {% if LANGUAGE_CODE == 'fr' and room.description_fr %}
-                    {{ room.description_fr }}
-                {% else %}
-                    {{ room.description }}
-                {% endif %}
-            </p>
-            
-            <!-- Progress Bar -->
-            <div class="mb-3">
-                <label class="form-label">{% trans "Section Progress" %}</label>
-                <div class="progress">
-                    {% widthratio completed_section_ids|length sections.count 100 as progress_percent %}
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ progress_percent }}%" 
-                         aria-valuenow="{{ progress_percent }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                        {{ completed_section_ids|length }}/{{ sections.count }}
-                    </div>
-                </div>
+        <div class="text-right">
+            <div class="mb-2">
+                <span class="text-2xl font-bold text-white">{{ room_progress }}%</span>
+            </div>
+            <div class="w-32 h-3 bg-dark-bg rounded-full">
+                <div class="h-3 bg-primary rounded-full transition-all duration-500" style="width: {{ room_progress }}%"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">{% trans "Room Progress" %}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Room Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-list text-white text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-400 text-sm">{% trans "Total Sections" %}</p>
+                <p class="text-2xl font-bold text-white">{{ sections.count }}</p>
             </div>
         </div>
     </div>
-
-    <!-- Sections -->
-    <div class="row">
-        <div class="col-lg-8">
-            <h4 class="mb-3">
-                <i class="fas fa-list me-2"></i>{% trans "Course Sections" %}
-            </h4>
-            
-            {% for section in sections %}
-                <div class="card mb-3 {% if section.id in completed_section_ids %}border-success{% endif %}">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h5 class="card-title mb-1">
-                                    {% if section.id in completed_section_ids %}
-                                        <i class="fas fa-check-circle text-success me-2"></i>
-                                    {% else %}
-                                        <i class="fas fa-circle text-muted me-2"></i>
-                                    {% endif %}
-                                    {% if LANGUAGE_CODE == 'fr' and section.title_fr %}
-                                        {{ section.title_fr }}
-                                    {% else %}
-                                        {{ section.title }}
-                                    {% endif %}
-                                </h5>
-                                <p class="card-text text-muted small mb-0">
-                                    {% if LANGUAGE_CODE == 'fr' and section.content_fr %}
-                                        {{ section.content_fr|truncatewords:15 }}
-                                    {% else %}
-                                        {{ section.content|truncatewords:15 }}
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="col-auto">
-                                <a href="{% url 'section_detail' section.id %}" class="btn btn-outline-primary">
-                                    {% if section.id in completed_section_ids %}
-                                        <i class="fas fa-eye me-1"></i>{% trans "Review" %}
-                                    {% else %}
-                                        <i class="fas fa-play me-1"></i>{% trans "Start" %}
-                                    {% endif %}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    {% trans "No sections available for this room." %}
-                </div>
-            {% endfor %}
+    
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-check-circle text-white text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-400 text-sm">{% trans "Completed" %}</p>
+                <p class="text-2xl font-bold text-white">{{ completed_sections }}</p>
+            </div>
         </div>
-        
-        <div class="col-lg-4">
-            <!-- Final Exam Card -->
-            {% if final_questions %}
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-medal me-2"></i>{% trans "Final Exam" %}
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {% if not all_sections_completed %}
-                            <p class="text-muted">
-                                <i class="fas fa-lock me-2"></i>
-                                {% trans "Complete all sections to unlock the final exam." %}
-                            </p>
-                            <button class="btn btn-secondary w-100" disabled>
-                                <i class="fas fa-lock me-2"></i>{% trans "Locked" %}
-                            </button>
-                        {% elif not user.can_access_quizzes %}
-                            <p class="text-warning">
-                                <i class="fas fa-crown me-2"></i>
-                                {% trans "Premium subscription required for exams." %}
-                            </p>
-                            <a href="{% url 'upgrade_to_premium' %}" class="btn btn-warning w-100">
-                                <i class="fas fa-crown me-2"></i>{% trans "Upgrade Now" %}
-                            </a>
-                        {% elif room_completion and room_completion.is_completed %}
-                            <div class="alert alert-success">
-                                <i class="fas fa-check-circle me-2"></i>
-                                {% trans "Completed!" %}
-                                <br>
-                                {% trans "Score:" %} {{ room_completion.final_exam_score|floatformat:1 }}%
-                            </div>
-                            
-                            {% if user.certificate_set.filter.room=room.is_valid=True.exists %}
-                                {% with certificate=user.certificate_set.filter.room=room.is_valid=True.first %}
-                                    <a href="{% url 'download_certificate' certificate.certificate_id %}" class="btn btn-success w-100">
-                                        <i class="fas fa-download me-2"></i>{% trans "Download Certificate" %}
-                                    </a>
-                                {% endwith %}
-                            {% endif %}
-                        {% else %}
-                            <p>
-                                {% trans "Ready to take the final exam?" %}
-                            </p>
-                            <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#finalExamModal">
-                                <i class="fas fa-play me-2"></i>{% trans "Start Final Exam" %}
-                            </button>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
-            
-            <!-- Room Info -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>{% trans "Room Information" %}
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <p><strong>{% trans "Sections:" %}</strong> {{ sections.count }}</p>
-                    <p><strong>{% trans "Completed:" %}</strong> {{ completed_section_ids|length }}</p>
-                    {% if final_questions %}
-                        <p><strong>{% trans "Final Exam Questions:" %}</strong> {{ final_questions.count }}</p>
+    </div>
+    
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-brain text-white text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-400 text-sm">{% trans "Quiz Questions" %}</p>
+                <p class="text-2xl font-bold text-white">{{ total_questions }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-graduation-cap text-white text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-400 text-sm">{% trans "Final Exam" %}</p>
+                <p class="text-lg font-bold text-white">
+                    {% if room_completion.is_completed %}
+                        {% trans "Passed" %}
+                    {% elif all_sections_completed %}
+                        {% trans "Available" %}
+                    {% else %}
+                        {% trans "Locked" %}
                     {% endif %}
-                </div>
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Final Exam Modal -->
-{% if all_sections_completed and user.can_access_quizzes and final_questions %}
-    <div class="modal fade" id="finalExamModal" tabindex="-1" aria-labelledby="finalExamModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="finalExamModalLabel">
-                        <i class="fas fa-medal me-2"></i>{% trans "Final Exam" %}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" action="{% url 'submit_final_exam' room.id %}">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            {% trans "You need to score at least 70% to pass this exam and earn your certificate." %}
-                        </div>
-                        
-                        {% for question in final_questions %}
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">
-                                    {% trans "Question" %} {{ forloop.counter }}:
-                                </label>
-                                <p>
-                                    {% if LANGUAGE_CODE == 'fr' and question.prompt_fr %}
-                                        {{ question.prompt_fr }}
-                                    {% else %}
-                                        {{ question.prompt }}
-                                    {% endif %}
-                                </p>
-                                <input type="text" 
-                                       class="form-control" 
-                                       name="question_{{ question.id }}" 
-                                       placeholder="{% if question.placeholder_hint %}{{ question.placeholder_hint }}{% else %}{% trans 'Enter your answer...' %}{% endif %}"
-                                       required>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            {% trans "Cancel" %}
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-paper-plane me-2"></i>{% trans "Submit Exam" %}
-                        </button>
-                    </div>
-                </form>
-            </div>
+<!-- Sections List -->
+<div class="mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">
+            <i class="fas fa-list text-primary mr-2"></i>
+            {% trans "Course Sections" %}
+        </h2>
+        <div class="text-sm text-gray-400">
+            <i class="fas fa-info-circle mr-1"></i>
+            Complete sections in order
         </div>
     </div>
+    
+    {% if sections %}
+    <div class="space-y-4">
+        {% for section in sections %}
+        <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center flex-1">
+                    <!-- Section Status Icon -->
+                    <div class="flex-shrink-0 mr-4">
+                        {% if section.is_completed %}
+                        <div class="w-12 h-12 bg-success rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check text-white text-xl"></i>
+                        </div>
+                        {% elif section.is_accessible %}
+                        <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-play text-white text-xl"></i>
+                        </div>
+                        {% else %}
+                        <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-lock text-white text-xl"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Section Info -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold text-white truncate">
+                                <span class="inline-flex items-center justify-center w-6 h-6 bg-gray-700 rounded-full text-sm font-bold mr-3">
+                                    {{ forloop.counter }}
+                                </span>
+                                {{ section.title }}
+                            </h3>
+                            <div class="flex items-center ml-4">
+                                {% if section.is_completed %}
+                                <span class="inline-flex items-center px-3 py-1 bg-success rounded-full text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i>{% trans "Completed" %}
+                                </span>
+                                {% elif section.is_accessible %}
+                                <span class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-full text-sm font-medium">
+                                    <i class="fas fa-unlock mr-1"></i>{% trans "Available" %}
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium">
+                                    <i class="fas fa-lock mr-1"></i>{% trans "Locked" %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-300 mb-3">{{ section.content|truncatewords:25|striptags }}</p>
+                        
+                        <!-- Section Features -->
+                        <div class="flex items-center space-x-4 text-sm text-gray-400">
+                            {% if section.video_url %}
+                            <div class="flex items-center">
+                                <i class="fas fa-video mr-1 text-blue-400"></i>
+                                {% trans "Video" %}
+                            </div>
+                            {% endif %}
+                            {% if section.questions.count %}
+                            <div class="flex items-center">
+                                <i class="fas fa-brain mr-1 text-green-400"></i>
+                                {{ section.questions.count }} {% trans "Questions" %}
+                            </div>
+                            {% endif %}
+                            <div class="flex items-center">
+                                <i class="fas fa-book-open mr-1 text-yellow-400"></i>
+                                {% trans "Reading" %}
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar for accessible sections -->
+                        {% if section.is_accessible and section.questions.count %}
+                        <div class="mt-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs text-gray-400">{% trans "Quiz Progress" %}</span>
+                                <span class="text-xs text-gray-300">{{ section.answered_questions }}/{{ section.questions.count }}</span>
+                            </div>
+                            <div class="w-full h-2 bg-dark-bg rounded-full">
+                                <div class="h-2 bg-primary rounded-full transition-all duration-500" 
+                                     style="width: {% widthratio section.answered_questions section.questions.count 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Button -->
+                <div class="ml-6">
+                    {% if section.is_accessible %}
+                    <a href="{% url 'section_detail' section.id %}" 
+                       class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors group-hover:scale-105 transform">
+                        {% if section.is_completed %}
+                            <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
+                        {% else %}
+                            <i class="fas fa-play mr-2"></i>{% trans "Start" %}
+                        {% endif %}
+                    </a>
+                    {% else %}
+                    <div class="inline-flex items-center px-6 py-3 bg-gray-600 text-gray-300 font-medium rounded-lg cursor-not-allowed">
+                        <i class="fas fa-lock mr-2"></i>{% trans "Locked" %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="w-24 h-24 bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-book-open text-gray-500 text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-semibold text-gray-300 mb-4">{% trans "No Sections Available" %}</h3>
+        <p class="text-gray-400 max-w-md mx-auto">{% trans "This room doesn't have any sections yet. Please check back later!" %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Final Exam Section -->
+{% if all_sections_completed %}
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-white">
+            <i class="fas fa-graduation-cap text-primary mr-2"></i>
+            {% trans "Final Exam" %}
+        </h2>
+        {% if not user.can_access_quizzes %}
+        <div class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-lg text-sm">
+            <i class="fas fa-lock mr-1"></i>
+            Premium Required
+        </div>
+        {% endif %}
+    </div>
+
+    {% if user.can_access_quizzes %}
+        {% if room_completion.is_completed %}
+        <!-- Exam Completed -->
+        <div class="text-center py-8">
+            <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-trophy text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">{% trans "Congratulations!" %}</h3>
+            <p class="text-gray-400 mb-4">{% trans "You've completed this room with a score of" %} {{ room_completion.final_exam_score }}%</p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="{% url 'download_certificate' room_completion.certificate.certificate_id %}" 
+                   class="inline-flex items-center px-6 py-3 bg-success hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+                    <i class="fas fa-download mr-2"></i>
+                    {% trans "Download Certificate" %}
+                </a>
+                <a href="{% url 'roadmap_detail' room.roadmap.id %}" 
+                   class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
+                    <i class="fas fa-arrow-right mr-2"></i>
+                    {% trans "Continue Learning" %}
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Exam Available -->
+        <div class="text-center py-8">
+            <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-graduation-cap text-dark-bg text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-white mb-2">{% trans "Ready for Final Exam" %}</h3>
+            <p class="text-gray-400 mb-6">{% trans "Test your knowledge with the final exam to complete this room and earn your certificate." %}</p>
+            <div class="bg-dark-bg border border-dark-border rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                        <p class="text-2xl font-bold text-white">{{ final_exam_questions.count }}</p>
+                        <p class="text-sm text-gray-400">{% trans "Questions" %}</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white">70%</p>
+                        <p class="text-sm text-gray-400">{% trans "Pass Rate" %}</p>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'submit_final_exam' room.id %}" 
+               class="inline-flex items-center px-8 py-4 bg-warning hover:bg-yellow-600 text-dark-bg font-semibold rounded-lg transition-colors transform hover:scale-105">
+                <i class="fas fa-play mr-2"></i>
+                {% trans "Start Final Exam" %}
+            </a>
+        </div>
+        {% endif %}
+    {% else %}
+    <!-- Premium Required -->
+    <div class="text-center py-8">
+        <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-crown text-dark-bg text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-4">{% trans "Final exam requires a premium subscription." %}</h3>
+        <p class="text-gray-400 mb-6">Upgrade to take the final exam and earn your completion certificate.</p>
+        <a href="{% url 'upgrade_to_premium' %}" 
+           class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors transform hover:scale-105">
+            <i class="fas fa-star mr-2"></i>
+            {% trans "Upgrade Now" %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% elif sections %}
+<!-- Complete Sections First -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-8">
+    <div class="text-center py-8">
+        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-tasks text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">{% trans "Complete All Sections" %}</h3>
+        <p class="text-gray-400 mb-4">{% trans "Finish all sections to unlock the final exam." %}</p>
+        <div class="w-64 h-3 bg-dark-bg rounded-full mx-auto">
+            <div class="h-3 bg-primary rounded-full transition-all duration-500" style="width: {{ room_progress }}%"></div>
+        </div>
+        <p class="text-sm text-gray-400 mt-2">{{ completed_sections }}/{{ sections.count }} {% trans "sections completed" %}</p>
+    </div>
+</div>
 {% endif %}
+
+<!-- Navigation -->
+<div class="bg-dark-card border border-dark-border rounded-xl p-6">
+    <h3 class="text-lg font-semibold text-white mb-4">
+        <i class="fas fa-compass text-primary mr-2"></i>
+        {% trans "Navigation" %}
+    </h3>
+    <div class="flex items-center justify-between">
+        <a href="{% url 'roadmap_detail' room.roadmap.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            {% trans "Back to Roadmap" %}
+        </a>
+        
+        {% if next_available_section %}
+        <a href="{% url 'section_detail' next_available_section.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
+            {% trans "Continue Learning" %}
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+        {% elif room_completion.is_completed %}
+        <a href="{% url 'roadmap_detail' room.roadmap.id %}" 
+           class="inline-flex items-center px-4 py-2 bg-success hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+            {% trans "Next Room" %}
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate progress bars on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBars = document.querySelectorAll('[style*="width:"]');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 300);
+        });
+        
+        // Add hover effects for section cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('transform', 'scale-102');
+            });
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('transform', 'scale-102');
+            });
+        });
+    });
+</script>
 {% endblock %}
