@@ -46,12 +46,7 @@
                     <div class="card h-100 shadow-sm">
                         <div class="card-header bg-light">
                             <h5 class="card-title mb-0">
-                                {% get_current_language as LANGUAGE_CODE %}
-                                {% if LANGUAGE_CODE == 'fr' and roadmap.title_fr %}
-                                    {{ roadmap.title_fr }}
-                                {% else %}
-                                    {{ roadmap.title }}
-                                {% endif %}
+                                {{ roadmap.title }}
                             </h5>
                         </div>
                         <div class="card-body">
