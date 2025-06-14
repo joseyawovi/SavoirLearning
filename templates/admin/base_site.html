@@ -1,0 +1,38 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {% trans 'Savoir+ LMS Admin' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <span style="color: #007cba; font-weight: bold;">Savoir+</span> 
+        <span style="color: #666;">LMS Admin</span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}
+<div style="background: #f8f9fa; padding: 10px 20px; border-bottom: 1px solid #dee2e6;">
+    <nav style="display: flex; gap: 20px;">
+        <a href="{% url 'admin:admin_dashboard' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            📊 {% trans "Dashboard" %}
+        </a>
+        <a href="{% url 'admin:user_analytics' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            📈 {% trans "Analytics" %}
+        </a>
+        <a href="{% url 'admin:lms_user_changelist' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            👥 {% trans "Users" %}
+        </a>
+        <a href="{% url 'admin:lms_roadmap_changelist' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            🗺️ {% trans "Roadmaps" %}
+        </a>
+        <a href="{% url 'admin:lms_room_changelist' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            🏠 {% trans "Rooms" %}
+        </a>
+        <a href="{% url 'admin:lms_payment_changelist' %}" style="color: #007cba; text-decoration: none; font-weight: 500;">
+            💳 {% trans "Payments" %}
+        </a>
+    </nav>
+</div>
+{% endblock %}

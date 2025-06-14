@@ -4,10 +4,14 @@ Admin interface for Savoir+ LMS.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from django.urls import path, reverse
+from django.utils.html import format_html
+from django.http import HttpResponseRedirect
 from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
     SectionCompletion, RoomCompletion, Certificate, Payment
 )
+from .admin_dashboard import admin_dashboard, user_analytics
 
 
 @admin.register(User)
@@ -119,3 +123,38 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ('status', 'payment_method', 'currency', 'created_at')
     search_fields = ('user__username', 'transaction_id')
     readonly_fields = ('created_at', 'updated_at')
+
+
+class SavoirPlusAdminSite(admin.AdminSite):
+    """Custom admin site for Savoir+ LMS."""
+    site_header = 'Savoir+ LMS Administration'
+    site_title = 'Savoir+ Admin'
+    index_title = 'Welcome to Savoir+ LMS Administration'
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('dashboard/', self.admin_view(admin_dashboard), name='admin_dashboard'),
+            path('analytics/', self.admin_view(user_analytics), name='user_analytics'),
+        ]
+        return custom_urls + urls
+    
+    def index(self, request, extra_context=None):
+        """Override the default admin index to redirect to custom dashboard."""
+        return HttpResponseRedirect(reverse('admin:admin_dashboard'))
+
+
+# Create custom admin site instance
+admin_site = SavoirPlusAdminSite(name='savoir_admin')
+
+# Register all models with the custom admin site
+admin_site.register(User, UserAdmin)
+admin_site.register(Roadmap, RoadmapAdmin)
+admin_site.register(Room, RoomAdmin)
+admin_site.register(Section, SectionAdmin)
+admin_site.register(Question, QuestionAdmin)
+admin_site.register(UserAnswer, UserAnswerAdmin)
+admin_site.register(SectionCompletion, SectionCompletionAdmin)
+admin_site.register(RoomCompletion, RoomCompletionAdmin)
+admin_site.register(Certificate, CertificateAdmin)
+admin_site.register(Payment, PaymentAdmin)
