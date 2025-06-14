@@ -16,7 +16,13 @@ class User(AbstractUser):
     trial_end_date = models.DateTimeField(blank=True, null=True, verbose_name=_('Trial End Date'))
     
     def save(self, *args, **kwargs):
-        if not self.trial_end_date:
+        # Set trial_start_date if not set (for superusers and manual creation)
+        if not self.trial_start_date:
+            from django.utils import timezone
+            self.trial_start_date = timezone.now()
+        
+        # Set trial_end_date if not set
+        if not self.trial_end_date and self.trial_start_date:
             self.trial_end_date = self.trial_start_date + timedelta(days=15)
         super().save(*args, **kwargs)
     
