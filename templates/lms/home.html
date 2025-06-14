@@ -4,108 +4,174 @@
 {% block title %}Savoir+ - {% trans "Empowering learners through quality education" %}{% endblock %}
 
 {% block content %}
-<div class="hero-section bg-primary text-white py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">Welcome to Savoir+</h1>
-                <p class="lead mb-4">{% trans "Empowering learners through quality education" %}</p>
-                <p class="mb-4">Master new skills with our comprehensive learning platform featuring interactive courses, hands-on projects, and certification programs.</p>
-                {% if not user.is_authenticated %}
-                <div class="d-flex gap-3">
-                    <a href="{% url 'register' %}" class="btn btn-light btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>{% trans "Get your 15-day free trial!" %}
-                    </a>
-                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-sign-in-alt me-2"></i>{% trans "Login" %}
-                    </a>
-                </div>
-                {% else %}
-                <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
-                    <i class="fas fa-tachometer-alt me-2"></i>{% trans "Go to Dashboard" %}
+<!-- Hero Section -->
+<div class="relative overflow-hidden bg-gradient-to-br from-dark-bg via-dark-card to-dark-bg">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
+                Welcome to <span class="text-primary">Savoir+</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                {% trans "Empowering learners through quality education" %}
+            </p>
+            <p class="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+                Master cybersecurity and technology skills with our hands-on learning platform featuring interactive labs, real-world challenges, and industry-recognized certifications.
+            </p>
+            
+            {% if not user.is_authenticated %}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'register' %}" class="inline-flex items-center px-8 py-4 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors transform hover:scale-105">
+                    <i class="fas fa-rocket mr-2"></i>{% trans "Get your 15-day free trial!" %}
                 </a>
-                {% endif %}
-            </div>
-            <div class="col-lg-6">
-                <div class="text-center">
-                    <i class="fas fa-graduation-cap" style="font-size: 8rem; opacity: 0.3;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">{% trans "Learning Roadmaps" %}</h2>
-            {% if roadmaps %}
-            <div class="row">
-                {% for roadmap in roadmaps %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-header bg-light">
-                            <h5 class="card-title mb-0">
-                                {{ roadmap.title }}
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <p class="card-text">
-                                {{ roadmap.description|truncatewords:20 }}
-                            </p>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            {% if user.is_authenticated %}
-                            <a href="{% url 'roadmap_detail' roadmap.id %}" class="btn btn-primary">
-                                <i class="fas fa-play me-2"></i>{% trans "Start Learning" %}
-                            </a>
-                            {% else %}
-                            <a href="{% url 'register' %}" class="btn btn-outline-primary">
-                                <i class="fas fa-user-plus me-2"></i>{% trans "Register to Start" %}
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+                <a href="{% url 'login' %}" class="inline-flex items-center px-8 py-4 bg-transparent border-2 border-gray-600 hover:border-primary text-white font-semibold rounded-lg transition-colors">
+                    <i class="fas fa-sign-in-alt mr-2"></i>{% trans "Login" %}
+                </a>
             </div>
             {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-road text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
-                <p class="lead text-muted mt-3">{% trans "No learning roadmaps available at the moment. Please check back later!" %}</p>
-            </div>
+            <a href="{% url 'dashboard' %}" class="inline-flex items-center px-8 py-4 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors transform hover:scale-105">
+                <i class="fas fa-tachometer-alt mr-2"></i>{% trans "Go to Dashboard" %}
+            </a>
             {% endif %}
         </div>
     </div>
+</div>
 
-    <!-- Features Section -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h2 class="text-center mb-5">Why Choose Savoir+?</h2>
-            <div class="row">
-                <div class="col-md-4 text-center mb-4">
-                    <div class="feature-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-video fa-2x"></i>
-                    </div>
-                    <h4>Video Lessons</h4>
-                    <p class="text-muted">High-quality video content from industry experts to guide your learning journey.</p>
+<!-- Learning Roadmaps Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">{% trans "Learning Roadmaps" %}</h2>
+        <p class="text-xl text-gray-400">Choose your learning path and start your cybersecurity journey</p>
+    </div>
+    
+    {% if roadmaps %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for roadmap in roadmaps %}
+        <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300 transform hover:scale-105">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-route text-white text-xl"></i>
                 </div>
-                <div class="col-md-4 text-center mb-4">
-                    <div class="feature-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-tasks fa-2x"></i>
+                <div>
+                    <h3 class="text-xl font-semibold text-white">{{ roadmap.title }}</h3>
+                    <div class="flex items-center text-sm text-gray-400 mt-1">
+                        <i class="fas fa-clock mr-1"></i>
+                        <span>{{ roadmap.rooms.count }} {% trans "Rooms" %}</span>
                     </div>
-                    <h4>Interactive Quizzes</h4>
-                    <p class="text-muted">Test your knowledge with hands-on quizzes and practical exercises.</p>
                 </div>
-                <div class="col-md-4 text-center mb-4">
-                    <div class="feature-icon bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="fas fa-certificate fa-2x"></i>
+            </div>
+            
+            <p class="text-gray-300 mb-6 line-clamp-3">
+                {{ roadmap.description|truncatewords:20 }}
+            </p>
+            
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="flex items-center text-sm text-gray-400">
+                        <i class="fas fa-users mr-1"></i>
+                        <span>Beginner Friendly</span>
                     </div>
-                    <h4>Certificates</h4>
-                    <p class="text-muted">Earn industry-recognized certificates upon successful course completion.</p>
                 </div>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'roadmap_detail' roadmap.id %}" class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
+                    <i class="fas fa-play mr-2"></i>{% trans "Start Learning" %}
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-primary text-white font-medium rounded-lg transition-colors">
+                    <i class="fas fa-user-plus mr-2"></i>{% trans "Register to Start" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="w-24 h-24 bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-road text-gray-500 text-3xl"></i>
+        </div>
+        <h3 class="text-2xl font-semibold text-gray-300 mb-4">No Learning Paths Available</h3>
+        <p class="text-gray-400 max-w-md mx-auto">{% trans "No learning roadmaps available at the moment. Please check back later!" %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Features Section -->
+<div class="bg-dark-card py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Why Choose Savoir+?</h2>
+            <p class="text-xl text-gray-400">Learn cybersecurity with hands-on experience and real-world scenarios</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-primary rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-video text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Interactive Video Lessons</h3>
+                <p class="text-gray-400">High-quality video content from cybersecurity experts with practical demonstrations and real-world examples.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-success rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-terminal text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Hands-on Labs</h3>
+                <p class="text-gray-400">Practice your skills with interactive labs and challenges that simulate real-world cybersecurity scenarios.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-warning rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-certificate text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Industry Certificates</h3>
+                <p class="text-gray-400">Earn industry-recognized certificates upon successful completion of courses and assessments.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-globe text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Multilingual Support</h3>
+                <p class="text-gray-400">Learn in your preferred language with full support for English and French content.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-danger rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Cybersecurity Focus</h3>
+                <p class="text-gray-400">Specialized content focusing on modern cybersecurity threats, defense strategies, and ethical hacking.</p>
+            </div>
+            
+            <div class="text-center group">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Community Driven</h3>
+                <p class="text-gray-400">Join a community of learners and professionals sharing knowledge and supporting each other's growth.</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Call to Action Section -->
+{% if not user.is_authenticated %}
+<div class="bg-gradient-to-r from-primary to-primary-dark py-16">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Start Your Journey?</h2>
+        <p class="text-xl text-blue-100 mb-8">Join thousands of learners mastering cybersecurity skills with Savoir+</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'register' %}" class="inline-flex items-center px-8 py-4 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors transform hover:scale-105">
+                <i class="fas fa-rocket mr-2"></i>Start Free Trial (15 Days)
+            </a>
+            <a href="#features" class="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-primary transition-colors">
+                <i class="fas fa-info-circle mr-2"></i>Learn More
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

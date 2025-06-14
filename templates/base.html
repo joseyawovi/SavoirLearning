@@ -1,166 +1,275 @@
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}">
+<html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Savoir+ LMS{% endblock %}</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-bg': '#0f172a',
+                        'dark-card': '#1e293b',
+                        'dark-border': '#334155',
+                        'primary': '#3b82f6',
+                        'primary-dark': '#2563eb',
+                        'success': '#10b981',
+                        'warning': '#f59e0b',
+                        'danger': '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Custom CSS -->
-    <link href="{% load static %}{% static 'css/style.css' %}" rel="stylesheet">
-    
-    {% load i18n %}
+    {% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-                <i class="fas fa-graduation-cap me-2"></i>Savoir+
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
-                                <i class="fas fa-tachometer-alt me-1"></i>{% trans "Dashboard" %}
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+<body class="bg-dark-bg text-white min-h-screen">
+    <!-- Sidebar Navigation -->
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-64 md:flex-col">
+            <div class="flex flex-col flex-1 min-h-0 bg-dark-card border-r border-dark-border">
+                <!-- Logo -->
+                <div class="flex items-center h-16 px-4 bg-dark-bg">
+                    <a href="{% url 'home' %}" class="flex items-center text-xl font-bold text-white">
+                        <i class="fas fa-graduation-cap mr-3 text-primary"></i>Savoir+
+                    </a>
+                </div>
                 
-                <ul class="navbar-nav">
-                    <!-- Language Switcher -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-globe me-1"></i>
-                            {% get_current_language as LANGUAGE_CODE %}
-                            {% if LANGUAGE_CODE == 'fr' %}Français{% else %}English{% endif %}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-                                    <button type="submit" name="language" value="en" class="dropdown-item">
-                                        🇺🇸 English
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <form action="{% url 'set_language' %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-                                    <button type="submit" name="language" value="fr" class="dropdown-item">
-                                        🇫🇷 Français
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                    
+                <!-- Navigation Links -->
+                <nav class="flex-1 px-4 py-4 space-y-2">
                     {% if user.is_authenticated %}
-                        <!-- User Menu -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>{{ user.username }}
-                                {% if not user.is_paid_user %}
-                                    <span class="badge bg-warning text-dark ms-1">{% trans "Trial" %}</span>
-                                {% else %}
-                                    <span class="badge bg-success ms-1">{% trans "Premium" %}</span>
-                                {% endif %}
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% if not user.is_paid_user %}
-                                    <li><a class="dropdown-item text-warning" href="{% url 'upgrade_to_premium' %}">
-                                        <i class="fas fa-crown me-2"></i>{% trans "Upgrade to Premium" %}
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                {% endif %}
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>{% trans "Logout" %}
-                                </a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i>{% trans "Login" %}
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">
-                                <i class="fas fa-user-plus me-1"></i>{% trans "Register" %}
-                            </a>
-                        </li>
+                    <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+                        <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
+                    </a>
                     {% endif %}
-                </ul>
+                    
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+                        <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
+                    </a>
+                    <a href="{% url 'register' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+                        <i class="fas fa-user-plus mr-3"></i>{% trans "Register" %}
+                    </a>
+                    {% endif %}
+                </nav>
+                
+                <!-- User Info & Actions -->
+                {% if user.is_authenticated %}
+                <div class="flex-shrink-0 p-4 border-t border-dark-border">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-white">{{ user.username }}</p>
+                            {% if user.is_paid_user %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success text-white">
+                                    <i class="fas fa-crown mr-1"></i>{% trans "Premium" %}
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-warning text-dark-bg">
+                                    <i class="fas fa-clock mr-1"></i>{% trans "Trial" %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mt-3 space-y-1">
+                        {% if not user.is_paid_user %}
+                        <a href="{% url 'upgrade_to_premium' %}" class="block px-4 py-2 text-sm text-center bg-primary hover:bg-primary-dark rounded-lg transition-colors">
+                            <i class="fas fa-star mr-2"></i>{% trans "Upgrade to Premium" %}
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>{% trans "Logout" %}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
-    </nav>
 
-    <!-- Trial Warning Banner -->
-    {% if user.is_authenticated and not user.is_paid_user %}
-        <div class="alert alert-warning mb-0 text-center">
-            <i class="fas fa-clock me-2"></i>
-            {% trans "Trial account" %} - 
-            {% if user.is_trial_active %}
-                {% trans "Trial expires on" %} {{ user.trial_end_date|date:"F d, Y" }}
-            {% else %}
-                {% trans "Trial expired" %}
+        <!-- Main Content Area -->
+        <div class="flex flex-col flex-1">
+            <!-- Top Navigation (Mobile) -->
+            <div class="md:hidden bg-dark-card border-b border-dark-border">
+                <div class="flex items-center justify-between h-16 px-4">
+                    <a href="{% url 'home' %}" class="flex items-center text-xl font-bold text-white">
+                        <i class="fas fa-graduation-cap mr-2 text-primary"></i>Savoir+
+                    </a>
+                    <button id="mobile-menu-button" class="text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language Switcher & Status Bar -->
+            <div class="bg-dark-card border-b border-dark-border px-4 py-2">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <!-- Language Switcher -->
+                        <div class="relative">
+                            <button id="language-dropdown" class="flex items-center text-sm text-gray-300 hover:text-white">
+                                <i class="fas fa-language mr-2"></i>
+                                {% get_current_language as LANGUAGE_CODE %}
+                                {% if LANGUAGE_CODE == 'fr' %}Français{% else %}English{% endif %}
+                                <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                            <div id="language-menu" class="hidden absolute left-0 mt-2 w-40 bg-dark-card border border-dark-border rounded-lg shadow-lg z-10">
+                                <form action="{% url 'set_language' %}" method="post" class="block">
+                                    {% csrf_token %}
+                                    <input name="language" type="hidden" value="en">
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-t-lg">
+                                        <i class="fas fa-flag-usa mr-2"></i>English
+                                    </button>
+                                </form>
+                                <form action="{% url 'set_language' %}" method="post" class="block">
+                                    {% csrf_token %}
+                                    <input name="language" type="hidden" value="fr">
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-b-lg">
+                                        <i class="fas fa-flag mr-2"></i>Français
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated and not user.is_paid_user %}
+                    <div class="text-sm text-gray-400">
+                        {% if user.is_trial_active %}
+                            <i class="fas fa-clock mr-1 text-warning"></i>
+                            {% trans "Trial expires on" %} {{ user.trial_end_date|date:"M d, Y" }}
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle mr-1 text-danger"></i>
+                            {% trans "Trial expired" %}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="p-4">
+                {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-900 border-green-500 text-green-100{% elif message.tags == 'error' %}bg-red-900 border-red-500 text-red-100{% elif message.tags == 'warning' %}bg-yellow-900 border-yellow-500 text-yellow-100{% else %}bg-blue-900 border-blue-500 text-blue-100{% endif %}">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif message.tags == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm">{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
             {% endif %}
-            <a href="{% url 'upgrade_to_premium' %}" class="btn btn-sm btn-outline-dark ms-3">
-                {% trans "Upgrade Now" %}
-            </a>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 md:p-6">
+                {% block content %}{% endblock %}
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-dark-card border-t border-dark-border py-6">
+                <div class="px-4 md:px-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div class="mb-4 md:mb-0">
+                            <h5 class="text-lg font-semibold text-white">Savoir+</h5>
+                            <p class="text-gray-400">{% trans "Empowering learners through quality education" %}</p>
+                        </div>
+                        <div class="text-gray-400">
+                            <p>&copy; 2025 Savoir+. {% trans "All rights reserved." %}</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
-    {% endif %}
+    </div>
 
-    <!-- Messages -->
-    {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Main Content -->
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Savoir+</h5>
-                    <p class="mb-0">{% trans "Empowering learners through quality education" %}</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <p class="mb-0">&copy; 2025 Savoir+ LMS. {% trans "All rights reserved." %}</p>
-                </div>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-dark-bg">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between h-16 px-4 border-b border-dark-border">
+                <span class="text-xl font-bold text-white">Menu</span>
+                <button id="mobile-menu-close" class="text-gray-300 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
+            <nav class="flex-1 px-4 py-4 space-y-2">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
+                    <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
+                </a>
+                {% if not user.is_paid_user %}
+                <a href="{% url 'upgrade_to_premium' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
+                    <i class="fas fa-star mr-3"></i>{% trans "Upgrade to Premium" %}
+                </a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
+                    <i class="fas fa-sign-out-alt mr-3"></i>{% trans "Logout" %}
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
+                    <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
+                </a>
+                <a href="{% url 'register' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
+                    <i class="fas fa-user-plus mr-3"></i>{% trans "Register" %}
+                </a>
+                {% endif %}
+            </nav>
         </div>
-    </footer>
+    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script src="{% load static %}{% static 'js/quiz.js' %}"></script>
+    <script src="{% static 'js/quiz.js' %}"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.remove('hidden');
+        });
+        
+        document.getElementById('mobile-menu-close')?.addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        });
+        
+        // Language dropdown toggle
+        document.getElementById('language-dropdown')?.addEventListener('click', function() {
+            const menu = document.getElementById('language-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Close language dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('language-dropdown');
+            const menu = document.getElementById('language-menu');
+            if (dropdown && menu && !dropdown.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
