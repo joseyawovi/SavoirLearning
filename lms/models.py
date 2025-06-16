@@ -81,6 +81,7 @@ class Room(models.Model):
     
     def is_accessible_by_user(self, user):
         """Check if user can access this room based on prerequisites."""
+        # If no prerequisite room, it's accessible
         if not self.prerequisite_room:
             return True
         
@@ -111,6 +112,31 @@ class Section(models.Model):
     
     def __str__(self):
         return f"{self.room.title} - {self.title}"
+    
+    def is_accessible_by_user(self, user):
+        """Check if user can access this section."""
+        # First check if user can access the room
+        if not self.room.is_accessible_by_user(user):
+            return False
+        
+        # For the first section in a room, it's always accessible if room is accessible
+        if self.order == 0:
+            return True
+        
+        # For other sections, check if previous sections are completed
+        previous_sections = Section.objects.filter(
+            room=self.room,
+            is_active=True,
+            order__lt=self.order
+        )
+        
+        completed_previous = SectionCompletion.objects.filter(
+            user=user,
+            section__in=previous_sections,
+            is_completed=True
+        ).count()
+        
+        return completed_previous == previous_sections.count()
 
 
 class Question(models.Model):

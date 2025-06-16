@@ -203,6 +203,17 @@ def room_detail(request, room_id):
     )
     completed_section_ids = {sc.section_id for sc in section_completions if sc.is_completed}
     
+    # Check section accessibility
+    sections_data = []
+    for section in sections:
+        is_accessible = section.is_accessible_by_user(request.user)
+        is_completed = section.id in completed_section_ids
+        sections_data.append({
+            'section': section,
+            'is_accessible': is_accessible,
+            'is_completed': is_completed,
+        })
+    
     # Check if all sections are completed (for final exam access)
     all_sections_completed = len(completed_section_ids) == sections.count()
     
@@ -215,6 +226,7 @@ def room_detail(request, room_id):
     context = {
         'room': room,
         'sections': sections,
+        'sections_data': sections_data,
         'completed_section_ids': completed_section_ids,
         'all_sections_completed': all_sections_completed,
         'final_questions': final_questions,

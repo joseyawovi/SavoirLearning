@@ -72,7 +72,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
@@ -96,7 +96,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
@@ -130,107 +130,53 @@
             Complete sections in order
         </div>
     </div>
-    
-    {% if sections %}
+
+    {% if sections_data %}
     <div class="space-y-4">
-        {% for section in sections %}
-        <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300 group">
+        {% for section_data in sections_data %}
+        <div class="bg-dark-card border border-dark-border rounded-xl p-6 {% if section_data.is_accessible %}hover:border-primary{% endif %} transition-all duration-300 group">
             <div class="flex items-center justify-between">
-                <div class="flex items-center flex-1">
-                    <!-- Section Status Icon -->
-                    <div class="flex-shrink-0 mr-4">
-                        {% if section.is_completed %}
-                        <div class="w-12 h-12 bg-success rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check text-white text-xl"></i>
-                        </div>
-                        {% elif section.is_accessible %}
-                        <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-play text-white text-xl"></i>
-                        </div>
+                <div class="flex items-center">
+                    <div class="w-12 h-12 {% if section_data.is_completed %}bg-success{% elif section_data.is_accessible %}bg-primary{% else %}bg-gray-600{% endif %} rounded-lg flex items-center justify-center mr-4 {% if section_data.is_accessible %}group-hover:scale-105{% endif %} transition-transform">
+                        {% if section_data.is_completed %}
+                        <i class="fas fa-check text-white text-xl"></i>
+                        {% elif section_data.is_accessible %}
+                        <span class="text-white font-bold">{{ forloop.counter }}</span>
                         {% else %}
-                        <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-lock text-white text-xl"></i>
-                        </div>
+                        <i class="fas fa-lock text-white text-lg"></i>
                         {% endif %}
                     </div>
-                    
-                    <!-- Section Info -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xl font-semibold text-white truncate">
-                                <span class="inline-flex items-center justify-center w-6 h-6 bg-gray-700 rounded-full text-sm font-bold mr-3">
-                                    {{ forloop.counter }}
-                                </span>
-                                {{ section.title }}
-                            </h3>
-                            <div class="flex items-center ml-4">
-                                {% if section.is_completed %}
-                                <span class="inline-flex items-center px-3 py-1 bg-success rounded-full text-sm font-medium">
-                                    <i class="fas fa-check mr-1"></i>{% trans "Completed" %}
-                                </span>
-                                {% elif section.is_accessible %}
-                                <span class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-full text-sm font-medium">
-                                    <i class="fas fa-unlock mr-1"></i>{% trans "Available" %}
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium">
-                                    <i class="fas fa-lock mr-1"></i>{% trans "Locked" %}
-                                </span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <p class="text-gray-300 mb-3">{{ section.content|truncatewords:25|striptags }}</p>
-                        
-                        <!-- Section Features -->
-                        <div class="flex items-center space-x-4 text-sm text-gray-400">
-                            {% if section.video_url %}
-                            <div class="flex items-center">
-                                <i class="fas fa-video mr-1 text-blue-400"></i>
-                                {% trans "Video" %}
-                            </div>
+                    <div>
+                        <h3 class="text-lg font-semibold {% if section_data.is_accessible %}text-white group-hover:text-primary{% else %}text-gray-500{% endif %} transition-colors">
+                            {% if LANGUAGE_CODE == 'fr' and section_data.section.title_fr %}
+                                {{ section_data.section.title_fr }}
+                            {% else %}
+                                {{ section_data.section.title }}
                             {% endif %}
-                            {% if section.questions.count %}
-                            <div class="flex items-center">
-                                <i class="fas fa-brain mr-1 text-green-400"></i>
-                                {{ section.questions.count }} {% trans "Questions" %}
-                            </div>
+                        </h3>
+                        <p class="text-gray-400 text-sm mt-1">
+                            {% if section_data.is_completed %}
+                                <i class="fas fa-check-circle text-success mr-1"></i>{% trans "Completed" %}
+                            {% elif section_data.is_accessible %}
+                                <i class="fas fa-play-circle mr-1"></i>{% trans "Start Learning" %}
+                            {% else %}
+                                <i class="fas fa-lock mr-1"></i>{% trans "Complete previous section" %}
                             {% endif %}
-                            <div class="flex items-center">
-                                <i class="fas fa-book-open mr-1 text-yellow-400"></i>
-                                {% trans "Reading" %}
-                            </div>
-                        </div>
-                        
-                        <!-- Progress Bar for accessible sections -->
-                        {% if section.is_accessible and section.questions.count %}
-                        <div class="mt-3">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-gray-400">{% trans "Quiz Progress" %}</span>
-                                <span class="text-xs text-gray-300">{{ section.answered_questions }}/{{ section.questions.count }}</span>
-                            </div>
-                            <div class="w-full h-2 bg-dark-bg rounded-full">
-                                <div class="h-2 bg-primary rounded-full transition-all duration-500" 
-                                     style="width: {% widthratio section.answered_questions section.questions.count 100 %}%"></div>
-                            </div>
-                        </div>
-                        {% endif %}
+                        </p>
                     </div>
                 </div>
-                
-                <!-- Action Button -->
-                <div class="ml-6">
-                    {% if section.is_accessible %}
-                    <a href="{% url 'section_detail' section.id %}" 
-                       class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors group-hover:scale-105 transform">
-                        {% if section.is_completed %}
+                <div>
+                    {% if section_data.is_accessible %}
+                    <a href="{% url 'section_detail' section_data.section.id %}" 
+                       class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors group-hover:scale-105">
+                        {% if section_data.is_completed %}
                             <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
                         {% else %}
                             <i class="fas fa-play mr-2"></i>{% trans "Start" %}
                         {% endif %}
                     </a>
                     {% else %}
-                    <div class="inline-flex items-center px-6 py-3 bg-gray-600 text-gray-300 font-medium rounded-lg cursor-not-allowed">
+                    <div class="inline-flex items-center px-4 py-2 bg-gray-600 text-gray-300 font-medium rounded-lg cursor-not-allowed">
                         <i class="fas fa-lock mr-2"></i>{% trans "Locked" %}
                     </div>
                     {% endif %}
@@ -238,7 +184,6 @@
             </div>
         </div>
         {% endfor %}
-    </div>
     {% else %}
     <div class="text-center py-16">
         <div class="w-24 h-24 bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6">
@@ -360,7 +305,7 @@
             <i class="fas fa-arrow-left mr-2"></i>
             {% trans "Back to Roadmap" %}
         </a>
-        
+
         {% if next_available_section %}
         <a href="{% url 'section_detail' next_available_section.id %}" 
            class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
@@ -390,7 +335,7 @@
                 bar.style.width = width;
             }, 300);
         });
-        
+
         // Add hover effects for section cards
         document.querySelectorAll('.group').forEach(card => {
             card.addEventListener('mouseenter', function() {
