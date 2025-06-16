@@ -105,12 +105,16 @@ def dashboard(request):
         # Add user progress calculation for each roadmap
         roadmap.user_progress = roadmap_progress
         
+        # Calculate stroke-dashoffset for SVG progress circle
+        stroke_dashoffset = 175.93 - (roadmap_progress / 100 * 175.93)
+        
         roadmap_data.append({
             'roadmap': roadmap,
             'rooms': rooms_data,
             'progress': roadmap_progress,
             'completed_rooms': roadmap_completed,
             'total_rooms': rooms.count(),
+            'stroke_dashoffset': stroke_dashoffset,
         })
     
     context = {

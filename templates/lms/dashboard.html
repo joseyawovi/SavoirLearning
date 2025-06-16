@@ -164,7 +164,7 @@
         <div class="group relative">
             <!-- Gradient Background Effect -->
             <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-            
+
             <div class="relative bg-dark-card border border-dark-border rounded-2xl p-8 hover:border-primary transition-all duration-500 transform hover:-translate-y-1">
                 <!-- Course Header with Enhanced Visual Hierarchy -->
                 <div class="flex items-start justify-between mb-6">
@@ -189,14 +189,14 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Progress Circle -->
                     <div class="relative w-16 h-16">
                         <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
                             <circle cx="32" cy="32" r="28" stroke="#374151" stroke-width="4" fill="none"/>
                             <circle cx="32" cy="32" r="28" stroke="url(#gradient{{ forloop.counter }})" stroke-width="4" fill="none"
-                                    stroke-dasharray="175.93" stroke-dashoffset="{{ 175.93|floatformat:2|add:0|sub:roadmap_item.progress|mul:1.7593 }}"
-                                    class="transition-all duration-1000 ease-out"/>
+                                stroke-dasharray="175.93" stroke-dashoffset="{{ roadmap_item.stroke_dashoffset }}"
+                                class="transition-all duration-1000 ease-out"/>
                         </svg>
                         <div class="absolute inset-0 flex items-center justify-center">
                             <span class="text-sm font-bold text-white">{{ roadmap_item.progress|floatformat:0 }}%</span>
@@ -310,7 +310,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    
+
                     <a href="{% url 'roadmap_detail' roadmap_item.roadmap.id %}" 
                        class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group/button">
                         {% if roadmap_item.progress == 0 %}
