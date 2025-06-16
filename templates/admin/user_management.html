@@ -1,0 +1,127 @@
+
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}User Management - {{ site_title|default:"Django Administration" }}{% endblock %}
+
+{% block extrahead %}
+    <style>
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-table th,
+        .user-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .user-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-paid { background-color: #28a745; color: white; }
+        .status-trial { background-color: #ffc107; color: black; }
+        .status-expired { background-color: #dc3545; color: white; }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .filter-group {
+            display: inline-block;
+            margin-right: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="user-management">
+    <h1>User Management</h1>
+    
+    <div class="filters">
+        <form method="get" style="display: flex; align-items: center; gap: 15px;">
+            <div class="filter-group">
+                <label for="status">Status:</label>
+                <select name="status" id="status" onchange="this.form.submit()">
+                    <option value="">All Users</option>
+                    <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="trial" {% if request.GET.status == 'trial' %}selected{% endif %}>Trial</option>
+                    <option value="expired" {% if request.GET.status == 'expired' %}selected{% endif %}>Expired</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="search">Search:</label>
+                <input type="text" name="search" id="search" value="{{ request.GET.search }}" 
+                       placeholder="Username or email...">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+    
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Trial End</th>
+                <th>Joined</th>
+                <th>Progress</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.is_paid_user %}
+                            <span class="status-badge status-paid">Paid</span>
+                        {% elif user.is_trial_active %}
+                            <span class="status-badge status-trial">Trial</span>
+                        {% else %}
+                            <span class="status-badge status-expired">Expired</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not user.is_paid_user %}
+                            {{ user.trial_end_date|date:"M d, Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                    <td>
+                        <div style="width: 100px; background: #eee; height: 10px; border-radius: 5px;">
+                            <div style="width: {{ user.progress|default:0 }}%; background: #007bff; height: 100%; border-radius: 5px;"></div>
+                        </div>
+                        <small>{{ user.completed_rooms|default:0 }} rooms</small>
+                    </td>
+                    <td>
+                        <a href="/admin/lms/user/{{ user.id }}/change/" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

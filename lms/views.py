@@ -56,28 +56,62 @@ def dashboard(request):
         user=request.user, is_completed=True
     ).values_list('room_id', flat=True)
     
+    # Get user's certificates
+    certificates = Certificate.objects.filter(user=request.user, is_valid=True)
+    
+    # Calculate overall progress
+    total_rooms = Room.objects.filter(is_active=True).count()
+    completed_count = len(completed_rooms)
+    overall_progress = (completed_count / total_rooms * 100) if total_rooms > 0 else 0
+    
     # Organize roadmap data with progress
     roadmap_data = []
     for roadmap in roadmaps:
+        rooms = roadmap.rooms.filter(is_active=True).order_by('order')
         rooms_data = []
-        for room in roadmap.rooms.filter(is_active=True).order_by('order'):
+        roadmap_completed = 0
+        
+        for room in rooms:
             is_accessible = room.is_accessible_by_user(request.user)
             is_completed = room.id in completed_rooms
+            
+            if is_completed:
+                roadmap_completed += 1
+            
+            # Get sections progress for this room
+            sections = room.sections.filter(is_active=True)
+            completed_sections = SectionCompletion.objects.filter(
+                user=request.user, section__in=sections, is_completed=True
+            ).count()
+            
+            sections_progress = (completed_sections / sections.count() * 100) if sections.count() > 0 else 0
             
             rooms_data.append({
                 'room': room,
                 'is_accessible': is_accessible,
                 'is_completed': is_completed,
+                'sections_progress': sections_progress,
+                'sections_total': sections.count(),
+                'sections_completed': completed_sections,
             })
+        
+        roadmap_progress = (roadmap_completed / rooms.count() * 100) if rooms.count() > 0 else 0
         
         roadmap_data.append({
             'roadmap': roadmap,
-            'rooms': rooms_data
+            'rooms': rooms_data,
+            'progress': roadmap_progress,
+            'completed_rooms': roadmap_completed,
+            'total_rooms': rooms.count(),
         })
     
     context = {
         'roadmap_data': roadmap_data,
         'user': request.user,
+        'certificates': certificates,
+        'overall_progress': overall_progress,
+        'total_completed_rooms': completed_count,
+        'total_rooms': total_rooms,
     }
     return render(request, 'lms/dashboard.html', context)
 

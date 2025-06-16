@@ -83,7 +83,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
@@ -95,7 +95,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
@@ -107,7 +107,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
@@ -138,7 +138,7 @@
             Choose your learning path
         </div>
     </div>
-    
+
     {% if roadmaps %}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {% for roadmap in roadmaps %}
@@ -163,10 +163,10 @@
                     {% endwith %}
                 </div>
             </div>
-            
+
             <!-- Description -->
             <p class="text-gray-300 mb-4 line-clamp-2">{{ roadmap.description|truncatewords:15 }}</p>
-            
+
             <!-- Room Preview -->
             <div class="space-y-2 mb-4">
                 {% for room in roadmap.rooms.all|slice:":3" %}
@@ -204,7 +204,7 @@
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Action Button -->
             <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-400">
@@ -274,7 +274,7 @@
         </div>
         {% endif %}
     </div>
-    
+
     <!-- Quick Actions -->
     <div class="bg-dark-card border border-dark-border rounded-xl p-6">
         <h3 class="text-lg font-semibold text-white mb-4">
@@ -295,7 +295,7 @@
                 <i class="fas fa-arrow-right text-white group-hover:translate-x-1 transition-transform"></i>
             </a>
             {% endif %}
-            
+
             <a href="{% url 'admin:index' %}" 
                class="flex items-center p-4 bg-dark-bg rounded-lg hover:bg-gray-700 transition-colors group">
                 <div class="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center mr-4">
@@ -307,7 +307,7 @@
                 </div>
                 <i class="fas fa-arrow-right text-gray-400 group-hover:translate-x-1 transition-transform"></i>
             </a>
-            
+
             <div class="flex items-center p-4 bg-dark-bg rounded-lg">
                 <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4">
                     <i class="fas fa-globe text-white"></i>

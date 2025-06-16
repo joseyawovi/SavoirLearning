@@ -1,0 +1,31 @@
+
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:"Savoir+ LMS Administration" }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}" style="color: #007bff; text-decoration: none;">
+        Savoir+ LMS Administration
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}
+<div style="background: #007bff; padding: 10px 0;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <nav style="display: flex; gap: 20px;">
+            <a href="{% url 'admin:admin_dashboard' %}" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255,255,255,0.1);">
+                Dashboard
+            </a>
+            <a href="{% url 'admin:admin_analytics' %}" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255,255,255,0.1);">
+                Analytics
+            </a>
+            <a href="{% url 'admin:index' %}" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; background: rgba(255,255,255,0.1);">
+                Models
+            </a>
+        </nav>
+    </div>
+</div>
+{% endblock %}
