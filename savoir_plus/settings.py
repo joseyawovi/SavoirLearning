@@ -125,6 +125,7 @@ AUTH_USER_MODEL = 'lms.User'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+LOGOUT_URL = '/logout/'
 
 # Email backend for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

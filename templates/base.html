@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Savoir+ LMS{% endblock %}</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -46,7 +46,7 @@
                         <i class="fas fa-graduation-cap mr-3 text-primary"></i>Savoir+
                     </a>
                 </div>
-                
+
                 <!-- Navigation Links -->
                 <nav class="flex-1 px-4 py-4 space-y-2">
                     {% if user.is_authenticated %}
@@ -54,7 +54,7 @@
                         <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
                     </a>
                     {% endif %}
-                    
+
                     {% if not user.is_authenticated %}
                     <a href="{% url 'login' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
                         <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
@@ -64,7 +64,7 @@
                     </a>
                     {% endif %}
                 </nav>
-                
+
                 <!-- User Info & Actions -->
                 {% if user.is_authenticated %}
                 <div class="flex-shrink-0 p-4 border-t border-dark-border">
@@ -146,7 +146,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     {% if user.is_authenticated and not user.is_paid_user %}
                     <div class="text-sm text-gray-400">
                         {% if user.is_trial_active %}
@@ -228,9 +228,12 @@
                     <i class="fas fa-star mr-3"></i>{% trans "Upgrade to Premium" %}
                 </a>
                 {% endif %}
-                <a href="{% url 'logout' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
-                    <i class="fas fa-sign-out-alt mr-3"></i>{% trans "Logout" %}
-                </a>
+                <form method="post" action="{% url 'logout' %}" class="w-full">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white block text-center w-full">
+                        {% trans "Logout" %}
+                    </button>
+                </form>
                 {% else %}
                 <a href="{% url 'login' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
                     <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
@@ -250,17 +253,17 @@
         document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.remove('hidden');
         });
-        
+
         document.getElementById('mobile-menu-close')?.addEventListener('click', function() {
             document.getElementById('mobile-menu').classList.add('hidden');
         });
-        
+
         // Language dropdown toggle
         document.getElementById('language-dropdown')?.addEventListener('click', function() {
             const menu = document.getElementById('language-menu');
             menu.classList.toggle('hidden');
         });
-        
+
         // Close language dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('language-dropdown');
@@ -270,7 +273,7 @@
             }
         });
     </script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
