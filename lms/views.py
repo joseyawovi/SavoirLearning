@@ -143,9 +143,16 @@ def roadmap_detail(request, roadmap_id):
     ).values_list('room_id', flat=True)
     
     rooms_data = []
+    total_rooms = 0
+    completed_count = 0
+    
     for room in roadmap.rooms.filter(is_active=True).order_by('order'):
         is_accessible = room.is_accessible_by_user(request.user)
         is_completed = room.id in completed_rooms
+        
+        if is_completed:
+            completed_count += 1
+        total_rooms += 1
         
         # Get sections count and completion
         sections = room.sections.filter(is_active=True)
@@ -161,11 +168,21 @@ def roadmap_detail(request, roadmap_id):
             'completed_sections': completed_sections,
         })
     
+    # Calculate overall progress
+    user_progress = (completed_count / total_rooms * 100) if total_rooms > 0 else 0
+    
+    # Calculate progress circle offset (circumference = 2 * π * r = 2 * π * 56 = 351.86)
+    progress_offset = 351.86 - (user_progress / 100 * 351.86)
+    
     context = {
         'roadmap': roadmap,
         'rooms': rooms_data,
+        'user_progress': user_progress,
+        'progress_offset': progress_offset,
+        'total_rooms': total_rooms,
+        'completed_count': completed_count,
     }
-    return render(request, 'lms/roadmap.html', context)
+    return render(request, 'lms/roadmap_detail.html', context)
 
 
 @login_required

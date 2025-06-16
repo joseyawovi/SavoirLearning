@@ -1,5 +1,7 @@
+
 {% extends 'base.html' %}
 {% load i18n %}
+{% load math_filters %}
 
 {% block title %}{{ roadmap.title }} - Savoir+{% endblock %}
 
@@ -16,87 +18,139 @@
 </div>
 
 <!-- Roadmap Header -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-8">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mr-6">
-                <i class="fas fa-route text-white text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-3xl font-bold text-white mb-2">{{ roadmap.title }}</h1>
-                <p class="text-gray-400 text-lg">{{ roadmap.description }}</p>
-                <div class="flex items-center mt-3 space-x-6">
-                    <div class="flex items-center text-sm text-gray-300">
-                        <i class="fas fa-door-open mr-2 text-primary"></i>
-                        {{ rooms.count }} {% trans "Rooms" %}
+<div class="relative mb-8">
+    <!-- Background gradient -->
+    <div class="absolute inset-0 bg-gradient-to-r from-primary/20 via-purple-600/20 to-pink-600/20 rounded-2xl blur-xl"></div>
+    
+    <div class="relative bg-dark-card border border-dark-border rounded-2xl p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-start mb-6 lg:mb-0">
+                <div class="relative mr-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-route text-white text-3xl"></i>
                     </div>
-                    <div class="flex items-center text-sm text-gray-300">
-                        <i class="fas fa-clock mr-2 text-green-400"></i>
-                        {{ rooms.count|add:rooms.count }} hours total
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-success rounded-full flex items-center justify-center border-2 border-dark-card">
+                        <i class="fas fa-star text-white text-sm"></i>
                     </div>
-                    <div class="flex items-center text-sm text-gray-300">
-                        <i class="fas fa-users mr-2 text-yellow-400"></i>
-                        Beginner to Advanced
-                    </div>
-                    <div class="flex items-center text-sm text-gray-300">
-                        <i class="fas fa-clock mr-1 text-primary"></i>
-                        {% if user_progress == 0 %}
-                            {% trans "Not started" %}
-                        {% elif user_progress == 100 %}
-                            {% trans "Completed" %}
-                        {% else %}
-                            {% trans "In progress" %}
-                        {% endif %}
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-3">{{ roadmap.title }}</h1>
+                    <p class="text-gray-300 text-lg mb-4 max-w-2xl leading-relaxed">{{ roadmap.description }}</p>
+                    <div class="flex flex-wrap items-center gap-6 text-sm">
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-door-open mr-2 text-primary"></i>
+                            {{ rooms|length }} {% trans "Rooms" %}
+                        </div>
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-clock mr-2 text-green-400"></i>
+                            {{ rooms|length|add:rooms|length }} {% trans "hours total" %}
+                        </div>
+                        <div class="flex items-center text-gray-300">
+                            <i class="fas fa-signal mr-2 text-yellow-400"></i>
+                            {% trans "Beginner to Advanced" %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="text-right">
-            <div class="mb-2">
-                <span class="text-2xl font-bold text-white">{{ user_progress }}%</span>
+            
+            <!-- Progress Section -->
+            <div class="flex flex-col items-center lg:items-end">
+                <div class="relative w-32 h-32 mb-4">
+                    <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 128 128">
+                        <!-- Background circle -->
+                        <circle cx="64" cy="64" r="56" stroke="#374151" stroke-width="6" fill="none"/>
+                        <!-- Progress circle -->
+                        <circle cx="64" cy="64" r="56" stroke="url(#progressGradient)" stroke-width="6" fill="none"
+                                stroke-dasharray="351.86" stroke-dashoffset="{{ progress_offset }}"
+                                class="transition-all duration-1000 ease-out"/>
+                        <!-- Define gradient -->
+                        <defs>
+                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-white">{{ user_progress|floatformat:0 }}%</span>
+                            <div class="text-xs text-gray-400">{% trans "Complete" %}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center lg:text-right">
+                    <div class="text-sm text-gray-400 mb-2">{% trans "Status" %}</div>
+                    {% if user_progress == 0 %}
+                        <span class="inline-flex items-center px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm font-medium border border-blue-600/30">
+                            <i class="fas fa-play mr-1"></i>{% trans "Ready to Start" %}
+                        </span>
+                    {% elif user_progress == 100 %}
+                        <span class="inline-flex items-center px-3 py-1 bg-success/20 text-success rounded-full text-sm font-medium border border-success/30">
+                            <i class="fas fa-trophy mr-1"></i>{% trans "Completed" %}
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 bg-warning/20 text-warning rounded-full text-sm font-medium border border-warning/30">
+                            <i class="fas fa-spinner mr-1"></i>{% trans "In Progress" %}
+                        </span>
+                    {% endif %}
+                </div>
             </div>
-            <div class="w-32 h-3 bg-dark-bg rounded-full">
-                <div class="h-3 bg-primary rounded-full transition-all duration-500" style="width: {{ user_progress }}%"></div>
-            </div>
-            <p class="text-xs text-gray-400 mt-1">{% trans "Overall Progress" %}</p>
         </div>
     </div>
 </div>
 
-<!-- Progress Overview -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+<!-- Progress Overview Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
                 <i class="fas fa-door-open text-white text-xl"></i>
             </div>
             <div>
                 <p class="text-gray-400 text-sm">{% trans "Total Rooms" %}</p>
-                <p class="text-2xl font-bold text-white">{{ rooms.count }}</p>
+                <p class="text-2xl font-bold text-white">{{ rooms|length }}</p>
             </div>
         </div>
     </div>
     
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300">
         <div class="flex items-center">
-            <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+            <div class="w-12 h-12 bg-success rounded-lg flex items-center justify-center mr-4">
                 <i class="fas fa-check-circle text-white text-xl"></i>
             </div>
             <div>
                 <p class="text-gray-400 text-sm">{% trans "Completed" %}</p>
-                <p class="text-2xl font-bold text-white">{{ completed_rooms }}</p>
+                <p class="text-2xl font-bold text-white">
+                    {% for room_data in rooms %}{% if room_data.is_completed %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
+                </p>
             </div>
         </div>
     </div>
     
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300">
         <div class="flex items-center">
-            <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-trophy text-white text-xl"></i>
+            <div class="w-12 h-12 bg-warning rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-unlock text-white text-xl"></i>
+            </div>
+            <div>
+                <p class="text-gray-400 text-sm">{% trans "Available" %}</p>
+                <p class="text-2xl font-bold text-white">
+                    {% for room_data in rooms %}{% if room_data.is_accessible and not room_data.is_completed %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-certificate text-white text-xl"></i>
             </div>
             <div>
                 <p class="text-gray-400 text-sm">{% trans "Certificates" %}</p>
-                <p class="text-2xl font-bold text-white">{{ certificates_earned }}</p>
+                <p class="text-2xl font-bold text-white">
+                    {% for room_data in rooms %}{% if room_data.is_completed %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
+                </p>
             </div>
         </div>
     </div>
@@ -104,104 +158,133 @@
 
 <!-- Learning Path -->
 <div class="mb-8">
-    <h2 class="text-2xl font-bold text-white mb-6">
-        <i class="fas fa-map text-primary mr-2"></i>
-        {% trans "Learning Path" %}
-    </h2>
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">
+            <i class="fas fa-map text-primary mr-2"></i>
+            {% trans "Learning Path" %}
+        </h2>
+        <div class="flex items-center space-x-2 text-sm text-gray-400">
+            <i class="fas fa-info-circle"></i>
+            <span>{% trans "Complete rooms in order to unlock the next" %}</span>
+        </div>
+    </div>
     
     {% if rooms %}
-    <div class="space-y-4">
-        {% for room in rooms %}
-        <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300 group">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center flex-1">
-                    <!-- Room Status Icon -->
-                    <div class="flex-shrink-0 mr-4">
-                        {% if room.is_completed %}
-                        <div class="w-12 h-12 bg-success rounded-lg flex items-center justify-center">
-                            <i class="fas fa-check text-white text-xl"></i>
-                        </div>
-                        {% elif room.is_accessible %}
-                        <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-play text-white text-xl"></i>
-                        </div>
-                        {% else %}
-                        <div class="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-lock text-white text-xl"></i>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Room Info -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-xl font-semibold text-white truncate">{{ room.title }}</h3>
-                            <div class="flex items-center ml-4">
-                                {% if room.is_completed %}
-                                <span class="inline-flex items-center px-3 py-1 bg-success rounded-full text-sm font-medium">
-                                    <i class="fas fa-check mr-1"></i>{% trans "Completed" %}
-                                </span>
-                                {% elif room.is_accessible %}
-                                <span class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-full text-sm font-medium">
-                                    <i class="fas fa-unlock mr-1"></i>{% trans "Available" %}
-                                </span>
+    <div class="space-y-6">
+        {% for room_data in rooms %}
+        <div class="group relative">
+            <!-- Gradient background effect for completed rooms -->
+            {% if room_data.is_completed %}
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-success to-green-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+            {% elif room_data.is_accessible %}
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+            {% endif %}
+            
+            <div class="relative bg-dark-card border border-dark-border rounded-2xl p-6 hover:border-primary transition-all duration-500 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center flex-1">
+                        <!-- Room Number & Status -->
+                        <div class="flex-shrink-0 mr-6">
+                            <div class="relative">
+                                {% if room_data.is_completed %}
+                                <div class="w-16 h-16 bg-success rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-check text-white text-2xl"></i>
+                                </div>
+                                {% elif room_data.is_accessible %}
+                                <div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <span class="text-white text-xl font-bold">{{ forloop.counter }}</span>
+                                </div>
                                 {% else %}
-                                <span class="inline-flex items-center px-3 py-1 bg-gray-600 rounded-full text-sm font-medium">
-                                    <i class="fas fa-lock mr-1"></i>{% trans "Locked" %}
-                                </span>
+                                <div class="w-16 h-16 bg-gray-600 rounded-2xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-lock text-white text-xl"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Connection line to next room -->
+                                {% if not forloop.last %}
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0.5 h-6 bg-gray-600"></div>
                                 {% endif %}
                             </div>
                         </div>
                         
-                        <p class="text-gray-300 mb-3">{{ room.description|truncatewords:20 }}</p>
-                        
-                        <!-- Room Stats -->
-                        <div class="flex items-center space-x-4 text-sm text-gray-400">
-                            <div class="flex items-center">
-                                <i class="fas fa-book-open mr-1"></i>
-                                {{ room.sections.count }} {% trans "Sections" %}
+                        <!-- Room Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white mb-1">{{ room_data.room.title }}</h3>
+                                    <p class="text-gray-300 leading-relaxed">{{ room_data.room.description|truncatewords:25 }}</p>
+                                </div>
+                                <div class="ml-4">
+                                    {% if room_data.is_completed %}
+                                    <span class="inline-flex items-center px-3 py-1 bg-success/20 text-success rounded-full text-sm font-medium border border-success/30">
+                                        <i class="fas fa-trophy mr-1"></i>{% trans "Completed" %}
+                                    </span>
+                                    {% elif room_data.is_accessible %}
+                                    <span class="inline-flex items-center px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium border border-primary/30">
+                                        <i class="fas fa-unlock mr-1"></i>{% trans "Available" %}
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 bg-gray-600/20 text-gray-400 rounded-full text-sm font-medium border border-gray-600/30">
+                                        <i class="fas fa-lock mr-1"></i>{% trans "Locked" %}
+                                    </span>
+                                    {% endif %}
+                                </div>
                             </div>
-                            {% if room.prerequisite_room %}
-                            <div class="flex items-center">
-                                <i class="fas fa-arrow-left mr-1"></i>
-                                {% trans "Requires" %}: {{ room.prerequisite_room.title|truncatechars:20 }}
+                            
+                            <!-- Room Stats -->
+                            <div class="flex items-center space-x-6 text-sm text-gray-400 mb-4">
+                                <div class="flex items-center">
+                                    <i class="fas fa-book-open mr-1"></i>
+                                    {{ room_data.total_sections }} {% trans "Sections" %}
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-question-circle mr-1"></i>
+                                    {% trans "Final Exam" %}
+                                </div>
+                                {% if room_data.room.prerequisite_room %}
+                                <div class="flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    {% trans "Requires" %}: {{ room_data.room.prerequisite_room.title|truncatechars:20 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Progress Bar for accessible rooms -->
+                            {% if room_data.is_accessible %}
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-gray-400">{% trans "Sections Progress" %}</span>
+                                    <span class="text-xs text-gray-300">{{ room_data.completed_sections }}/{{ room_data.total_sections }}</span>
+                                </div>
+                                <div class="w-full h-2 bg-dark-bg rounded-full overflow-hidden">
+                                    {% with progress=room_data.completed_sections|mul:100|div:room_data.total_sections %}
+                                    <div class="h-2 bg-gradient-to-r from-primary to-purple-600 rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                                    {% endwith %}
+                                </div>
                             </div>
                             {% endif %}
                         </div>
-                        
-                        <!-- Progress Bar -->
-                        {% if room.is_accessible %}
-                        <div class="mt-3">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-gray-400">{% trans "Progress" %}</span>
-                                <span class="text-xs text-gray-300">{{ room.progress }}%</span>
-                            </div>
-                            <div class="w-full h-2 bg-dark-bg rounded-full">
-                                <div class="h-2 bg-primary rounded-full transition-all duration-500" style="width: {{ room.progress }}%"></div>
-                            </div>
+                    </div>
+                    
+                    <!-- Action Button -->
+                    <div class="ml-6">
+                        {% if room_data.is_accessible %}
+                        <a href="{% url 'room_detail' room_data.room.id %}" 
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group/button">
+                            {% if room_data.is_completed %}
+                                <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
+                            {% elif room_data.completed_sections > 0 %}
+                                <i class="fas fa-arrow-right mr-2 group-hover/button:translate-x-1 transition-transform"></i>{% trans "Continue" %}
+                            {% else %}
+                                <i class="fas fa-play mr-2 group-hover/button:animate-pulse"></i>{% trans "Start" %}
+                            {% endif %}
+                        </a>
+                        {% else %}
+                        <div class="inline-flex items-center px-6 py-3 bg-gray-600/50 text-gray-400 font-semibold rounded-xl cursor-not-allowed">
+                            <i class="fas fa-lock mr-2"></i>{% trans "Locked" %}
                         </div>
                         {% endif %}
                     </div>
-                </div>
-                
-                <!-- Action Button -->
-                <div class="ml-6">
-                    {% if room.is_accessible %}
-                    <a href="{% url 'room_detail' room.id %}" 
-                       class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors group-hover:scale-105 transform">
-                        {% if room.is_completed %}
-                            <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
-                        {% elif room.progress > 0 %}
-                            <i class="fas fa-arrow-right mr-2"></i>{% trans "Continue" %}
-                        {% else %}
-                            <i class="fas fa-play mr-2"></i>{% trans "Start" %}
-                        {% endif %}
-                    </a>
-                    {% else %}
-                    <div class="inline-flex items-center px-6 py-3 bg-gray-600 text-gray-300 font-medium rounded-lg cursor-not-allowed">
-                        <i class="fas fa-lock mr-2"></i>{% trans "Locked" %}
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -218,50 +301,62 @@
     {% endif %}
 </div>
 
-<!-- Study Tips -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6">
-    <h3 class="text-lg font-semibold text-white mb-4">
-        <i class="fas fa-lightbulb text-primary mr-2"></i>
-        {% trans "Study Tips" %}
-    </h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-start p-4 bg-dark-bg rounded-lg">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 mt-1">
-                <i class="fas fa-route text-white text-sm"></i>
+<!-- Study Tips & Resources -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Study Tips -->
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">
+            <i class="fas fa-lightbulb text-primary mr-2"></i>
+            {% trans "Study Tips" %}
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-start p-4 bg-dark-bg rounded-lg">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-route text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-white mb-1">{% trans "Follow the Path" %}</p>
+                    <p class="text-sm text-gray-400">{% trans "Complete rooms in order to build your knowledge progressively." %}</p>
+                </div>
             </div>
-            <div>
-                <p class="font-medium text-white mb-1">{% trans "Follow the Path" %}</p>
-                <p class="text-sm text-gray-400">Complete rooms in order to build your knowledge progressively.</p>
-            </div>
-        </div>
-        
-        <div class="flex items-start p-4 bg-dark-bg rounded-lg">
-            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-3 mt-1">
-                <i class="fas fa-brain text-white text-sm"></i>
-            </div>
-            <div>
-                <p class="font-medium text-white mb-1">{% trans "Practice Regularly" %}</p>
-                <p class="text-sm text-gray-400">Take the quizzes to reinforce your understanding of each topic.</p>
-            </div>
-        </div>
-        
-        <div class="flex items-start p-4 bg-dark-bg rounded-lg">
-            <div class="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center mr-3 mt-1">
-                <i class="fas fa-certificate text-white text-sm"></i>
-            </div>
-            <div>
-                <p class="font-medium text-white mb-1">{% trans "Earn Certificates" %}</p>
-                <p class="text-sm text-gray-400">Complete final exams to earn certificates for your achievements.</p>
+            
+            <div class="flex items-start p-4 bg-dark-bg rounded-lg">
+                <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-brain text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-white mb-1">{% trans "Practice Regularly" %}</p>
+                    <p class="text-sm text-gray-400">{% trans "Take the quizzes to reinforce your understanding of each topic." %}</p>
+                </div>
             </div>
         </div>
-        
-        <div class="flex items-start p-4 bg-dark-bg rounded-lg">
-            <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mr-3 mt-1">
-                <i class="fas fa-users text-white text-sm"></i>
+    </div>
+    
+    <!-- Learning Resources -->
+    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-4">
+            <i class="fas fa-book text-primary mr-2"></i>
+            {% trans "Learning Resources" %}
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-start p-4 bg-dark-bg rounded-lg">
+                <div class="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-certificate text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-white mb-1">{% trans "Earn Certificates" %}</p>
+                    <p class="text-sm text-gray-400">{% trans "Complete final exams to earn certificates for your achievements." %}</p>
+                </div>
             </div>
-            <div>
-                <p class="font-medium text-white mb-1">{% trans "Join Community" %}</p>
-                <p class="text-sm text-gray-400">Connect with other learners and share your progress.</p>
+            
+            <div class="flex items-start p-4 bg-dark-bg rounded-lg">
+                <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mr-3 mt-1">
+                    <i class="fas fa-users text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-white mb-1">{% trans "Join Community" %}</p>
+                    <p class="text-sm text-gray-400">{% trans "Connect with other learners and share your progress." %}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -270,26 +365,32 @@
 
 {% block extra_js %}
 <script>
-    // Animate progress bars on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const progressBars = document.querySelectorAll('[style*="width:"]');
-        progressBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 300);
-        });
-        
-        // Add hover effects for room cards
-        document.querySelectorAll('.group').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.classList.add('transform', 'scale-105');
-            });
-            card.addEventListener('mouseleave', function() {
-                this.classList.remove('transform', 'scale-105');
-            });
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars and circles on page load
+    const progressBars = document.querySelectorAll('[style*="width:"]');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+            bar.style.transition = 'width 1s ease-out';
+        }, 300);
     });
+    
+    // Animate room cards with staggered entrance
+    const roomCards = document.querySelectorAll('.group');
+    roomCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease-out';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 * index);
+    });
+    
+    // Add smooth scroll behavior for long pages
+    document.documentElement.style.scrollBehavior = 'smooth';
+});
 </script>
 {% endblock %}
