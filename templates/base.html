@@ -93,9 +93,13 @@
                             <i class="fas fa-star mr-2"></i>{% trans "Upgrade to Premium" %}
                         </a>
                         {% endif %}
-                        <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
-                            <i class="fas fa-sign-out-alt mr-2"></i>{% trans "Logout" %}
-                        </a>
+                        <form action="{% url 'logout' %}" method="post" class="w-full">
+                            {% csrf_token %}
+                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                {% trans "Logout" %}
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {% endif %}

@@ -64,6 +64,11 @@ def dashboard(request):
     completed_count = len(completed_rooms)
     overall_progress = (completed_count / total_rooms * 100) if total_rooms > 0 else 0
     
+    # Get recent section completions for activity feed
+    recent_completions = SectionCompletion.objects.filter(
+        user=request.user, is_completed=True
+    ).select_related('section').order_by('-completed_at')[:5]
+    
     # Organize roadmap data with progress
     roadmap_data = []
     for roadmap in roadmaps:
@@ -97,6 +102,9 @@ def dashboard(request):
         
         roadmap_progress = (roadmap_completed / rooms.count() * 100) if rooms.count() > 0 else 0
         
+        # Add user progress calculation for each roadmap
+        roadmap.user_progress = roadmap_progress
+        
         roadmap_data.append({
             'roadmap': roadmap,
             'rooms': rooms_data,
@@ -106,12 +114,16 @@ def dashboard(request):
         })
     
     context = {
+        'roadmaps': roadmap_data,  # Changed key name to match template
         'roadmap_data': roadmap_data,
         'user': request.user,
         'certificates': certificates,
+        'certificates_count': certificates.count(),
         'overall_progress': overall_progress,
+        'completed_rooms': completed_count,  # Changed key name to match template
         'total_completed_rooms': completed_count,
         'total_rooms': total_rooms,
+        'recent_completions': recent_completions,
     }
     return render(request, 'lms/dashboard.html', context)
 

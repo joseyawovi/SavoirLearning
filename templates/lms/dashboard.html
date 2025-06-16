@@ -139,9 +139,9 @@
         </div>
     </div>
 
-    {% if roadmaps %}
+    {% if roadmap_data %}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {% for roadmap in roadmaps %}
+        {% for roadmap_item in roadmap_data %}
         <div class="bg-dark-card border border-dark-border rounded-xl p-6 hover:border-primary transition-all duration-300 group">
             <!-- Roadmap Header -->
             <div class="flex items-center justify-between mb-4">
@@ -150,33 +150,31 @@
                         <i class="fas fa-route text-white text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-white">{{ roadmap.title }}</h3>
-                        <p class="text-gray-400 text-sm">{{ roadmap.rooms.count }} {% trans "Rooms" %}</p>
+                        <h3 class="text-xl font-semibold text-white">{{ roadmap_item.roadmap.title }}</h3>
+                        <p class="text-gray-400 text-sm">{{ roadmap_item.total_rooms }} {% trans "Rooms" %}</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    {% with progress=roadmap.user_progress %}
-                    <div class="text-sm font-medium text-gray-300">{{ progress }}%</div>
+                    <div class="text-sm font-medium text-gray-300">{{ roadmap_item.progress|floatformat:0 }}%</div>
                     <div class="w-16 h-2 bg-dark-bg rounded-full mt-1">
-                        <div class="h-2 bg-primary rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                        <div class="h-2 bg-primary rounded-full transition-all duration-500" style="width: {{ roadmap_item.progress }}%"></div>
                     </div>
-                    {% endwith %}
                 </div>
             </div>
 
             <!-- Description -->
-            <p class="text-gray-300 mb-4 line-clamp-2">{{ roadmap.description|truncatewords:15 }}</p>
+            <p class="text-gray-300 mb-4 line-clamp-2">{{ roadmap_item.roadmap.description|truncatewords:15 }}</p>
 
             <!-- Room Preview -->
             <div class="space-y-2 mb-4">
-                {% for room in roadmap.rooms.all|slice:":3" %}
+                {% for room_data in roadmap_item.rooms|slice:":3" %}
                 <div class="flex items-center justify-between p-3 bg-dark-bg rounded-lg">
                     <div class="flex items-center">
-                        {% if room.is_completed_by_user %}
+                        {% if room_data.is_completed %}
                         <div class="w-6 h-6 bg-success rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-check text-white text-xs"></i>
                         </div>
-                        {% elif room.is_accessible_by_user %}
+                        {% elif room_data.is_accessible %}
                         <div class="w-6 h-6 bg-warning rounded-full flex items-center justify-center mr-3">
                             <i class="fas fa-play text-dark-bg text-xs"></i>
                         </div>
@@ -185,12 +183,12 @@
                             <i class="fas fa-lock text-white text-xs"></i>
                         </div>
                         {% endif %}
-                        <span class="text-sm text-gray-300">{{ room.title|truncatechars:30 }}</span>
+                        <span class="text-sm text-gray-300">{{ room_data.room.title|truncatechars:30 }}</span>
                     </div>
                     <div class="text-xs text-gray-500">
-                        {% if room.is_completed_by_user %}
+                        {% if room_data.is_completed %}
                             {% trans "Completed" %}
-                        {% elif room.is_accessible_by_user %}
+                        {% elif room_data.is_accessible %}
                             {% trans "Available" %}
                         {% else %}
                             {% trans "Locked" %}
@@ -198,9 +196,9 @@
                     </div>
                 </div>
                 {% endfor %}
-                {% if roadmap.rooms.count > 3 %}
+                {% if roadmap_item.total_rooms > 3 %}
                 <div class="text-center text-gray-400 text-sm py-2">
-                    +{{ roadmap.rooms.count|add:"-3" }} more rooms
+                    +{{ roadmap_item.total_rooms|add:"-3" }} more rooms
                 </div>
                 {% endif %}
             </div>
@@ -209,19 +207,19 @@
             <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-400">
                     <i class="fas fa-clock mr-1"></i>
-                    {% if roadmap.user_progress == 0 %}
+                    {% if roadmap_item.progress == 0 %}
                         Not started
-                    {% elif roadmap.user_progress == 100 %}
+                    {% elif roadmap_item.progress == 100 %}
                         Completed
                     {% else %}
                         In progress
                     {% endif %}
                 </div>
-                <a href="{% url 'roadmap_detail' roadmap.id %}" 
+                <a href="{% url 'roadmap_detail' roadmap_item.roadmap.id %}" 
                    class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors group-hover:scale-105 transform">
-                    {% if roadmap.user_progress == 0 %}
+                    {% if roadmap_item.progress == 0 %}
                         <i class="fas fa-play mr-2"></i>{% trans "Start" %}
-                    {% elif roadmap.user_progress == 100 %}
+                    {% elif roadmap_item.progress == 100 %}
                         <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
                     {% else %}
                         <i class="fas fa-arrow-right mr-2"></i>{% trans "Continue" %}
