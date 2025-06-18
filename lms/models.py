@@ -237,6 +237,22 @@ class Certificate(models.Model):
         return f"Certificate {self.certificate_id} - {self.user.username} - {self.room.title}"
 
 
+class Enrollment(models.Model):
+    """Track user enrollments in specific roadmaps."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
+    roadmap = models.ForeignKey(Roadmap, on_delete=models.CASCADE, verbose_name=_('Roadmap'))
+    enrolled_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Enrolled At'))
+    is_active = models.BooleanField(default=True, verbose_name=_('Is Active'))
+    
+    class Meta:
+        verbose_name = _('Enrollment')
+        verbose_name_plural = _('Enrollments')
+        unique_together = ['user', 'roadmap']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.roadmap.title}"
+
+
 class Payment(models.Model):
     """Payment transaction records."""
     PAYMENT_STATUS_CHOICES = [

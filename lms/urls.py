@@ -14,6 +14,7 @@ urlpatterns = [
     
     # Main application
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('enroll/<int:roadmap_id>/', views.enroll_roadmap, name='enroll_roadmap'),
     path('roadmap/<int:roadmap_id>/', views.roadmap_detail, name='roadmap_detail'),
     path('room/<int:room_id>/', views.room_detail, name='room_detail'),
     path('section/<int:section_id>/', views.section_detail, name='section_detail'),

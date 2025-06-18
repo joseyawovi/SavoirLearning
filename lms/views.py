@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
-    SectionCompletion, RoomCompletion, Certificate, Payment
+    SectionCompletion, RoomCompletion, Certificate, Payment, Enrollment
 )
 from .forms import UserRegistrationForm, QuizAnswerForm
 from .utils import generate_certificate_pdf
@@ -29,6 +29,24 @@ def home(request):
     
     roadmaps = Roadmap.objects.filter(is_active=True)
     return render(request, 'lms/home.html', {'roadmaps': roadmaps})
+
+
+@login_required  
+def enroll_roadmap(request, roadmap_id):
+    """Enroll user in a specific roadmap."""
+    roadmap = get_object_or_404(Roadmap, id=roadmap_id, is_active=True)
+    
+    enrollment, created = Enrollment.objects.get_or_create(
+        user=request.user,
+        roadmap=roadmap
+    )
+    
+    if created:
+        messages.success(request, f'Successfully enrolled in {roadmap.title}!')
+    else:
+        messages.info(request, f'You are already enrolled in {roadmap.title}.')
+    
+    return redirect('dashboard')
 
 
 def register(request):
@@ -48,8 +66,26 @@ def register(request):
 
 @login_required
 def dashboard(request):
-    """User dashboard showing available roadmaps and progress."""
-    roadmaps = Roadmap.objects.filter(is_active=True).prefetch_related('rooms')
+    """User dashboard showing enrolled roadmaps and progress."""
+    # Get user's enrolled roadmaps only
+    enrolled_roadmaps = Enrollment.objects.filter(
+        user=request.user, is_active=True
+    ).select_related('roadmap').prefetch_related('roadmap__rooms')
+    
+    # If no enrollments, auto-enroll in all active roadmaps for trial users
+    if not enrolled_roadmaps.exists():
+        active_roadmaps = Roadmap.objects.filter(is_active=True)
+        for roadmap in active_roadmaps:
+            Enrollment.objects.get_or_create(
+                user=request.user,
+                roadmap=roadmap
+            )
+        enrolled_roadmaps = Enrollment.objects.filter(
+            user=request.user, is_active=True
+        ).select_related('roadmap').prefetch_related('roadmap__rooms')
+    
+    # Get roadmaps from enrollments
+    roadmaps = [enrollment.roadmap for enrollment in enrolled_roadmaps]
     
     # Get user's completed rooms
     completed_rooms = RoomCompletion.objects.filter(
@@ -59,9 +95,12 @@ def dashboard(request):
     # Get user's certificates
     certificates = Certificate.objects.filter(user=request.user, is_valid=True)
     
-    # Calculate overall progress
-    total_rooms = Room.objects.filter(is_active=True).count()
-    completed_count = len(completed_rooms)
+    # Calculate overall progress only for enrolled courses
+    enrolled_rooms = Room.objects.filter(
+        roadmap__in=roadmaps, is_active=True
+    )
+    total_rooms = enrolled_rooms.count()
+    completed_count = len([room_id for room_id in completed_rooms if room_id in enrolled_rooms.values_list('id', flat=True)])
     overall_progress = (completed_count / total_rooms * 100) if total_rooms > 0 else 0
     
     # Get recent section completions for activity feed

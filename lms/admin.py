@@ -12,7 +12,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
-    SectionCompletion, RoomCompletion, Certificate, Payment
+    SectionCompletion, RoomCompletion, Certificate, Payment, Enrollment
 )
 
 
@@ -116,6 +116,15 @@ class CertificateAdmin(admin.ModelAdmin):
     list_filter = ('is_valid', 'issued_at')
     search_fields = ('user__username', 'room__title', 'certificate_id')
     readonly_fields = ('certificate_id', 'issued_at')
+
+
+@admin.register(Enrollment)
+class EnrollmentAdmin(admin.ModelAdmin):
+    """Admin interface for Enrollment model."""
+    list_display = ('user', 'roadmap', 'enrolled_at', 'is_active')
+    list_filter = ('is_active', 'enrolled_at', 'roadmap')
+    search_fields = ('user__username', 'roadmap__title')
+    readonly_fields = ('enrolled_at',)
 
 
 @admin.register(Payment)
@@ -330,4 +339,5 @@ admin_site.register(UserAnswer, UserAnswerAdmin)
 admin_site.register(SectionCompletion, SectionCompletionAdmin)
 admin_site.register(RoomCompletion, RoomCompletionAdmin)
 admin_site.register(Certificate, CertificateAdmin)
+admin_site.register(Enrollment, EnrollmentAdmin)
 admin_site.register(Payment, PaymentAdmin)

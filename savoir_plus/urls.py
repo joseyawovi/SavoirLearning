@@ -9,7 +9,7 @@ from django.conf.urls.i18n import i18n_patterns
 from lms.admin import admin_site
 
 urlpatterns = [
-    path('admin/', admin_site.urls),
+    path('staff-admin/', admin_site.urls),  # Custom admin for staff
     path('django-admin/', admin.site.urls),  # Fallback to default admin
     path('i18n/', include('django.conf.urls.i18n')),
 ]
