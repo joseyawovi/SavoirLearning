@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext as _
@@ -14,6 +14,8 @@ from django.db.models import Count, Q
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from datetime import timedelta
+import csv
 from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
     SectionCompletion, RoomCompletion, Certificate, Payment, Enrollment
@@ -610,3 +612,186 @@ def payment_callback(request):
         pass
     
     return JsonResponse({'success': False, 'message': 'Payment failed'})
+
+
+# Custom Admin Views
+def is_staff_or_superuser(user):
+    """Check if user is staff or superuser."""
+    return user.is_staff or user.is_superuser
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_dashboard(request):
+    """Custom admin dashboard."""
+    # Get statistics
+    total_users = User.objects.count()
+    active_users = User.objects.filter(is_active=True).count()
+    paid_users = User.objects.filter(is_paid_user=True).count()
+    trial_users = User.objects.filter(is_paid_user=False).count()
+    
+    total_roadmaps = Roadmap.objects.count()
+    active_roadmaps = Roadmap.objects.filter(is_active=True).count()
+    total_rooms = Room.objects.count()
+    total_sections = Section.objects.count()
+    
+    # Recent activity
+    recent_users = User.objects.filter(
+        date_joined__gte=timezone.now() - timedelta(days=7)
+    ).order_by('-date_joined')[:5]
+    
+    recent_completions = RoomCompletion.objects.filter(
+        completed_at__gte=timezone.now() - timedelta(days=7)
+    ).select_related('user', 'room').order_by('-completed_at')[:10]
+    
+    context = {
+        'total_users': total_users,
+        'active_users': active_users,
+        'paid_users': paid_users,
+        'trial_users': trial_users,
+        'total_roadmaps': total_roadmaps,
+        'active_roadmaps': active_roadmaps,
+        'total_rooms': total_rooms,
+        'total_sections': total_sections,
+        'recent_users': recent_users,
+        'recent_completions': recent_completions,
+    }
+    
+    return render(request, 'admin/custom_dashboard.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_analytics(request):
+    """Analytics view with detailed statistics."""
+    # User statistics
+    user_stats = {
+        'total_users': User.objects.count(),
+        'active_users': User.objects.filter(is_active=True).count(),
+        'paid_users': User.objects.filter(is_paid_user=True).count(),
+        'trial_users': User.objects.filter(is_paid_user=False, is_active=True).count(),
+    }
+    
+    # Course statistics
+    course_stats = {
+        'total_roadmaps': Roadmap.objects.count(),
+        'active_roadmaps': Roadmap.objects.filter(is_active=True).count(),
+        'total_rooms': Room.objects.count(),
+        'total_sections': Section.objects.count(),
+    }
+    
+    # Completion statistics
+    completion_stats = {
+        'total_completions': RoomCompletion.objects.filter(is_completed=True).count(),
+        'certificates_issued': Certificate.objects.filter(is_valid=True).count(),
+        'avg_completion_rate': 0,  # Calculate based on your needs
+    }
+    
+    # Popular courses
+    popular_courses = Room.objects.annotate(
+        completion_count=Count('roomcompletion')
+    ).order_by('-completion_count')[:5]
+    
+    context = {
+        'user_stats': user_stats,
+        'course_stats': course_stats,
+        'completion_stats': completion_stats,
+        'popular_courses': popular_courses,
+    }
+    
+    return render(request, 'admin/analytics.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_users(request):
+    """User management view."""
+    # Filter parameters
+    user_type = request.GET.get('type', 'all')
+    search = request.GET.get('search', '')
+    
+    users = User.objects.all()
+    
+    if user_type == 'paid':
+        users = users.filter(is_paid_user=True)
+    elif user_type == 'trial':
+        users = users.filter(is_paid_user=False, is_active=True)
+    elif user_type == 'inactive':
+        users = users.filter(is_active=False)
+    
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
+    
+    users = users.order_by('-date_joined')
+    
+    context = {
+        'users': users,
+        'user_type': user_type,
+        'search': search,
+    }
+    
+    return render(request, 'admin/user_management.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_courses(request):
+    """Course management view."""
+    roadmaps = Roadmap.objects.prefetch_related('rooms__sections').annotate(
+        room_count=Count('rooms'),
+        completion_count=Count('rooms__roomcompletion')
+    ).order_by('-created_at')
+    
+    context = {
+        'roadmaps': roadmaps,
+    }
+    
+    return render(request, 'admin/course_management.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_export(request):
+    """Export data view."""
+    export_type = request.GET.get('type')
+    
+    if export_type == 'users':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="users.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Username', 'Email', 'First Name', 'Last Name', 'Is Paid', 'Date Joined', 'Last Login'])
+        
+        users = User.objects.all()
+        for user in users:
+            writer.writerow([
+                user.username,
+                user.email,
+                user.first_name,
+                user.last_name,
+                user.is_paid_user,
+                user.date_joined,
+                user.last_login,
+            ])
+        
+        return response
+    
+    elif export_type == 'completions':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="completions.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['User', 'Room', 'Completed At', 'Final Score'])
+        
+        completions = RoomCompletion.objects.filter(is_completed=True).select_related('user', 'room')
+        for completion in completions:
+            writer.writerow([
+                completion.user.username,
+                completion.room.title,
+                completion.completed_at,
+                completion.final_exam_score,
+            ])
+        
+        return response
+    
+    return render(request, 'admin/export_data.html')

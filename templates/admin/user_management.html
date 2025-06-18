@@ -1,127 +1,162 @@
-
-{% extends "admin/base_site.html" %}
-{% load static %}
-
-{% block title %}User Management - {{ site_title|default:"Django Administration" }}{% endblock %}
-
-{% block extrahead %}
-    <style>
-        .user-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Savoir+ Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#007bff',
+                        'dark-bg': '#1a1a1a',
+                        'dark-card': '#2d2d2d',
+                        'success': '#28a745',
+                        'warning': '#ffc107',
+                        'danger': '#dc3545',
+                    }
+                }
+            }
         }
-        .user-table th,
-        .user-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .user-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .user-table tr:hover {
-            background-color: #f8f9fa;
-        }
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        .status-paid { background-color: #28a745; color: white; }
-        .status-trial { background-color: #ffc107; color: black; }
-        .status-expired { background-color: #dc3545; color: white; }
-        .filters {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .filter-group {
-            display: inline-block;
-            margin-right: 20px;
-        }
-    </style>
-{% endblock %}
-
-{% block content %}
-<div class="user-management">
-    <h1>User Management</h1>
-    
-    <div class="filters">
-        <form method="get" style="display: flex; align-items: center; gap: 15px;">
-            <div class="filter-group">
-                <label for="status">Status:</label>
-                <select name="status" id="status" onchange="this.form.submit()">
-                    <option value="">All Users</option>
-                    <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
-                    <option value="trial" {% if request.GET.status == 'trial' %}selected{% endif %}>Trial</option>
-                    <option value="expired" {% if request.GET.status == 'expired' %}selected{% endif %}>Expired</option>
-                </select>
+    </script>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-primary border-b border-blue-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-white">Savoir+ Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'admin_dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                    </a>
+                    <a href="{% url 'admin_analytics' %}" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-chart-bar mr-1"></i>Analytics
+                    </a>
+                    <a href="{% url 'admin_users' %}" class="px-3 py-2 rounded-md text-sm font-medium bg-blue-700 text-white">
+                        <i class="fas fa-users mr-1"></i>Users
+                    </a>
+                    <a href="{% url 'admin_courses' %}" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-book mr-1"></i>Courses
+                    </a>
+                    <a href="{% url 'admin_export' %}" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-download mr-1"></i>Export
+                    </a>
+                    <a href="/admin/" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-cogs mr-1"></i>Django Admin
+                    </a>
+                    <a href="{% url 'home' %}" class="px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:bg-blue-700">
+                        <i class="fas fa-home mr-1"></i>Site
+                    </a>
+                </div>
             </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <h1 class="text-3xl font-bold text-white mb-8">User Management</h1>
             
-            <div class="filter-group">
-                <label for="search">Search:</label>
-                <input type="text" name="search" id="search" value="{{ request.GET.search }}" 
-                       placeholder="Username or email...">
+            <!-- Filters -->
+            <div class="bg-dark-card rounded-lg p-6 border border-gray-700 mb-6">
+                <form method="get" class="flex flex-wrap gap-4">
+                    <div class="flex-1 min-w-64">
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Search Users</label>
+                        <input type="text" name="search" value="{{ search }}" 
+                               placeholder="Username, email, or name..."
+                               class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div class="min-w-48">
+                        <label class="block text-sm font-medium text-gray-400 mb-1">User Type</label>
+                        <select name="type" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all" {% if user_type == 'all' %}selected{% endif %}>All Users</option>
+                            <option value="paid" {% if user_type == 'paid' %}selected{% endif %}>Premium Users</option>
+                            <option value="trial" {% if user_type == 'trial' %}selected{% endif %}>Trial Users</option>
+                            <option value="inactive" {% if user_type == 'inactive' %}selected{% endif %}>Inactive Users</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <i class="fas fa-search mr-2"></i>Filter
+                        </button>
+                    </div>
+                </form>
             </div>
-            
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </form>
+
+            <!-- Users Table -->
+            <div class="bg-dark-card rounded-lg border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Joined</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Login</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            {% for user in users %}
+                            <tr class="hover:bg-gray-800">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-white"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-white">{{ user.username }}</div>
+                                            <div class="text-sm text-gray-400">{{ user.first_name }} {{ user.last_name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ user.email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if user.is_paid_user %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-600 text-white">
+                                        <i class="fas fa-crown mr-1"></i>Premium
+                                    </span>
+                                    {% elif user.is_active %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">
+                                        <i class="fas fa-check mr-1"></i>Active
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-600 text-white">
+                                        <i class="fas fa-times mr-1"></i>Inactive
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{{ user.date_joined|date:"M d, Y" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"M d, Y" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="/admin/lms/user/{{ user.id }}/change/" class="text-primary hover:text-blue-400 mr-3">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-400">No users found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <table class="user-table">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Trial End</th>
-                <th>Joined</th>
-                <th>Progress</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-                <tr>
-                    <td><strong>{{ user.username }}</strong></td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        {% if user.is_paid_user %}
-                            <span class="status-badge status-paid">Paid</span>
-                        {% elif user.is_trial_active %}
-                            <span class="status-badge status-trial">Trial</span>
-                        {% else %}
-                            <span class="status-badge status-expired">Expired</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if not user.is_paid_user %}
-                            {{ user.trial_end_date|date:"M d, Y" }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                    <td>
-                        <div style="width: 100px; background: #eee; height: 10px; border-radius: 5px;">
-                            <div style="width: {{ user.progress|default:0 }}%; background: #007bff; height: 100%; border-radius: 5px;"></div>
-                        </div>
-                        <small>{{ user.completed_rooms|default:0 }} rooms</small>
-                    </td>
-                    <td>
-                        <a href="/admin/lms/user/{{ user.id }}/change/" class="btn btn-sm btn-outline-primary">Edit</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
+</body>
+</html>

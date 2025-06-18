@@ -12,6 +12,13 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
+    # Custom Admin Dashboard
+    path('manage/', views.admin_dashboard, name='admin_dashboard'),
+    path('manage/analytics/', views.admin_analytics, name='admin_analytics'),
+    path('manage/users/', views.admin_users, name='admin_users'),
+    path('manage/courses/', views.admin_courses, name='admin_courses'),
+    path('manage/export/', views.admin_export, name='admin_export'),
+    
     # Main application
     path('dashboard/', views.dashboard, name='dashboard'),
     path('enroll/<int:roadmap_id>/', views.enroll_roadmap, name='enroll_roadmap'),
