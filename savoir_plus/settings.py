@@ -16,10 +16,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Additional security settings for production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_TZ = True
+
 # CSRF settings for Replit
 CSRF_TRUSTED_ORIGINS = [
     'https://*.replit.dev',
-    'https://*.replit.app'
+    'https://*.replit.app',
+    'https://*.repl.co',
+    'https://ea5c3237-21ad-41f6-b703-2273b1312a68-00-2harrxvt5v7w1.janeway.repl.co'
 ]
 
 # Application definition
