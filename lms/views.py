@@ -241,10 +241,10 @@ def section_detail(request, section_id):
     """Detailed view of a section with content and quiz."""
     section = get_object_or_404(Section, id=section_id, is_active=True)
     
-    # Check if user can access the room
-    if not section.room.is_accessible_by_user(request.user):
-        messages.error(request, _('You need to complete the prerequisite room first.'))
-        return redirect('dashboard')
+    # Check if user can access this section
+    if not section.is_accessible_by_user(request.user):
+        messages.error(request, _('You need to complete the previous sections first.'))
+        return redirect('room_detail', room_id=section.room.id)
     
     # Get section questions
     questions = section.questions.filter(is_active=True).order_by('order')
@@ -260,19 +260,61 @@ def section_detail(request, section_id):
         user=request.user, section=section
     ).first()
     
+    # Create section completion if it doesn't exist but should be completed
+    if not section_completion:
+        section_completion = SectionCompletion.objects.create(
+            user=request.user,
+            section=section,
+            is_completed=False
+        )
+    
     # Prepare questions with user answers
     questions_data = []
+    all_questions_answered_correctly = True
+    
     for question in questions:
         user_answer = answer_dict.get(question.id)
         questions_data.append({
             'question': question,
             'user_answer': user_answer,
         })
+        
+        # Check if all questions are answered correctly
+        if not user_answer or not user_answer.is_correct:
+            all_questions_answered_correctly = False
+    
+    # Auto-complete section if no questions exist (content-only section)
+    if not questions and not section_completion.is_completed:
+        section_completion.is_completed = True
+        section_completion.completed_at = timezone.now()
+        section_completion.save()
+    
+    # Auto-complete section if all questions are answered correctly
+    elif questions and all_questions_answered_correctly and not section_completion.is_completed:
+        section_completion.is_completed = True
+        section_completion.completed_at = timezone.now()
+        section_completion.save()
+    
+    # Get next section for navigation
+    next_section = Section.objects.filter(
+        room=section.room,
+        is_active=True,
+        order__gt=section.order
+    ).first()
+    
+    # If next section exists, check if it's accessible
+    if next_section and not next_section.is_accessible_by_user(request.user):
+        next_section = None
     
     context = {
         'section': section,
+        'questions': questions,
         'questions_data': questions_data,
         'section_completion': section_completion,
+        'all_questions_answered': len(user_answers) == len(questions),
+        'all_questions_correct': all_questions_answered_correctly,
+        'answered_questions': user_answers,
+        'next_section': next_section,
         'user': request.user,
     }
     return render(request, 'lms/section_detail.html', context)
@@ -312,6 +354,13 @@ def submit_quiz_answer(request, question_id):
         }
     )
     
+    # Initialize response data
+    response_data = {
+        'success': True,
+        'is_correct': is_correct,
+        'message': _('Correct!') if is_correct else _('Incorrect. Try again.')
+    }
+    
     # If this is a section question, check if all section questions are answered correctly
     if question.section:
         section_questions = question.section.questions.filter(is_active=True)
@@ -321,9 +370,10 @@ def submit_quiz_answer(request, question_id):
         )
         
         # Check if all questions are answered correctly
-        if (section_answers.count() == section_questions.count() and
-            all(answer.is_correct for answer in section_answers)):
-            
+        all_correct = (section_answers.count() == section_questions.count() and
+                      all(answer.is_correct for answer in section_answers))
+        
+        if all_correct:
             # Mark section as completed
             section_completion, created = SectionCompletion.objects.update_or_create(
                 user=request.user,
@@ -333,12 +383,29 @@ def submit_quiz_answer(request, question_id):
                     'completed_at': timezone.now(),
                 }
             )
+            
+            # Add section completion status to response
+            response_data['section_completed'] = True
+            response_data['completion_message'] = _('Section completed! Great job!')
+            
+            # Check if this completed all sections in the room to unlock next room
+            room = question.section.room
+            room_sections = room.sections.filter(is_active=True)
+            completed_sections = SectionCompletion.objects.filter(
+                user=request.user,
+                section__in=room_sections,
+                is_completed=True
+            ).count()
+            
+            # If all sections completed, create or update room progress tracking
+            if completed_sections == room_sections.count():
+                RoomCompletion.objects.get_or_create(
+                    user=request.user,
+                    room=room,
+                    defaults={'is_completed': False}  # Still need final exam
+                )
     
-    return JsonResponse({
-        'success': True,
-        'is_correct': is_correct,
-        'message': _('Correct!') if is_correct else _('Incorrect. Try again.')
-    })
+    return JsonResponse(response_data)
 
 
 @login_required
