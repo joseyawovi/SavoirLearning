@@ -399,6 +399,7 @@ def submit_quiz_answer(request, question_id):
     response_data = {
         'success': True,
         'is_correct': is_correct,
+        'correct': is_correct,  # Add this field for backward compatibility
         'message': _('Correct!') if is_correct else _('Incorrect. Try again.')
     }
     
