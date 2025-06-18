@@ -1,0 +1,149 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Export Data - {{ site_title|default:"Django Administration" }}{% endblock %}
+
+{% block extrahead %}
+    <style>
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .export-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .export-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        .export-icon {
+            font-size: 3em;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .export-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .export-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .export-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .export-btn:hover {
+            background: #0056b3;
+            color: white;
+            text-decoration: none;
+        }
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="export-data">
+    <h1>Export Data</h1>
+    
+    <div class="info-section">
+        <h3>Data Export Options</h3>
+        <p>Export your LMS data in CSV format for analysis, backup, or integration with other systems. 
+           All exports include current data and are generated in real-time.</p>
+    </div>
+    
+    <div class="export-options">
+        <div class="export-card">
+            <div class="export-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="export-title">User Data</div>
+            <div class="export-description">
+                Export all user information including registration details, subscription status, 
+                and trial information.
+            </div>
+            <a href="?type=users" class="export-btn">
+                <i class="fas fa-download mr-2"></i>
+                Download Users CSV
+            </a>
+        </div>
+        
+        <div class="export-card">
+            <div class="export-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="export-title">Course Completions</div>
+            <div class="export-description">
+                Export completion data including user progress, exam scores, 
+                and completion dates for all courses.
+            </div>
+            <a href="?type=completions" class="export-btn">
+                <i class="fas fa-download mr-2"></i>
+                Download Completions CSV
+            </a>
+        </div>
+        
+        <div class="export-card">
+            <div class="export-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="export-title">Analytics Report</div>
+            <div class="export-description">
+                Comprehensive analytics report with user engagement metrics, 
+                course performance, and revenue data.
+            </div>
+            <a href="{% url 'admin:admin_analytics' %}" class="export-btn">
+                <i class="fas fa-chart-bar mr-2"></i>
+                View Analytics
+            </a>
+        </div>
+        
+        <div class="export-card">
+            <div class="export-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div class="export-title">Certificates</div>
+            <div class="export-description">
+                Export certificate data including certificate IDs, issue dates, 
+                and validation status for all issued certificates.
+            </div>
+            <a href="{% url 'admin:lms_certificate_changelist' %}" class="export-btn">
+                <i class="fas fa-eye mr-2"></i>
+                View Certificates
+            </a>
+        </div>
+    </div>
+    
+    <div class="info-section">
+        <h3>Export Guidelines</h3>
+        <ul>
+            <li><strong>Data Privacy:</strong> Ensure exported data is handled according to your privacy policy and applicable regulations.</li>
+            <li><strong>File Format:</strong> All exports are in CSV format for easy import into spreadsheet applications or databases.</li>
+            <li><strong>Real-time Data:</strong> Exports reflect the current state of your database at the time of export.</li>
+            <li><strong>Large Datasets:</strong> For very large datasets, consider filtering data through the admin interface first.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Course Management - {{ site_title|default:"Django Administration" }}{% endblock %}
+
+{% block extrahead %}
+    <style>
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .course-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        .course-header {
+            display: flex;
+            justify-content: between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .course-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .course-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .overview-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .overview-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .recent-completions {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .completion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .completion-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="course-management">
+    <h1>Course Management</h1>
+    
+    <!-- Overview Stats -->
+    <div class="overview-stats">
+        <div class="overview-card">
+            <div class="overview-number">{{ roadmaps.count }}</div>
+            <div class="stat-label">Active Roadmaps</div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-number">{{ total_sections }}</div>
+            <div class="stat-label">Total Sections</div>
+        </div>
+        <div class="overview-card">
+            <div class="overview-number">{{ total_questions }}</div>
+            <div class="stat-label">Quiz Questions</div>
+        </div>
+    </div>
+    
+    <!-- Course Cards -->
+    <div class="course-grid">
+        {% for roadmap in roadmaps %}
+        <div class="course-card">
+            <div class="course-header">
+                <div>
+                    <div class="course-title">{{ roadmap.title }}</div>
+                    <p class="text-gray-600">{{ roadmap.description|truncatewords:15 }}</p>
+                </div>
+            </div>
+            
+            <div class="course-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ roadmap.rooms.count }}</div>
+                    <div class="stat-label">Rooms</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">
+                        {% with total_sections=0 %}
+                        {% for room in roadmap.rooms.all %}
+                            {% with total_sections=total_sections|add:room.sections.count %}{% endwith %}
+                        {% endfor %}
+                        {{ total_sections }}
+                        {% endwith %}
+                    </div>
+                    <div class="stat-label">Sections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ roadmap.created_at|date:"M d" }}</div>
+                    <div class="stat-label">Created</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <a href="{% url 'admin:lms_roadmap_change' roadmap.id %}" 
+                   class="btn btn-primary btn-sm">Edit Roadmap</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Recent Completions -->
+    <div class="recent-completions">
+        <h2 style="margin-bottom: 20px;">Recent Completions</h2>
+        {% for completion in recent_completions %}
+        <div class="completion-item">
+            <div>
+                <strong>{{ completion.user.username }}</strong> completed 
+                <em>{{ completion.room.title }}</em>
+            </div>
+            <div style="text-align: right;">
+                <div>Score: {{ completion.final_exam_score|floatformat:1 }}%</div>
+                <small class="text-gray-500">{{ completion.completed_at|date:"M d, H:i" }}</small>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-500">No recent completions.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

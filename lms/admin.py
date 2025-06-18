@@ -6,9 +6,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from django.urls import path
 from django.shortcuts import render
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.utils.html import format_html
 from django.utils import timezone
+from datetime import timedelta
 from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
     SectionCompletion, RoomCompletion, Certificate, Payment
@@ -137,6 +138,9 @@ class CustomAdminSite(admin.AdminSite):
         custom_urls = [
             path('dashboard/', self.admin_view(self.dashboard_view), name='admin_dashboard'),
             path('analytics/', self.admin_view(self.analytics_view), name='admin_analytics'),
+            path('user-management/', self.admin_view(self.user_management_view), name='admin_user_management'),
+            path('course-management/', self.admin_view(self.course_management_view), name='admin_course_management'),
+            path('export-data/', self.admin_view(self.export_data_view), name='admin_export_data'),
         ]
         return custom_urls + urls
 
@@ -193,12 +197,124 @@ class CustomAdminSite(admin.AdminSite):
                 'completion_rate': round(completion_rate, 2)
             })
 
+        # Payment analytics
+        payment_stats = {
+            'total_revenue': Payment.objects.filter(status='successful').aggregate(
+                total=Sum('amount')
+            )['total'] or 0,
+            'monthly_revenue': Payment.objects.filter(
+                status='successful',
+                created_at__gte=timezone.now() - timedelta(days=30)
+            ).aggregate(total=Sum('amount'))['total'] or 0,
+            'successful_payments': Payment.objects.filter(status='successful').count(),
+            'failed_payments': Payment.objects.filter(status='failed').count(),
+        }
+
         context = {
             'title': 'Analytics',
             'user_stats': user_stats,
             'course_stats': course_stats,
+            'payment_stats': payment_stats,
         }
         return render(request, 'admin/analytics.html', context)
+
+    def user_management_view(self, request):
+        """User management view with filtering."""
+        from django.db.models import Q
+        
+        # Get filter parameters
+        user_type = request.GET.get('type', 'all')
+        search = request.GET.get('search', '')
+        
+        users = User.objects.all()
+        
+        # Apply filters
+        if user_type == 'paid':
+            users = users.filter(is_paid_user=True)
+        elif user_type == 'trial':
+            users = users.filter(is_paid_user=False, trial_end_date__gt=timezone.now())
+        elif user_type == 'expired':
+            users = users.filter(is_paid_user=False, trial_end_date__lte=timezone.now())
+        
+        if search:
+            users = users.filter(
+                Q(username__icontains=search) |
+                Q(email__icontains=search) |
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search)
+            )
+        
+        users = users.order_by('-date_joined')[:100]  # Limit for performance
+        
+        context = {
+            'title': 'User Management',
+            'users': users,
+            'user_type': user_type,
+            'search': search,
+        }
+        return render(request, 'admin/user_management.html', context)
+
+    def course_management_view(self, request):
+        """Course management overview."""
+        context = {
+            'title': 'Course Management',
+            'roadmaps': Roadmap.objects.filter(is_active=True).prefetch_related('rooms'),
+            'total_sections': Section.objects.filter(is_active=True).count(),
+            'total_questions': Question.objects.filter(is_active=True).count(),
+            'recent_completions': RoomCompletion.objects.filter(is_completed=True).order_by('-completed_at')[:10],
+        }
+        return render(request, 'admin/course_management.html', context)
+
+    def export_data_view(self, request):
+        """Export data in various formats."""
+        import csv
+        from django.http import HttpResponse
+        
+        export_type = request.GET.get('type', 'users')
+        
+        if export_type == 'users':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="users.csv"'
+            
+            writer = csv.writer(response)
+            writer.writerow(['Username', 'Email', 'First Name', 'Last Name', 'Is Paid', 'Trial End', 'Date Joined'])
+            
+            for user in User.objects.all():
+                writer.writerow([
+                    user.username,
+                    user.email,
+                    user.first_name,
+                    user.last_name,
+                    user.is_paid_user,
+                    user.trial_end_date.strftime('%Y-%m-%d') if user.trial_end_date else '',
+                    user.date_joined.strftime('%Y-%m-%d %H:%M:%S')
+                ])
+            
+            return response
+        
+        elif export_type == 'completions':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="completions.csv"'
+            
+            writer = csv.writer(response)
+            writer.writerow(['User', 'Room', 'Completed', 'Score', 'Date'])
+            
+            for completion in RoomCompletion.objects.select_related('user', 'room').all():
+                writer.writerow([
+                    completion.user.username,
+                    completion.room.title,
+                    completion.is_completed,
+                    completion.final_exam_score or '',
+                    completion.completed_at.strftime('%Y-%m-%d %H:%M:%S') if completion.completed_at else ''
+                ])
+            
+            return response
+        
+        # Default: show export options
+        context = {
+            'title': 'Export Data',
+        }
+        return render(request, 'admin/export_data.html', context)
 
 
 # Create custom admin site instance

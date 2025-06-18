@@ -9,3 +9,6 @@ class LmsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'lms'
     verbose_name = _('Learning Management System')
+    
+    def ready(self):
+        import lms.signals

@@ -1,0 +1,14 @@
+<div class="progress-bar-container">
+    <div class="flex items-center justify-between mb-2">
+        <span class="text-sm text-gray-400">Progress</span>
+        {% if show_percentage %}
+        <span class="text-sm text-gray-300">{{ current }}/{{ total }} ({{ percentage }}%)</span>
+        {% else %}
+        <span class="text-sm text-gray-300">{{ current }}/{{ total }}</span>
+        {% endif %}
+    </div>
+    <div class="w-full h-2 bg-dark-bg rounded-full overflow-hidden">
+        <div class="h-full bg-{{ color }} rounded-full transition-all duration-500" 
+             style="width: {{ percentage }}%"></div>
+    </div>
+</div>
