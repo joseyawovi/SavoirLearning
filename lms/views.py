@@ -845,3 +845,264 @@ def admin_export(request):
         return response
     
     return render(request, 'admin/export_data.html')
+
+
+# Roadmap Management Views
+@user_passes_test(is_staff_or_superuser)
+def admin_create_roadmap(request):
+    """Create new roadmap."""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        title_fr = request.POST.get('title_fr', '')
+        description = request.POST.get('description')
+        description_fr = request.POST.get('description_fr', '')
+        is_active = request.POST.get('is_active') == 'on'
+        
+        roadmap = Roadmap.objects.create(
+            title=title,
+            title_fr=title_fr,
+            description=description,
+            description_fr=description_fr,
+            is_active=is_active
+        )
+        
+        messages.success(request, f'Roadmap "{title}" created successfully!')
+        return redirect('admin_courses')
+    
+    context = {'title': 'Create Roadmap'}
+    return render(request, 'admin/create_roadmap.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_edit_roadmap(request, roadmap_id):
+    """Edit existing roadmap."""
+    roadmap = get_object_or_404(Roadmap, id=roadmap_id)
+    
+    if request.method == 'POST':
+        roadmap.title = request.POST.get('title')
+        roadmap.title_fr = request.POST.get('title_fr', '')
+        roadmap.description = request.POST.get('description')
+        roadmap.description_fr = request.POST.get('description_fr', '')
+        roadmap.is_active = request.POST.get('is_active') == 'on'
+        roadmap.save()
+        
+        messages.success(request, f'Roadmap "{roadmap.title}" updated successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Edit Roadmap',
+        'roadmap': roadmap
+    }
+    return render(request, 'admin/edit_roadmap.html', context)
+
+
+# Room Management Views
+@user_passes_test(is_staff_or_superuser)
+def admin_create_room(request):
+    """Create new room."""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        title_fr = request.POST.get('title_fr', '')
+        description = request.POST.get('description')
+        description_fr = request.POST.get('description_fr', '')
+        roadmap_id = request.POST.get('roadmap')
+        prerequisite_room_id = request.POST.get('prerequisite_room') or None
+        order = int(request.POST.get('order', 0))
+        is_active = request.POST.get('is_active') == 'on'
+        
+        roadmap = get_object_or_404(Roadmap, id=roadmap_id)
+        prerequisite_room = None
+        if prerequisite_room_id:
+            prerequisite_room = get_object_or_404(Room, id=prerequisite_room_id)
+        
+        room = Room.objects.create(
+            title=title,
+            title_fr=title_fr,
+            description=description,
+            description_fr=description_fr,
+            roadmap=roadmap,
+            prerequisite_room=prerequisite_room,
+            order=order,
+            is_active=is_active
+        )
+        
+        messages.success(request, f'Room "{title}" created successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Create Room',
+        'roadmaps': Roadmap.objects.filter(is_active=True),
+        'rooms': Room.objects.filter(is_active=True)
+    }
+    return render(request, 'admin/create_room.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_edit_room(request, room_id):
+    """Edit existing room."""
+    room = get_object_or_404(Room, id=room_id)
+    
+    if request.method == 'POST':
+        room.title = request.POST.get('title')
+        room.title_fr = request.POST.get('title_fr', '')
+        room.description = request.POST.get('description')
+        room.description_fr = request.POST.get('description_fr', '')
+        room.roadmap_id = request.POST.get('roadmap')
+        prerequisite_room_id = request.POST.get('prerequisite_room') or None
+        room.prerequisite_room_id = prerequisite_room_id
+        room.order = int(request.POST.get('order', 0))
+        room.is_active = request.POST.get('is_active') == 'on'
+        room.save()
+        
+        messages.success(request, f'Room "{room.title}" updated successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Edit Room',
+        'room': room,
+        'roadmaps': Roadmap.objects.filter(is_active=True),
+        'rooms': Room.objects.filter(is_active=True).exclude(id=room.id)
+    }
+    return render(request, 'admin/edit_room.html', context)
+
+
+# Section Management Views
+@user_passes_test(is_staff_or_superuser)
+def admin_create_section(request):
+    """Create new section."""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        title_fr = request.POST.get('title_fr', '')
+        content = request.POST.get('content')
+        content_fr = request.POST.get('content_fr', '')
+        video_url = request.POST.get('video_url', '')
+        room_id = request.POST.get('room')
+        order = int(request.POST.get('order', 0))
+        is_active = request.POST.get('is_active') == 'on'
+        
+        room = get_object_or_404(Room, id=room_id)
+        
+        section = Section.objects.create(
+            title=title,
+            title_fr=title_fr,
+            content=content,
+            content_fr=content_fr,
+            video_url=video_url,
+            room=room,
+            order=order,
+            is_active=is_active
+        )
+        
+        messages.success(request, f'Section "{title}" created successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Create Section',
+        'rooms': Room.objects.filter(is_active=True)
+    }
+    return render(request, 'admin/create_section.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_edit_section(request, section_id):
+    """Edit existing section."""
+    section = get_object_or_404(Section, id=section_id)
+    
+    if request.method == 'POST':
+        section.title = request.POST.get('title')
+        section.title_fr = request.POST.get('title_fr', '')
+        section.content = request.POST.get('content')
+        section.content_fr = request.POST.get('content_fr', '')
+        section.video_url = request.POST.get('video_url', '')
+        section.room_id = request.POST.get('room')
+        section.order = int(request.POST.get('order', 0))
+        section.is_active = request.POST.get('is_active') == 'on'
+        section.save()
+        
+        messages.success(request, f'Section "{section.title}" updated successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Edit Section',
+        'section': section,
+        'rooms': Room.objects.filter(is_active=True)
+    }
+    return render(request, 'admin/edit_section.html', context)
+
+
+# Question Management Views
+@user_passes_test(is_staff_or_superuser)
+def admin_create_question(request):
+    """Create new question."""
+    if request.method == 'POST':
+        prompt = request.POST.get('prompt')
+        prompt_fr = request.POST.get('prompt_fr', '')
+        correct_answer = request.POST.get('correct_answer')
+        placeholder_hint = request.POST.get('placeholder_hint', '')
+        question_type = request.POST.get('question_type')
+        section_id = request.POST.get('section') or None
+        room_id = request.POST.get('room') or None
+        order = int(request.POST.get('order', 0))
+        is_active = request.POST.get('is_active') == 'on'
+        
+        section = None
+        room = None
+        if section_id:
+            section = get_object_or_404(Section, id=section_id)
+        if room_id:
+            room = get_object_or_404(Room, id=room_id)
+        
+        question = Question.objects.create(
+            prompt=prompt,
+            prompt_fr=prompt_fr,
+            correct_answer=correct_answer,
+            placeholder_hint=placeholder_hint,
+            question_type=question_type,
+            section=section,
+            room=room,
+            order=order,
+            is_active=is_active
+        )
+        
+        messages.success(request, f'Question created successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Create Question',
+        'sections': Section.objects.filter(is_active=True),
+        'rooms': Room.objects.filter(is_active=True),
+        'question_types': Question.QUESTION_TYPE_CHOICES
+    }
+    return render(request, 'admin/create_question.html', context)
+
+
+@user_passes_test(is_staff_or_superuser)
+def admin_edit_question(request, question_id):
+    """Edit existing question."""
+    question = get_object_or_404(Question, id=question_id)
+    
+    if request.method == 'POST':
+        question.prompt = request.POST.get('prompt')
+        question.prompt_fr = request.POST.get('prompt_fr', '')
+        question.correct_answer = request.POST.get('correct_answer')
+        question.placeholder_hint = request.POST.get('placeholder_hint', '')
+        question.question_type = request.POST.get('question_type')
+        section_id = request.POST.get('section') or None
+        room_id = request.POST.get('room') or None
+        question.section_id = section_id
+        question.room_id = room_id
+        question.order = int(request.POST.get('order', 0))
+        question.is_active = request.POST.get('is_active') == 'on'
+        question.save()
+        
+        messages.success(request, f'Question updated successfully!')
+        return redirect('admin_courses')
+    
+    context = {
+        'title': 'Edit Question',
+        'question': question,
+        'sections': Section.objects.filter(is_active=True),
+        'rooms': Room.objects.filter(is_active=True),
+        'question_types': Question.QUESTION_TYPE_CHOICES
+    }
+    return render(request, 'admin/edit_question.html', context)

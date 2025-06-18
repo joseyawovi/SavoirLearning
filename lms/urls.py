@@ -12,12 +12,22 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
-    # Custom Admin Dashboard
+    # Management URLs
     path('manage/', views.admin_dashboard, name='admin_dashboard'),
     path('manage/analytics/', views.admin_analytics, name='admin_analytics'),
-    path('manage/users/', views.admin_users, name='admin_user_management'),
-    path('manage/courses/', views.admin_courses, name='admin_course_management'),
-    path('manage/export/', views.admin_export, name='admin_export_data'),
+    path('manage/users/', views.admin_users, name='admin_users'),
+    path('manage/courses/', views.admin_courses, name='admin_courses'),
+    path('manage/export/', views.admin_export, name='admin_export'),
+
+    # Content Management URLs
+    path('manage/roadmap/create/', views.admin_create_roadmap, name='admin_create_roadmap'),
+    path('manage/roadmap/<int:roadmap_id>/edit/', views.admin_edit_roadmap, name='admin_edit_roadmap'),
+    path('manage/room/create/', views.admin_create_room, name='admin_create_room'),
+    path('manage/room/<int:room_id>/edit/', views.admin_edit_room, name='admin_edit_room'),
+    path('manage/section/create/', views.admin_create_section, name='admin_create_section'),
+    path('manage/section/<int:section_id>/edit/', views.admin_edit_section, name='admin_edit_section'),
+    path('manage/question/create/', views.admin_create_question, name='admin_create_question'),
+    path('manage/question/<int:question_id>/edit/', views.admin_edit_question, name='admin_edit_question'),
 
     # Main application
     path('dashboard/', views.dashboard, name='dashboard'),
