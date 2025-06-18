@@ -1,4 +1,3 @@
-
 {% extends "admin/base_site.html" %}
 {% load static %}
 
@@ -60,7 +59,7 @@
 {% block content %}
 <div class="analytics">
     <h1>Analytics Overview</h1>
-    
+
     <div class="analytics-section">
         <h2>User Statistics</h2>
         <div class="user-stats">
@@ -81,7 +80,7 @@
                 <div>Active Trials</div>
             </div>
         </div>
-        
+
         {% if user_stats.total_users > 0 %}
             <div style="margin-top: 20px;">
                 <strong>Conversion Rate:</strong> 
@@ -89,7 +88,7 @@
             </div>
         {% endif %}
     </div>
-    
+
     <div class="analytics-section">
         <h2>Course Performance</h2>
         <table class="course-table">
