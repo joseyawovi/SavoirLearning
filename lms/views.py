@@ -559,8 +559,15 @@ def submit_final_exam_answers(request, room_id):
         # Generate certificate
         certificate, created = Certificate.objects.get_or_create(
             user=request.user,
-            room=room
+            room=room,
+            defaults={
+                'is_valid': True,
+            }
         )
+        
+        # Update room completion with certificate reference
+        room_completion.certificate = certificate
+        room_completion.save()
         
         messages.success(request, _('Congratulations! You passed the final exam. Your certificate is ready for download.'))
     else:

@@ -210,6 +210,7 @@ class RoomCompletion(models.Model):
     is_completed = models.BooleanField(default=False, verbose_name=_('Is Completed'))
     completed_at = models.DateTimeField(blank=True, null=True, verbose_name=_('Completed At'))
     final_exam_score = models.FloatField(blank=True, null=True, verbose_name=_('Final Exam Score'))
+    certificate = models.ForeignKey('Certificate', on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_('Certificate'))
     
     class Meta:
         verbose_name = _('Room Completion')
