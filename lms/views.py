@@ -451,8 +451,50 @@ def submit_quiz_answer(request, question_id):
 
 
 @login_required
-@require_POST
-def submit_final_exam(request, room_id):
+def final_exam(request, room_id):
+    """Display or submit final exam."""
+    room = get_object_or_404(Room, id=room_id, is_active=True)
+    
+    if request.method == 'GET':
+        # Display the final exam form
+        # Check if user can access quizzes
+        if not request.user.can_access_quizzes:
+            messages.error(request, _('Final exam access requires a premium subscription.'))
+            return redirect('room_detail', room_id=room_id)
+        
+        # Check if all sections are completed
+        sections = room.sections.filter(is_active=True)
+        completed_sections = SectionCompletion.objects.filter(
+            user=request.user, section__in=sections, is_completed=True
+        ).count()
+        
+        if completed_sections != sections.count():
+            messages.error(request, _('You must complete all sections before taking the final exam.'))
+            return redirect('room_detail', room_id=room_id)
+        
+        # Get final exam questions
+        final_questions = room.final_questions.filter(is_active=True).order_by('order')
+        
+        # Get user's previous answers if any
+        user_answers = UserAnswer.objects.filter(
+            user=request.user, question__in=final_questions
+        )
+        answer_dict = {ua.question_id: ua for ua in user_answers}
+        
+        context = {
+            'room': room,
+            'final_questions': final_questions,
+            'user_answers': answer_dict,
+        }
+        return render(request, 'lms/final_exam.html', context)
+    
+    elif request.method == 'POST':
+        return submit_final_exam_answers(request, room_id)
+
+
+@login_required
+@require_POST  
+def submit_final_exam_answers(request, room_id):
     """Submit final exam answers."""
     room = get_object_or_404(Room, id=room_id, is_active=True)
     

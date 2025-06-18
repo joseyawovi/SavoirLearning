@@ -1,0 +1,95 @@
+
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Final Exam" %} - {{ room.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">{% trans "Final Exam" %}</h1>
+                    <p class="text-gray-400">{{ room.title }}</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-dark-bg text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-dark-bg rounded-lg p-4 text-center">
+                    <p class="text-2xl font-bold text-white">{{ final_questions.count }}</p>
+                    <p class="text-sm text-gray-400">{% trans "Questions" %}</p>
+                </div>
+                <div class="bg-dark-bg rounded-lg p-4 text-center">
+                    <p class="text-2xl font-bold text-warning">70%</p>
+                    <p class="text-sm text-gray-400">{% trans "Pass Rate" %}</p>
+                </div>
+                <div class="bg-dark-bg rounded-lg p-4 text-center">
+                    <p class="text-2xl font-bold text-primary">{{ room.estimated_duration }}min</p>
+                    <p class="text-sm text-gray-400">{% trans "Duration" %}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Exam Form -->
+        <form method="post" action="{% url 'submit_final_exam_answers' room.id %}" class="space-y-6">
+            {% csrf_token %}
+            
+            {% for question in final_questions %}
+            <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white flex-1">
+                        {{ forloop.counter }}. {{ question.prompt }}
+                    </h3>
+                    <div class="ml-4 px-3 py-1 bg-primary rounded-full text-sm text-white">
+                        {% trans "Question" %} {{ forloop.counter }}
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        name="question_{{ question.id }}"
+                        value="{% if user_answers.question.id %}{{ user_answers.question.id.answer }}{% endif %}"
+                        placeholder="{{ question.placeholder_hint|default:'Your answer...' }}"
+                        class="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        required
+                    >
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Submit Button -->
+            <div class="bg-dark-card border border-dark-border rounded-xl p-6">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <p class="text-gray-400 mb-2">{% trans "Make sure all answers are complete before submitting." %}</p>
+                        <p class="text-sm text-gray-500">{% trans "You need at least 70% to pass this exam." %}</p>
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        class="inline-flex items-center px-8 py-4 bg-success hover:bg-green-700 text-white font-semibold rounded-lg transition-colors transform hover:scale-105"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        {% trans "Submit Final Exam" %}
+                    </button>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'room_detail' room.id %}" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas fa-arrow-left mr-1"></i>
+                            {% trans "Back to Room" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

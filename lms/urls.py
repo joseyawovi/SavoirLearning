@@ -27,7 +27,7 @@ urlpatterns = [
 
     # Quiz submission
     path('quiz/submit/<int:question_id>/', views.submit_quiz_answer, name='submit_quiz_answer'),
-    path('final-exam/submit/<int:room_id>/', views.submit_final_exam, name='submit_final_exam'),
+    path('final-exam/submit/<int:room_id>/', views.submit_final_exam_answers, name='submit_final_exam_answers'),
 
     # Custom Admin Dashboard
     path('roadmap/<int:roadmap_id>/', views.roadmap_detail, name='roadmap_detail'),
@@ -36,7 +36,7 @@ urlpatterns = [
 
     # Quiz and exam
     path('quiz/answer/<int:question_id>/', views.submit_quiz_answer, name='submit_quiz_answer'),
-    path('room/<int:room_id>/final-exam/', views.submit_final_exam, name='submit_final_exam'),
+    path('room/<int:room_id>/final-exam/', views.final_exam, name='final_exam'),
 
     # Certificates
     path('certificate/<uuid:certificate_id>/download/', views.download_certificate, name='download_certificate'),
