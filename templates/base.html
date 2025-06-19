@@ -1,3 +1,4 @@
+
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}" class="dark">
@@ -10,58 +11,163 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Custom Tailwind Config -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
                     colors: {
-                        'dark-bg': '#0f172a',
-                        'dark-card': '#1e293b',
-                        'dark-border': '#334155',
+                        'dark-bg': '#0a0f1c',
+                        'dark-card': '#1a2332',
+                        'dark-border': '#2d3748',
+                        'dark-hover': '#2a3441',
                         'primary': '#3b82f6',
                         'primary-dark': '#2563eb',
+                        'primary-light': '#60a5fa',
                         'success': '#10b981',
+                        'success-dark': '#059669',
                         'warning': '#f59e0b',
-                        'danger': '#ef4444'
+                        'warning-dark': '#d97706',
+                        'danger': '#ef4444',
+                        'danger-dark': '#dc2626',
+                        'info': '#06b6d4',
+                        'gray-850': '#1f2937',
+                        'gray-750': '#374151'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateX(-10px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
                     }
                 }
             }
         }
     </script>
+    
     <!-- Custom CSS -->
     {% load static %}
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/enhanced-styles.css' %}" rel="stylesheet">
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2332;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(26, 35, 50, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced button styles */
+        .btn-enhanced {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-enhanced:hover::before {
+            left: 100%;
+        }
+    </style>
 </head>
-<body class="bg-dark-bg text-white min-h-screen">
+<body class="bg-dark-bg text-white min-h-screen font-sans">
     <!-- Sidebar Navigation -->
-    <div class="flex">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <div class="hidden md:flex md:w-64 md:flex-col">
-            <div class="flex flex-col flex-1 min-h-0 bg-dark-card border-r border-dark-border">
+        <div class="hidden lg:flex lg:w-72 lg:flex-col fixed lg:inset-y-0 z-50">
+            <div class="flex flex-col flex-1 min-h-0 glass border-r border-dark-border">
                 <!-- Logo -->
-                <div class="flex items-center h-16 px-4 bg-dark-bg">
-                    <a href="{% url 'home' %}" class="flex items-center text-xl font-bold text-white">
-                        <i class="fas fa-graduation-cap mr-3 text-primary"></i>Savoir+
+                <div class="flex items-center h-20 px-6 bg-gradient-to-r from-primary to-info">
+                    <a href="{% url 'home' %}" class="flex items-center text-2xl font-bold text-white">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-graduation-cap text-primary text-xl"></i>
+                        </div>
+                        <span class="gradient-text">Savoir+</span>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <nav class="flex-1 px-4 py-4 space-y-2">
+                <nav class="flex-1 px-4 py-6 space-y-3">
                     {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
+                    <a href="{% url 'dashboard' %}" class="nav-link group flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-xl hover:bg-dark-hover hover:text-white transition-all duration-200 {% if request.resolver_match.url_name == 'dashboard' %}bg-primary text-white{% endif %}">
+                        <i class="fas fa-tachometer-alt mr-3 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>{% trans "Dashboard" %}</span>
                     </a>
+                    
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}" class="nav-link group flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-xl hover:bg-dark-hover hover:text-white transition-all duration-200 {% if 'admin' in request.path or 'manage' in request.path %}bg-primary text-white{% endif %}">
+                        <i class="fas fa-cogs mr-3 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>{% trans "Admin Panel" %}</span>
+                    </a>
+                    {% endif %}
                     {% endif %}
 
                     {% if not user.is_authenticated %}
-                    <a href="{% url 'login' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
+                    <a href="{% url 'login' %}" class="nav-link group flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-xl hover:bg-dark-hover hover:text-white transition-all duration-200">
+                        <i class="fas fa-sign-in-alt mr-3 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>{% trans "Login" %}</span>
                     </a>
-                    <a href="{% url 'register' %}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
-                        <i class="fas fa-user-plus mr-3"></i>{% trans "Register" %}
+                    <a href="{% url 'register' %}" class="nav-link group flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-xl hover:bg-dark-hover hover:text-white transition-all duration-200">
+                        <i class="fas fa-user-plus mr-3 text-lg group-hover:scale-110 transition-transform"></i>
+                        <span>{% trans "Register" %}</span>
                     </a>
                     {% endif %}
                 </nav>
@@ -69,34 +175,35 @@
                 <!-- User Info & Actions -->
                 {% if user.is_authenticated %}
                 <div class="flex-shrink-0 p-4 border-t border-dark-border">
-                    <div class="flex items-center">
+                    <div class="flex items-center mb-4">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-white text-sm"></i>
+                            <div class="w-12 h-12 bg-gradient-to-r from-primary to-info rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-lg"></i>
                             </div>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-white">{{ user.username }}</p>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-semibold text-white truncate">{{ user.username }}</p>
                             {% if user.is_paid_user %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success text-white">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900">
                                     <i class="fas fa-crown mr-1"></i>{% trans "Premium" %}
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-warning text-dark-bg">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-400 to-orange-600 text-orange-900">
                                     <i class="fas fa-clock mr-1"></i>{% trans "Trial" %}
                                 </span>
                             {% endif %}
                         </div>
                     </div>
-                    <div class="mt-3 space-y-1">
+                    
+                    <div class="space-y-2">
                         {% if not user.is_paid_user %}
-                        <a href="{% url 'upgrade_to_premium' %}" class="block px-4 py-2 text-sm text-center bg-primary hover:bg-primary-dark rounded-lg transition-colors">
+                        <a href="{% url 'upgrade_to_premium' %}" class="btn-enhanced w-full flex items-center justify-center px-4 py-2 text-sm font-medium bg-gradient-to-r from-primary to-info hover:from-primary-dark hover:to-cyan-600 rounded-lg transition-all duration-200 text-white">
                             <i class="fas fa-star mr-2"></i>{% trans "Upgrade to Premium" %}
                         </a>
                         {% endif %}
                         <form action="{% url 'logout' %}" method="post" class="w-full">
                             {% csrf_token %}
-                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors">
+                            <button type="submit" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200">
                                 <i class="fas fa-sign-out-alt mr-2"></i>
                                 {% trans "Logout" %}
                             </button>
@@ -108,83 +215,92 @@
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex flex-col flex-1">
-            <!-- Top Navigation (Mobile) -->
-            <div class="md:hidden bg-dark-card border-b border-dark-border">
-                <div class="flex items-center justify-between h-16 px-4">
-                    <a href="{% url 'home' %}" class="flex items-center text-xl font-bold text-white">
-                        <i class="fas fa-graduation-cap mr-2 text-primary"></i>Savoir+
-                    </a>
-                    <button id="mobile-menu-button" class="text-gray-300 hover:text-white">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
+        <div class="flex flex-col flex-1 lg:ml-72">
+            <!-- Top Navigation -->
+            <div class="glass border-b border-dark-border sticky top-0 z-40">
+                <div class="flex items-center justify-between h-16 px-4 lg:px-6">
+                    <!-- Mobile menu button -->
+                    <div class="lg:hidden">
+                        <button id="mobile-menu-button" class="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-dark-hover transition-colors">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Page title -->
+                    <div class="hidden lg:block">
+                        <h1 class="text-xl font-semibold text-white">
+                            {% block page_title %}{% trans "Dashboard" %}{% endblock %}
+                        </h1>
+                    </div>
 
-            <!-- Language Switcher & Status Bar -->
-            <div class="bg-dark-card border-b border-dark-border px-4 py-2">
-                <div class="flex items-center justify-between">
+                    <!-- Right side controls -->
                     <div class="flex items-center space-x-4">
                         <!-- Language Switcher -->
                         <div class="relative">
-                            <button id="language-dropdown" class="flex items-center text-sm text-gray-300 hover:text-white">
+                            <button id="language-dropdown" class="flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white rounded-lg hover:bg-dark-hover transition-colors">
                                 <i class="fas fa-language mr-2"></i>
                                 {% get_current_language as LANGUAGE_CODE %}
-                                {% if LANGUAGE_CODE == 'fr' %}Français{% else %}English{% endif %}
-                                <i class="fas fa-chevron-down ml-2"></i>
+                                {% if LANGUAGE_CODE == 'fr' %}FR{% else %}EN{% endif %}
+                                <i class="fas fa-chevron-down ml-2 text-xs"></i>
                             </button>
-                            <div id="language-menu" class="hidden absolute left-0 mt-2 w-40 bg-dark-card border border-dark-border rounded-lg shadow-lg z-10">
+                            <div id="language-menu" class="hidden absolute right-0 mt-2 w-32 glass border border-dark-border rounded-lg shadow-xl z-10">
                                 <form action="{% url 'set_language' %}" method="post" class="block">
                                     {% csrf_token %}
                                     <input name="language" type="hidden" value="en">
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-t-lg">
-                                        <i class="fas fa-flag-usa mr-2"></i>English
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-dark-hover hover:text-white rounded-t-lg transition-colors">
+                                        🇺🇸 English
                                     </button>
                                 </form>
                                 <form action="{% url 'set_language' %}" method="post" class="block">
                                     {% csrf_token %}
                                     <input name="language" type="hidden" value="fr">
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-b-lg">
-                                        <i class="fas fa-flag mr-2"></i>Français
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-dark-hover hover:text-white rounded-b-lg transition-colors">
+                                        🇫🇷 Français
                                     </button>
                                 </form>
                             </div>
                         </div>
-                    </div>
 
-                    {% if user.is_authenticated and not user.is_paid_user %}
-                    <div class="text-sm text-gray-400">
-                        {% if user.is_trial_active %}
-                            <i class="fas fa-clock mr-1 text-warning"></i>
-                            {% trans "Trial expires on" %} {{ user.trial_end_date|date:"M d, Y" }}
-                        {% else %}
-                            <i class="fas fa-exclamation-triangle mr-1 text-danger"></i>
-                            {% trans "Trial expired" %}
+                        <!-- Trial status -->
+                        {% if user.is_authenticated and not user.is_paid_user %}
+                        <div class="hidden sm:flex items-center text-xs text-gray-400 bg-dark-card px-3 py-1 rounded-full">
+                            {% if user.is_trial_active %}
+                                <i class="fas fa-clock mr-1 text-warning"></i>
+                                {% trans "Trial expires" %} {{ user.trial_end_date|date:"M d" }}
+                            {% else %}
+                                <i class="fas fa-exclamation-triangle mr-1 text-danger"></i>
+                                {% trans "Trial expired" %}
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
 
             <!-- Messages -->
             {% if messages %}
-            <div class="p-4">
+            <div class="p-4 lg:p-6">
                 {% for message in messages %}
-                <div class="mb-4 p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-900 border-green-500 text-green-100{% elif message.tags == 'error' %}bg-red-900 border-red-500 text-red-100{% elif message.tags == 'warning' %}bg-yellow-900 border-yellow-500 text-yellow-100{% else %}bg-blue-900 border-blue-500 text-blue-100{% endif %}">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
+                <div class="mb-4 p-4 rounded-xl border-l-4 glass animate-fade-in {% if message.tags == 'success' %}border-success text-green-100{% elif message.tags == 'error' %}border-danger text-red-100{% elif message.tags == 'warning' %}border-warning text-yellow-100{% else %}border-info text-blue-100{% endif %}">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mt-0.5">
                             {% if message.tags == 'success' %}
-                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-check-circle text-success"></i>
                             {% elif message.tags == 'error' %}
-                                <i class="fas fa-exclamation-circle"></i>
+                                <i class="fas fa-exclamation-circle text-danger"></i>
                             {% elif message.tags == 'warning' %}
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
                             {% else %}
-                                <i class="fas fa-info-circle"></i>
+                                <i class="fas fa-info-circle text-info"></i>
                             {% endif %}
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm">{{ message }}</p>
+                            <p class="text-sm font-medium">{{ message }}</p>
+                        </div>
+                        <div class="ml-auto pl-3">
+                            <button class="text-gray-400 hover:text-gray-200 transition-colors" onclick="this.parentElement.parentElement.parentElement.style.display='none'">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -193,19 +309,19 @@
             {% endif %}
 
             <!-- Main Content -->
-            <main class="flex-1 p-4 md:p-6">
+            <main class="flex-1 p-4 lg:p-6 space-y-6">
                 {% block content %}{% endblock %}
             </main>
 
             <!-- Footer -->
-            <footer class="bg-dark-card border-t border-dark-border py-6">
-                <div class="px-4 md:px-6">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <div class="mb-4 md:mb-0">
-                            <h5 class="text-lg font-semibold text-white">Savoir+</h5>
-                            <p class="text-gray-400">{% trans "Empowering learners through quality education" %}</p>
+            <footer class="glass border-t border-dark-border py-6 mt-auto">
+                <div class="px-4 lg:px-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="mb-4 lg:mb-0">
+                            <h5 class="text-lg font-semibold gradient-text">Savoir+</h5>
+                            <p class="text-gray-400 text-sm">{% trans "Empowering learners through quality education" %}</p>
                         </div>
-                        <div class="text-gray-400">
+                        <div class="text-gray-400 text-sm">
                             <p>&copy; 2025 Savoir+. {% trans "All rights reserved." %}</p>
                         </div>
                     </div>
@@ -214,40 +330,48 @@
         </div>
     </div>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 z-50 bg-dark-bg">
-        <div class="flex flex-col h-full">
-            <div class="flex items-center justify-between h-16 px-4 border-b border-dark-border">
-                <span class="text-xl font-bold text-white">Menu</span>
-                <button id="mobile-menu-close" class="text-gray-300 hover:text-white">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <nav class="flex-1 px-4 py-4 space-y-2">
-                {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
-                    <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
-                </a>
-                {% if not user.is_paid_user %}
-                <a href="{% url 'upgrade_to_premium' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
-                    <i class="fas fa-star mr-3"></i>{% trans "Upgrade to Premium" %}
-                </a>
-                {% endif %}
-                <form method="post" action="{% url 'logout' %}" class="w-full">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white block text-center w-full">
-                        {% trans "Logout" %}
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="lg:hidden fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50" id="mobile-overlay"></div>
+        <div class="fixed inset-y-0 left-0 w-72 glass border-r border-dark-border transform transition-transform">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between h-16 px-4 border-b border-dark-border">
+                    <span class="text-xl font-bold gradient-text">Menu</span>
+                    <button id="mobile-menu-close" class="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-dark-hover transition-colors">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
-                </form>
-                {% else %}
-                <a href="{% url 'login' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
-                    <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
-                </a>
-                <a href="{% url 'register' %}" class="block px-4 py-2 text-lg text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg">
-                    <i class="fas fa-user-plus mr-3"></i>{% trans "Register" %}
-                </a>
-                {% endif %}
-            </nav>
+                </div>
+                <nav class="flex-1 px-4 py-4 space-y-2">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="block px-4 py-3 text-lg text-gray-300 hover:text-white hover:bg-dark-hover rounded-lg transition-colors">
+                        <i class="fas fa-tachometer-alt mr-3"></i>{% trans "Dashboard" %}
+                    </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}" class="block px-4 py-3 text-lg text-gray-300 hover:text-white hover:bg-dark-hover rounded-lg transition-colors">
+                        <i class="fas fa-cogs mr-3"></i>{% trans "Admin Panel" %}
+                    </a>
+                    {% endif %}
+                    {% if not user.is_paid_user %}
+                    <a href="{% url 'upgrade_to_premium' %}" class="block px-4 py-3 text-lg bg-gradient-to-r from-primary to-info text-white rounded-lg transition-colors">
+                        <i class="fas fa-star mr-3"></i>{% trans "Upgrade to Premium" %}
+                    </a>
+                    {% endif %}
+                    <form method="post" action="{% url 'logout' %}" class="w-full mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-4 py-3 text-lg bg-danger hover:bg-danger-dark text-white rounded-lg transition-colors">
+                            <i class="fas fa-sign-out-alt mr-3"></i>{% trans "Logout" %}
+                        </button>
+                    </form>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="block px-4 py-3 text-lg text-gray-300 hover:text-white hover:bg-dark-hover rounded-lg transition-colors">
+                        <i class="fas fa-sign-in-alt mr-3"></i>{% trans "Login" %}
+                    </a>
+                    <a href="{% url 'register' %}" class="block px-4 py-3 text-lg text-gray-300 hover:text-white hover:bg-dark-hover rounded-lg transition-colors">
+                        <i class="fas fa-user-plus mr-3"></i>{% trans "Register" %}
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
         </div>
     </div>
 
@@ -255,28 +379,47 @@
     <script src="{% static 'js/quiz.js' %}"></script>
     <script>
         // Mobile menu toggle
-        document.getElementById('mobile-menu-button')?.addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.remove('hidden');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        [mobileMenuButton].forEach(button => {
+            button?.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+            });
         });
 
-        document.getElementById('mobile-menu-close')?.addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.add('hidden');
+        [mobileMenuClose, mobileOverlay].forEach(element => {
+            element?.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
         });
 
         // Language dropdown toggle
-        document.getElementById('language-dropdown')?.addEventListener('click', function() {
-            const menu = document.getElementById('language-menu');
-            menu.classList.toggle('hidden');
+        const languageDropdown = document.getElementById('language-dropdown');
+        const languageMenu = document.getElementById('language-menu');
+
+        languageDropdown?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            languageMenu.classList.toggle('hidden');
         });
 
         // Close language dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('language-dropdown');
-            const menu = document.getElementById('language-menu');
-            if (dropdown && menu && !dropdown.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.add('hidden');
+        document.addEventListener('click', (e) => {
+            if (!languageDropdown?.contains(e.target) && !languageMenu?.contains(e.target)) {
+                languageMenu?.classList.add('hidden');
             }
         });
+
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('[class*="animate-fade-in"]').forEach(msg => {
+                msg.style.opacity = '0';
+                msg.style.transform = 'translateY(-10px)';
+                setTimeout(() => msg.remove(), 300);
+            });
+        }, 5000);
     </script>
 
     {% block extra_js %}{% endblock %}

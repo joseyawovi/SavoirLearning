@@ -1,435 +1,225 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Dashboard" %} - Savoir+{% endblock %}
+{% block title %}{% trans "Dashboard" %} - {{ block.super }}{% endblock %}
+{% block page_title %}{% trans "Dashboard" %}{% endblock %}
 
 {% block content %}
-<!-- Dashboard Header -->
-<div class="mb-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-            <h1 class="text-3xl font-bold text-white mb-2">
-                {% trans "Welcome back" %}, {{ user.first_name|default:user.username }}
-            </h1>
-            <p class="text-gray-400">Continue your cybersecurity learning journey</p>
-        </div>
-        <div class="mt-4 md:mt-0">
-            {% if user.is_paid_user %}
-            <div class="inline-flex items-center px-4 py-2 bg-success rounded-lg">
-                <i class="fas fa-crown mr-2"></i>
-                <span class="font-medium">{% trans "Premium" %}</span>
+<div class="space-y-6">
+    <!-- Welcome Header -->
+    <div class="glass rounded-2xl p-6 border border-dark-border">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div class="mb-4 lg:mb-0">
+                <h1 class="text-3xl font-bold gradient-text mb-2">
+                    {% trans "Welcome back" %}, {{ user.first_name|default:user.username }}!
+                </h1>
+                <p class="text-gray-400">{% trans "Continue your learning journey" %}</p>
             </div>
-            {% else %}
-            <div class="inline-flex items-center px-4 py-2 bg-warning text-dark-bg rounded-lg">
-                <i class="fas fa-clock mr-2"></i>
-                <span class="font-medium">{% trans "Trial" %}</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Account Status Banner -->
-{% if not user.is_paid_user %}
-<div class="mb-8">
-    {% if user.is_trial_active %}
-    <div class="bg-gradient-to-r from-blue-900 to-primary border border-blue-700 rounded-xl p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-gift text-white text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-white">{% trans "Your trial is active until" %} {{ user.trial_end_date|date:"M d, Y" }}</h3>
-                    <p class="text-blue-200">{% trans "You have premium access to all features." %}</p>
-                </div>
-            </div>
-            <a href="{% url 'upgrade_to_premium' %}" class="px-6 py-3 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-                <i class="fas fa-star mr-2"></i>{% trans "Upgrade to Premium" %}
-            </a>
-        </div>
-    </div>
-    {% else %}
-    <div class="bg-gradient-to-r from-red-900 to-danger border border-red-700 rounded-xl p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-white">{% trans "Your trial has expired. Upgrade to continue learning!" %}</h3>
-                    <p class="text-red-200">Access to quizzes and exams has been limited.</p>
-                </div>
-            </div>
-            <a href="{% url 'upgrade_to_premium' %}" class="px-6 py-3 bg-white text-red-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
-                <i class="fas fa-rocket mr-2"></i>{% trans "Upgrade Now" %}
-            </a>
-        </div>
-    </div>
-    {% endif %}
-</div>
-{% endif %}
-
-<!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-route text-white text-xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-400 text-sm">{% trans "Total Rooms" %}</p>
-                <p class="text-2xl font-bold text-white">{{ total_rooms }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-check-circle text-white text-xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-400 text-sm">{% trans "Completed Rooms" %}</p>
-                <p class="text-2xl font-bold text-white">{{ completed_rooms }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-certificate text-white text-xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-400 text-sm">{% trans "Certificates Earned" %}</p>
-                <p class="text-2xl font-bold text-white">{{ certificates_count }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-trophy text-white text-xl"></i>
-            </div>
-            <div>
-                <p class="text-gray-400 text-sm">{% trans "Account Status" %}</p>
-                <p class="text-lg font-bold text-white">
-                    {% if user.is_paid_user %}
-                        {% trans "Premium" %}
-                    {% elif user.is_trial_active %}
-                        {% trans "Trial account" %}
+            <div class="flex items-center space-x-4">
+                {% if not user.is_paid_user %}
+                <div class="text-center">
+                    <p class="text-sm text-gray-400">{% trans "Trial Status" %}</p>
+                    {% if user.is_trial_active %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900">
+                            <i class="fas fa-clock mr-1"></i>
+                            {% with days_left=user.trial_end_date|timeuntil %}
+                                {{ days_left }} {% trans "left" %}
+                            {% endwith %}
+                        </span>
                     {% else %}
-                        {% trans "Trial expired" %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-red-400 to-red-600 text-red-100">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>{% trans "Expired" %}
+                        </span>
                     {% endif %}
-                </p>
+                </div>
+                {% endif %}
+                <div class="text-center">
+                    <p class="text-sm text-gray-400">{% trans "Overall Progress" %}</p>
+                    <div class="text-2xl font-bold text-white">{{ overall_progress|floatformat:0 }}%</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Learning Roadmaps Section -->
-<div class="mb-8">
-    <!-- Section Header with Enhanced Styling -->
-    <div class="relative mb-8">
-        <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-2xl blur-xl"></div>
-        <div class="relative bg-dark-card border border-dark-border rounded-2xl p-6">
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass rounded-xl p-4 border border-dark-border">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-3xl font-bold text-white mb-2">
-                        <i class="fas fa-graduation-cap mr-3 text-primary"></i>
-                        {% trans "Learning Roadmaps" %}
-                    </h2>
-                    <p class="text-gray-400">Choose your cybersecurity learning path and master essential skills</p>
+                    <h3 class="text-2xl font-bold text-white">{{ total_completed_rooms }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Completed" %}</p>
                 </div>
-                <div class="hidden md:flex items-center space-x-4">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-primary">{{ roadmap_data|length }}</div>
-                        <div class="text-xs text-gray-400">Paths</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-success">{{ overall_progress|floatformat:0 }}%</div>
-                        <div class="text-xs text-gray-400">Progress</div>
-                    </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass rounded-xl p-4 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ total_rooms }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Total Rooms" %}</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-home text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass rounded-xl p-4 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ certificates_count }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Certificates" %}</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-certificate text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass rounded-xl p-4 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ roadmaps|length }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Roadmaps" %}</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-road text-white"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    {% if roadmap_data %}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {% for roadmap_item in roadmap_data %}
-        <!-- Enhanced Course Card -->
-        <div class="group relative">
-            <!-- Gradient Background Effect -->
-            <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+    <!-- Learning Paths -->
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-white">{% trans "Your Learning Paths" %}</h2>
+            {% if not user.is_paid_user %}
+            <a href="{% url 'upgrade_to_premium' %}" class="btn-enhanced px-4 py-2 bg-gradient-to-r from-primary to-info text-white rounded-lg transition-all duration-200 text-sm">
+                <i class="fas fa-star mr-2"></i>{% trans "Upgrade to Premium" %}
+            </a>
+            {% endif %}
+        </div>
 
-            <div class="relative bg-dark-card border border-dark-border rounded-2xl p-8 hover:border-primary transition-all duration-500 transform hover:-translate-y-1">
-                <!-- Course Header with Enhanced Visual Hierarchy -->
-                <div class="flex items-start justify-between mb-6">
-                    <div class="flex items-center">
-                        <div class="relative">
-                            <div class="w-16 h-16 bg-gradient-to-br from-primary to-purple-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                                <i class="fas fa-shield-alt text-white text-2xl"></i>
-                            </div>
-                            {% if roadmap_item.progress > 0 %}
-                            <div class="absolute -top-2 -right-2 w-6 h-6 bg-success rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-white text-xs"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                                {{ roadmap_item.roadmap.title }}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {% for roadmap_info in roadmap_data %}
+            <div class="glass rounded-xl border border-dark-border overflow-hidden hover:border-primary transition-all duration-300 group">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-primary transition-colors">
+                                {{ roadmap_info.roadmap.title }}
                             </h3>
-                            <div class="flex items-center space-x-4 text-sm text-gray-400">
-                                <span><i class="fas fa-door-open mr-1"></i>{{ roadmap_item.total_rooms }} {% trans "Rooms" %}</span>
-                                <span><i class="fas fa-clock mr-1"></i>{{ roadmap_item.total_rooms|add:roadmap_item.total_rooms }} hrs</span>
-                            </div>
+                            <p class="text-gray-400 text-sm mb-4">{{ roadmap_info.roadmap.description|truncatewords:20 }}</p>
                         </div>
-                    </div>
-
-                    <!-- Progress Circle -->
-                    <div class="relative w-16 h-16">
-                        <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                            <circle cx="32" cy="32" r="28" stroke="#374151" stroke-width="4" fill="none"/>
-                            <circle cx="32" cy="32" r="28" stroke="url(#gradient{{ forloop.counter }})" stroke-width="4" fill="none"
-                                stroke-dasharray="175.93" stroke-dashoffset="{{ roadmap_item.stroke_dashoffset }}"
-                                class="transition-all duration-1000 ease-out"/>
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-sm font-bold text-white">{{ roadmap_item.progress|floatformat:0 }}%</span>
-                        </div>
-                        <defs>
-                            <linearGradient id="gradient{{ forloop.counter }}" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </div>
-                </div>
-
-                <!-- Enhanced Description -->
-                <div class="mb-6">
-                    <p class="text-gray-300 leading-relaxed">{{ roadmap_item.roadmap.description|truncatewords:20 }}</p>
-                </div>
-
-                <!-- Enhanced Skills Tags -->
-                <div class="mb-6">
-                    <div class="flex flex-wrap gap-2">
-                        <span class="px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full border border-primary/30">
-                            <i class="fas fa-shield-alt mr-1"></i>Security
-                        </span>
-                        <span class="px-3 py-1 bg-purple-600/20 text-purple-400 text-xs font-medium rounded-full border border-purple-600/30">
-                            <i class="fas fa-code mr-1"></i>Practical
-                        </span>
-                        <span class="px-3 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded-full border border-green-600/30">
-                            <i class="fas fa-certificate mr-1"></i>Certified
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Enhanced Room Preview with Better Visual Hierarchy -->
-                <div class="space-y-3 mb-6">
-                    <h4 class="text-sm font-semibold text-gray-300 mb-3 flex items-center">
-                        <i class="fas fa-list mr-2 text-primary"></i>Course Modules
-                    </h4>
-                    {% for room_data in roadmap_item.rooms|slice:":4" %}
-                    <div class="flex items-center justify-between p-4 bg-dark-bg/50 rounded-xl border border-dark-border/50 hover:border-primary/30 transition-all group/room">
-                        <div class="flex items-center">
-                            <div class="relative mr-4">
-                                {% if room_data.is_completed %}
-                                <div class="w-8 h-8 bg-gradient-to-br from-success to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-check text-white text-sm"></i>
+                        <div class="flex-shrink-0 ml-4">
+                            <div class="relative w-16 h-16">
+                                <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                                    <circle cx="32" cy="32" r="28" stroke="#2d3748" stroke-width="4" fill="none"/>
+                                    <circle cx="32" cy="32" r="28" stroke="url(#gradient-{{ forloop.counter }})" stroke-width="4" 
+                                            fill="none" stroke-linecap="round"
+                                            stroke-dasharray="175.93" 
+                                            stroke-dashoffset="{{ roadmap_info.stroke_dashoffset|default:175.93 }}"
+                                            class="transition-all duration-1000 ease-out"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-sm font-bold text-white">{{ roadmap_info.progress|floatformat:0 }}%</span>
                                 </div>
-                                {% elif room_data.is_accessible %}
-                                <div class="w-8 h-8 bg-gradient-to-br from-warning to-orange-500 rounded-lg flex items-center justify-center shadow-lg group-hover/room:scale-110 transition-transform">
-                                    <i class="fas fa-play text-white text-sm"></i>
-                                </div>
-                                {% else %}
-                                <div class="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-lock text-white text-sm"></i>
-                                </div>
-                                {% endif %}
-                                {% if room_data.is_completed %}
-                                <div class="absolute -top-1 -right-1 w-3 h-3 bg-success rounded-full border-2 border-dark-card"></div>
-                                {% endif %}
+                                <defs>
+                                    <linearGradient id="gradient-{{ forloop.counter }}" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#3b82f6"/>
+                                        <stop offset="100%" stop-color="#06b6d4"/>
+                                    </linearGradient>
+                                </defs>
                             </div>
-                            <div>
-                                <span class="text-white font-medium group-hover/room:text-primary transition-colors">
-                                    {{ room_data.room.title|truncatechars:35 }}
-                                </span>
-                                {% if room_data.sections_total > 0 %}
-                                <div class="text-xs text-gray-500 mt-1">
-                                    {{ room_data.sections_completed }}/{{ room_data.sections_total }} sections
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            {% if room_data.sections_total > 0 %}
-                            <div class="w-12 h-1.5 bg-dark-border rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-primary to-purple-600 transition-all duration-500" 
-                                     style="width: {{ room_data.sections_progress }}%"></div>
-                            </div>
-                            {% endif %}
-                            <div class="text-xs font-medium px-2 py-1 rounded-md
-                                {% if room_data.is_completed %}bg-success/20 text-success border border-success/30
-                                {% elif room_data.is_accessible %}bg-warning/20 text-warning border border-warning/30
-                                {% else %}bg-gray-600/20 text-gray-400 border border-gray-600/30{% endif %}">
-                                {% if room_data.is_completed %}
-                                    {% trans "Completed" %}
-                                {% elif room_data.is_accessible %}
-                                    {% trans "Available" %}
-                                {% else %}
-                                    {% trans "Locked" %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if roadmap_item.total_rooms > 4 %}
-                    <div class="text-center text-gray-400 text-sm py-3 border border-dashed border-gray-600 rounded-lg">
-                        <i class="fas fa-plus mr-2"></i>{{ roadmap_item.total_rooms|add:"-4" }} more modules available
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- Enhanced Action Section -->
-                <div class="flex items-center justify-between pt-4 border-t border-dark-border/50">
-                    <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-400 flex items-center">
-                            <i class="fas fa-graduation-cap mr-2 text-primary"></i>
-                            {% if roadmap_item.progress == 0 %}
-                                <span class="text-gray-300">Ready to start</span>
-                            {% elif roadmap_item.progress == 100 %}
-                                <span class="text-success">Completed</span>
-                            {% else %}
-                                <span class="text-warning">{{ roadmap_item.completed_rooms }}/{{ roadmap_item.total_rooms }} completed</span>
-                            {% endif %}
                         </div>
                     </div>
 
-                    <a href="{% url 'roadmap_detail' roadmap_item.roadmap.id %}" 
-                       class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-purple-600 hover:from-primary-dark hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group/button">
-                        {% if roadmap_item.progress == 0 %}
-                            <i class="fas fa-rocket mr-2 group-hover/button:animate-bounce"></i>{% trans "Start Journey" %}
-                        {% elif roadmap_item.progress == 100 %}
-                            <i class="fas fa-trophy mr-2"></i>{% trans "View Certificate" %}
-                        {% else %}
-                            <i class="fas fa-arrow-right mr-2 group-hover/button:translate-x-1 transition-transform"></i>{% trans "Continue Learning" %}
+                    <div class="space-y-3 mb-4">
+                        {% for room_info in roadmap_info.rooms|slice:":3" %}
+                        <div class="flex items-center justify-between p-3 bg-dark-card rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3
+                                    {% if room_info.is_completed %}bg-success{% elif room_info.is_accessible %}bg-primary{% else %}bg-gray-600{% endif %}">
+                                    {% if room_info.is_completed %}
+                                        <i class="fas fa-check text-white text-sm"></i>
+                                    {% elif room_info.is_accessible %}
+                                        <i class="fas fa-play text-white text-sm"></i>
+                                    {% else %}
+                                        <i class="fas fa-lock text-white text-sm"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <p class="text-white text-sm font-medium">{{ room_info.room.title }}</p>
+                                    <p class="text-gray-400 text-xs">
+                                        {{ room_info.sections_completed }}/{{ room_info.sections_total }} {% trans "sections" %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="w-16 bg-dark-border rounded-full h-2">
+                                <div class="h-2 rounded-full transition-all duration-300
+                                    {% if room_info.is_completed %}bg-success{% elif room_info.is_accessible %}bg-primary{% else %}bg-gray-600{% endif %}"
+                                     style="width: {{ room_info.sections_progress }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% if roadmap_info.rooms|length > 3 %}
+                        <p class="text-gray-400 text-sm text-center">
+                            {% trans "and" %} {{ roadmap_info.rooms|length|add:"-3" }} {% trans "more rooms" %}
+                        </p>
                         {% endif %}
-                    </a>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">
+                            {{ roadmap_info.completed_rooms }}/{{ roadmap_info.total_rooms }} {% trans "rooms completed" %}
+                        </span>
+                        <a href="{% url 'roadmap_detail' roadmap_info.roadmap.id %}" 
+                           class="btn-enhanced px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg transition-all duration-200 text-sm">
+                            {% trans "Continue" %} <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-span-2 glass rounded-xl p-8 text-center border border-dark-border">
+                <div class="w-16 h-16 bg-gradient-to-r from-primary to-info rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-road text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">{% trans "No Learning Paths Yet" %}</h3>
+                <p class="text-gray-400 mb-4">{% trans "Enroll in a roadmap to start your learning journey" %}</p>
+                <a href="{% url 'home' %}" class="btn-enhanced px-6 py-3 bg-gradient-to-r from-primary to-info text-white rounded-lg">
+                    {% trans "Explore Roadmaps" %}
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="text-center py-16">
-        <div class="w-24 h-24 bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-road text-gray-500 text-3xl"></i>
-        </div>
-        <h3 class="text-2xl font-semibold text-gray-300 mb-4">No Learning Paths Available</h3>
-        <p class="text-gray-400 max-w-md mx-auto">{% trans "No learning roadmaps available at the moment. Please check back later!" %}</p>
-    </div>
-    {% endif %}
-</div>
 
-<!-- Recent Activity / Quick Actions -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Recent Progress -->
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">
-            <i class="fas fa-history text-primary mr-2"></i>
-            Recent Activity
+    <!-- Recent Activity -->
+    {% if recent_completions %}
+    <div class="glass rounded-xl p-6 border border-dark-border">
+        <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-clock mr-2 text-primary"></i>
+            {% trans "Recent Activity" %}
         </h3>
-        {% if recent_completions %}
         <div class="space-y-3">
             {% for completion in recent_completions %}
-            <div class="flex items-center justify-between p-3 bg-dark-bg rounded-lg">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-check text-white text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-white">{{ completion.section.title|truncatechars:40 }}</p>
-                        <p class="text-xs text-gray-400">{{ completion.completed_at|timesince }} ago</p>
-                    </div>
+            <div class="flex items-center p-3 bg-dark-card rounded-lg">
+                <div class="w-10 h-10 bg-success rounded-full flex items-center justify-center mr-3">
+                    <i class="fas fa-check text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-white font-medium">{% trans "Completed" %} {{ completion.section.title }}</p>
+                    <p class="text-gray-400 text-sm">{{ completion.completed_at|timesince }} {% trans "ago" %}</p>
                 </div>
             </div>
             {% endfor %}
         </div>
-        {% else %}
-        <div class="text-center py-8">
-            <i class="fas fa-history text-gray-500 text-2xl mb-3"></i>
-            <p class="text-gray-400">No recent activity</p>
-            <p class="text-sm text-gray-500">Start learning to see your progress here</p>
-        </div>
-        {% endif %}
     </div>
-
-    <!-- Quick Actions -->
-    <div class="bg-dark-card border border-dark-border rounded-xl p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">
-            <i class="fas fa-bolt text-primary mr-2"></i>
-            Quick Actions
-        </h3>
-        <div class="space-y-3">
-            {% if not user.is_paid_user %}
-            <a href="{% url 'upgrade_to_premium' %}" 
-               class="flex items-center p-4 bg-gradient-to-r from-primary to-primary-dark rounded-lg hover:from-primary-dark hover:to-primary transition-all group">
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-star text-primary"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-white">{% trans "Upgrade to Premium" %}</p>
-                    <p class="text-sm text-blue-100">Unlock all features and content</p>
-                </div>
-                <i class="fas fa-arrow-right text-white group-hover:translate-x-1 transition-transform"></i>
-            </a>
-            {% endif %}
-
-            <a href="{% url 'admin:index' %}" 
-               class="flex items-center p-4 bg-dark-bg rounded-lg hover:bg-gray-700 transition-colors group">
-                <div class="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-cog text-white"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-white">Admin Panel</p>
-                    <p class="text-sm text-gray-400">Manage content and users</p>
-                </div>
-                <i class="fas fa-arrow-right text-gray-400 group-hover:translate-x-1 transition-transform"></i>
-            </a>
-
-            <div class="flex items-center p-4 bg-dark-bg rounded-lg">
-                <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-4">
-                    <i class="fas fa-globe text-white"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-white">Multilingual Support</p>
-                    <p class="text-sm text-gray-400">Learn in English or French</p>
-                </div>
-                <i class="fas fa-check text-success"></i>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Animate progress bars on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const progressBars = document.querySelectorAll('[style*="width:"]');
-        progressBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 300);
-        });
-    });
-</script>
 {% endblock %}

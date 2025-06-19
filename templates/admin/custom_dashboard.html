@@ -1,357 +1,216 @@
+{% extends "base.html" %}
+{% load i18n %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savoir+ Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#3b82f6',
-                        'primary-dark': '#1d4ed8',
-                        'secondary': '#64748b',
-                        'success': '#10b981',
-                        'warning': '#f59e0b',
-                        'danger': '#ef4444',
-                        'dark': '#0f172a',
-                        'dark-lighter': '#1e293b',
-                        'dark-card': '#334155',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .stat-animation {
-            animation: countUp 1.5s ease-out;
-        }
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <h1 class="text-2xl font-bold text-gray-900">
-                            <span class="text-primary">Savoir+</span> Admin
-                        </h1>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <nav class="flex space-x-4">
-                        <a href="/manage/" class="bg-primary text-white px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
-                        </a>
-                        <a href="/manage/analytics/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-chart-bar mr-1"></i>Analytics
-                        </a>
-                        <a href="/manage/users/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-users mr-1"></i>Users
-                        </a>
-                        <a href="/manage/courses/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-book mr-1"></i>Courses
-                        </a>
-                        <a href="/manage/export/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-download mr-1"></i>Export
-                        </a>
-                    </nav>
-                    <div class="border-l border-gray-200 pl-4">
-                        <a href="/admin/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-cogs mr-1"></i>Django Admin
-                        </a>
-                        <a href="/" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                            <i class="fas fa-home mr-1"></i>Site
-                        </a>
-                    </div>
+{% block title %}{% trans "Admin Dashboard" %} - {{ block.super }}{% endblock %}
+{% block page_title %}{% trans "Admin Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Header -->
+    <div class="glass rounded-2xl p-6 border border-dark-border">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold gradient-text">{% trans "Welcome to Admin Dashboard" %}</h1>
+                <p class="text-gray-400 mt-2">{% trans "Manage your LMS platform with powerful tools and insights" %}</p>
+            </div>
+            <div class="hidden lg:block">
+                <div class="w-16 h-16 bg-gradient-to-r from-primary to-info rounded-full flex items-center justify-center">
+                    <i class="fas fa-crown text-white text-2xl"></i>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <!-- Welcome Section -->
-        <div class="mb-8">
-            <div class="gradient-bg rounded-xl p-8 text-white">
-                <h1 class="text-3xl font-bold mb-2">Welcome to Savoir+ Admin Dashboard</h1>
-                <p class="text-blue-100">Manage your learning management system efficiently</p>
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <a href="{% url 'admin_create_roadmap' %}" class="glass rounded-xl p-4 border border-dark-border hover:border-primary transition-all duration-200 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-road text-white"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-sm">{% trans "New Roadmap" %}</h3>
+                    <p class="text-gray-400 text-xs mt-1">{% trans "Create learning path" %}</p>
+                </div>
+                <i class="fas fa-arrow-right text-gray-400 group-hover:text-primary transition-colors"></i>
+            </div>
+        </a>
+
+        <a href="{% url 'admin_create_room' %}" class="glass rounded-xl p-4 border border-dark-border hover:border-success transition-all duration-200 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-home text-white"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-sm">{% trans "New Room" %}</h3>
+                    <p class="text-gray-400 text-xs mt-1">{% trans "Add course module" %}</p>
+                </div>
+                <i class="fas fa-arrow-right text-gray-400 group-hover:text-success transition-colors"></i>
+            </div>
+        </a>
+
+        <a href="{% url 'admin_create_section' %}" class="glass rounded-xl p-4 border border-dark-border hover:border-warning transition-all duration-200 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-book text-white"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-sm">{% trans "New Section" %}</h3>
+                    <p class="text-gray-400 text-xs mt-1">{% trans "Add content block" %}</p>
+                </div>
+                <i class="fas fa-arrow-right text-gray-400 group-hover:text-warning transition-colors"></i>
+            </div>
+        </a>
+
+        <a href="{% url 'admin_create_question' %}" class="glass rounded-xl p-4 border border-dark-border hover:border-info transition-all duration-200 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-question text-white"></i>
+                    </div>
+                    <h3 class="font-semibold text-white text-sm">{% trans "New Question" %}</h3>
+                    <p class="text-gray-400 text-xs mt-1">{% trans "Add quiz item" %}</p>
+                </div>
+                <i class="fas fa-arrow-right text-gray-400 group-hover:text-info transition-colors"></i>
+            </div>
+        </a>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ total_users }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Total Users" %}</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-white"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-success mr-1">{{ active_users }}</span>
+                <span class="text-gray-400">{% trans "active" %}</span>
             </div>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Users -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-users text-primary text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                        <p class="text-sm font-medium text-gray-600">Total Users</p>
-                        <p class="text-2xl font-bold text-gray-900 stat-animation">{{ total_users }}</p>
-                    </div>
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ total_roadmaps }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Roadmaps" %}</p>
                 </div>
-                <div class="mt-4">
-                    <div class="flex items-center text-sm">
-                        <span class="text-success font-medium">{{ active_users }}</span>
-                        <span class="text-gray-600 ml-2">active users</span>
-                    </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-road text-white"></i>
                 </div>
             </div>
-
-            <!-- Premium Users -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-crown text-warning text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                        <p class="text-sm font-medium text-gray-600">Premium Users</p>
-                        <p class="text-2xl font-bold text-gray-900 stat-animation">{{ paid_users }}</p>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center text-sm">
-                        <span class="text-gray-600">{{ trial_users }} trial users</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Courses -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-book text-success text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                        <p class="text-sm font-medium text-gray-600">Total Courses</p>
-                        <p class="text-2xl font-bold text-gray-900 stat-animation">{{ total_rooms }}</p>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center text-sm">
-                        <span class="text-success font-medium">{{ active_roadmaps }}</span>
-                        <span class="text-gray-600 ml-2">active roadmaps</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Sections -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-layer-group text-purple-600 text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4 flex-1">
-                        <p class="text-sm font-medium text-gray-600">Total Sections</p>
-                        <p class="text-2xl font-bold text-gray-900 stat-animation">{{ total_sections }}</p>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center text-sm">
-                        <span class="text-gray-600">Learning modules</span>
-                    </div>
-                </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-success mr-1">{{ active_roadmaps }}</span>
+                <span class="text-gray-400">{% trans "active" %}</span>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="mb-8">
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="/admin/lms/user/add/" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                        <i class="fas fa-user-plus text-primary mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Add User</span>
-                    </a>
-                    <a href="/manage/roadmap/create/" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                        <i class="fas fa-plus text-success mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Add Roadmap</span>
-                    </a>
-                    <a href="/manage/room/create/" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
-                        <i class="fas fa-door-open text-warning mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Add Room</span>
-                    </a>
-                    <a href="/manage/export/?type=users" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
-                        <i class="fas fa-download text-purple-600 mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Export Data</span>
-                    </a>
-                    <a href="/manage/section/create/" class="flex items-center p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
-                        <i class="fas fa-layer-group text-indigo-600 mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Add Section</span>
-                    </a>
-                    <a href="/manage/question/create/" class="flex items-center p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                        <i class="fas fa-question-circle text-red-600 mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Add Question</span>
-                    </a>
-                    <a href="/admin/" class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <i class="fas fa-cogs text-gray-600 mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Django Admin</span>
-                    </a>
-                    <a href="/manage/courses/" class="flex items-center p-4 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors">
-                        <i class="fas fa-book text-teal-600 mr-3"></i>
-                        <span class="text-sm font-medium text-gray-700">Manage Courses</span>
-                    </a>
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ total_rooms }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Rooms" %}</p>
                 </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-home text-white"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-primary mr-1">{{ total_sections }}</span>
+                <span class="text-gray-400">{% trans "sections" %}</span>
             </div>
         </div>
 
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">{{ paid_users }}</h3>
+                    <p class="text-gray-400 text-sm">{% trans "Premium Users" %}</p>
+                </div>
+                <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-crown text-white"></i>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-warning mr-1">{{ trial_users }}</span>
+                <span class="text-gray-400">{% trans "on trial" %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Recent Activity -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Recent Users -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-user-plus text-primary mr-2"></i>Recent Users
-                    </h3>
-                    <a href="/manage/users/" class="text-primary text-sm font-medium hover:text-primary-dark">View all</a>
-                </div>
-                <div class="space-y-4">
-                    {% for user in recent_users %}
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="flex-shrink-0">
-                            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                                <i class="fas fa-user text-white text-sm"></i>
-                            </div>
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <i class="fas fa-clock mr-2 text-primary"></i>
+                {% trans "Recent Activity" %}
+            </h3>
+            <div class="space-y-3">
+                {% for completion in recent_completions %}
+                <div class="flex items-center justify-between p-3 bg-dark-card rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-check text-white text-sm"></i>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ user.username }}</p>
-                            <p class="text-sm text-gray-500 truncate">{{ user.email }}</p>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                {{ user.date_joined|date:"M d" }}
-                            </span>
+                        <div>
+                            <p class="text-white text-sm font-medium">{{ completion.user.username }}</p>
+                            <p class="text-gray-400 text-xs">{{ completion.room.title }}</p>
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-users text-gray-300 text-3xl mb-3"></i>
-                        <p class="text-gray-500">No recent users</p>
-                    </div>
-                    {% endfor %}
+                    <span class="text-xs text-gray-400">{{ completion.completed_at|timesince }}</span>
                 </div>
-            </div>
-
-            <!-- Recent Completions -->
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-trophy text-warning mr-2"></i>Recent Completions
-                    </h3>
-                    <a href="/manage/analytics/" class="text-primary text-sm font-medium hover:text-primary-dark">View analytics</a>
-                </div>
-                <div class="space-y-4">
-                    {% for completion in recent_completions %}
-                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="flex-shrink-0">
-                            <div class="w-10 h-10 bg-success rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-white text-sm"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-900 truncate">{{ completion.user.username }}</p>
-                            <p class="text-sm text-gray-500 truncate">{{ completion.room.title }}</p>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                {{ completion.completed_at|date:"M d" }}
-                            </span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-8">
-                        <i class="fas fa-trophy text-gray-300 text-3xl mb-3"></i>
-                        <p class="text-gray-500">No recent completions</p>
-                    </div>
-                    {% endfor %}
-                </div>
+                {% empty %}
+                <p class="text-gray-400 text-center py-4">{% trans "No recent activity" %}</p>
+                {% endfor %}
             </div>
         </div>
 
-        <!-- System Status -->
-        <div class="mt-8">
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                    <i class="fas fa-server text-primary mr-2"></i>System Overview
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="text-center p-4 bg-green-50 rounded-lg">
-                        <div class="text-2xl font-bold text-success">✓</div>
-                        <div class="text-sm text-gray-600 mt-1">Database</div>
+        <!-- Quick Links -->
+        <div class="glass rounded-xl p-6 border border-dark-border">
+            <h3 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <i class="fas fa-link mr-2 text-primary"></i>
+                {% trans "Quick Links" %}
+            </h3>
+            <div class="space-y-3">
+                <a href="{% url 'admin_analytics' %}" class="flex items-center justify-between p-3 bg-dark-card rounded-lg hover:bg-dark-hover transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-bar text-blue-500 mr-3"></i>
+                        <span class="text-white">{% trans "Analytics" %}</span>
                     </div>
-                    <div class="text-center p-4 bg-green-50 rounded-lg">
-                        <div class="text-2xl font-bold text-success">✓</div>
-                        <div class="text-sm text-gray-600 mt-1">Cache</div>
+                    <i class="fas fa-arrow-right text-gray-400 group-hover:text-primary transition-colors"></i>
+                </a>
+
+                <a href="{% url 'admin_users' %}" class="flex items-center justify-between p-3 bg-dark-card rounded-lg hover:bg-dark-hover transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-users text-green-500 mr-3"></i>
+                        <span class="text-white">{% trans "User Management" %}</span>
                     </div>
-                    <div class="text-center p-4 bg-green-50 rounded-lg">
-                        <div class="text-2xl font-bold text-success">✓</div>
-                        <div class="text-sm text-gray-600 mt-1">Storage</div>
+                    <i class="fas fa-arrow-right text-gray-400 group-hover:text-primary transition-colors"></i>
+                </a>
+
+                <a href="{% url 'admin_courses' %}" class="flex items-center justify-between p-3 bg-dark-card rounded-lg hover:bg-dark-hover transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-book text-purple-500 mr-3"></i>
+                        <span class="text-white">{% trans "Course Management" %}</span>
                     </div>
-                    <div class="text-center p-4 bg-green-50 rounded-lg">
-                        <div class="text-2xl font-bold text-success">✓</div>
-                        <div class="text-sm text-gray-600 mt-1">Services</div>
+                    <i class="fas fa-arrow-right text-gray-400 group-hover:text-primary transition-colors"></i>
+                </a>
+
+                <a href="{% url 'admin_export' %}" class="flex items-center justify-between p-3 bg-dark-card rounded-lg hover:bg-dark-hover transition-colors group">
+                    <div class="flex items-center">
+                        <i class="fas fa-download text-yellow-500 mr-3"></i>
+                        <span class="text-white">{% trans "Export Data" %}</span>
                     </div>
-                </div>
+                    <i class="fas fa-arrow-right text-gray-400 group-hover:text-primary transition-colors"></i>
+                </a>
             </div>
         </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <p class="text-gray-500 text-sm">© 2024 Savoir+ LMS. All rights reserved.</p>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // Add some interactivity
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate statistics on load
-            const stats = document.querySelectorAll('.stat-animation');
-            stats.forEach((stat, index) => {
-                stat.style.animationDelay = `${index * 0.1}s`;
-            });
-        });
-    </script>
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}
