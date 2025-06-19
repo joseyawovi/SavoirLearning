@@ -1164,7 +1164,7 @@ def admin_create_roadmap(request):
         )
         
         messages.success(request, f'Roadmap "{title}" created successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {'title': 'Create Roadmap'}
     return render(request, 'admin/create_roadmap.html', context)
@@ -1184,7 +1184,7 @@ def admin_edit_roadmap(request, roadmap_id):
         roadmap.save()
         
         messages.success(request, f'Roadmap "{roadmap.title}" updated successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Edit Roadmap',
@@ -1224,7 +1224,7 @@ def admin_create_room(request):
         )
         
         messages.success(request, f'Room "{title}" created successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Create Room',
@@ -1252,7 +1252,7 @@ def admin_edit_room(request, room_id):
         room.save()
         
         messages.success(request, f'Room "{room.title}" updated successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Edit Room',
@@ -1291,7 +1291,7 @@ def admin_create_section(request):
         )
         
         messages.success(request, f'Section "{title}" created successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Create Section',
@@ -1317,7 +1317,7 @@ def admin_edit_section(request, section_id):
         section.save()
         
         messages.success(request, f'Section "{section.title}" updated successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Edit Section',
@@ -1362,7 +1362,7 @@ def admin_create_question(request):
         )
         
         messages.success(request, f'Question created successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Create Question',
@@ -1393,7 +1393,7 @@ def admin_edit_question(request, question_id):
         question.save()
         
         messages.success(request, f'Question updated successfully!')
-        return redirect('admin_courses')
+        return redirect('admin_course_management')
     
     context = {
         'title': 'Edit Question',
