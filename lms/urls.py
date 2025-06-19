@@ -23,6 +23,7 @@ urlpatterns = [
     # Quiz and exam functionality
     path('quiz/submit/<int:question_id>/', views.submit_quiz_answer, name='submit_quiz_answer'),
     path('room/<int:room_id>/final-exam/', views.final_exam, name='final_exam'),
+    path('room/<int:room_id>/final-exam/submit/', views.submit_final_exam_answers, name='submit_final_exam_answers'),
 
     # Certificate system
     path('certificate/<uuid:certificate_id>/download/', views.download_certificate, name='download_certificate'),
