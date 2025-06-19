@@ -25,7 +25,7 @@ urlpatterns = [
     path('room/<int:room_id>/final-exam/', views.final_exam, name='final_exam'),
 
     # Certificate system
-    path('certificate/<int:certificate_id>/download/', views.download_certificate, name='download_certificate'),
+    path('certificate/<uuid:certificate_id>/download/', views.download_certificate, name='download_certificate'),
     path('certificate/<str:certificate_id>/verify/', views.verify_certificate, name='verify_certificate'),
 
     # Payment system
