@@ -312,8 +312,10 @@
             {% endif %}
 
             <!-- Main Content -->
-            <main class="flex-1 p-4 lg:p-6 space-y-6">
-                {% block content %}{% endblock %}
+            <main class="flex-1 p-4 lg:p-6 space-y-6 w-full max-w-none">
+                <div class="w-full">
+                    {% block content %}{% endblock %}
+                </div>
             </main>
 
             <!-- Footer -->
