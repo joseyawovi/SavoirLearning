@@ -174,33 +174,11 @@ def user_section_status(user, section):
     if is_completed:
         return 'completed'
     
-    # Check if user can access the room first
-    if not section.room.is_accessible_by_user(user):
+    # Use the section's built-in accessibility method which already handles all the logic correctly
+    if section.is_accessible_by_user(user):
+        return 'accessible'
+    else:
         return 'locked'
-    
-    # Get all sections in the room ordered by order field
-    room_sections = section.room.sections.filter(is_active=True).order_by('order')
-    
-    # Find the first section (lowest order number)
-    first_section = room_sections.first()
-    if first_section and section.id == first_section.id:  # First section is always accessible
-        return 'accessible'
-    
-    # Check if all previous sections are completed
-    previous_sections = room_sections.filter(order__lt=section.order)
-    
-    if not previous_sections.exists():
-        # If no previous sections, this is effectively the first section
-        return 'accessible'
-    
-    # Check if all previous sections are completed
-    completed_previous = SectionCompletion.objects.filter(
-        user=user,
-        section__in=previous_sections,
-        is_completed=True
-    ).count()
-    
-    return 'accessible' if completed_previous == previous_sections.count() else 'locked'
 
 
 @register.simple_tag
