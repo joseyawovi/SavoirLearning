@@ -7,6 +7,8 @@ from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.paginator import Paginator
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils.translation import gettext as _
@@ -990,6 +992,142 @@ def admin_export(request):
         return response
     
     return render(request, 'admin/export_data.html')
+
+
+@staff_member_required
+def admin_user_management(request):
+    """User management view for admins."""
+    users = User.objects.all().order_by('-date_joined')
+    search_query = request.GET.get('search', '')
+    
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(users, 25)
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
+    
+    context = {
+        'users': users,
+        'search_query': search_query,
+        'total_users': User.objects.count(),
+        'active_users': User.objects.filter(is_active=True).count(),
+        'paid_users': User.objects.filter(is_paid_user=True).count(),
+    }
+    
+    return render(request, 'admin/user_management.html', context)
+
+
+@staff_member_required
+def admin_course_management(request):
+    """Course management view for admins."""
+    roadmaps = Roadmap.objects.all().prefetch_related('rooms__sections')
+    rooms = Room.objects.all().select_related('roadmap').prefetch_related('sections')
+    
+    context = {
+        'roadmaps': roadmaps,
+        'rooms': rooms,
+        'total_roadmaps': roadmaps.count(),
+        'total_rooms': rooms.count(),
+        'total_sections': Section.objects.count(),
+    }
+    
+    return render(request, 'admin/course_management.html', context)
+
+
+@staff_member_required
+def admin_export_data(request):
+    """Data export functionality for admins."""
+    if request.method == 'POST':
+        export_type = request.POST.get('export_type')
+        format_type = request.POST.get('format', 'csv')
+        
+        if export_type == 'users':
+            return export_users_data(format_type)
+        elif export_type == 'courses':
+            return export_courses_data(format_type)
+        elif export_type == 'completions':
+            return export_completions_data(format_type)
+    
+    context = {
+        'export_options': [
+            {'value': 'users', 'label': _('User Data')},
+            {'value': 'courses', 'label': _('Course Data')},
+            {'value': 'completions', 'label': _('Completion Data')},
+        ]
+    }
+    
+    return render(request, 'admin/export_data.html', context)
+
+
+def export_users_data(format_type):
+    """Export users data."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Username', 'Email', 'First Name', 'Last Name', 'Is Paid', 'Date Joined', 'Last Login'])
+    
+    users = User.objects.all()
+    for user in users:
+        writer.writerow([
+            user.username,
+            user.email,
+            user.first_name,
+            user.last_name,
+            user.is_paid_user,
+            user.date_joined,
+            user.last_login,
+        ])
+    
+    return response
+
+
+def export_courses_data(format_type):
+    """Export courses data."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="courses.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Roadmap', 'Room', 'Sections', 'Active', 'Created'])
+    
+    rooms = Room.objects.all().select_related('roadmap')
+    for room in rooms:
+        writer.writerow([
+            room.roadmap.title,
+            room.title,
+            room.sections.count(),
+            room.is_active,
+            room.created_at,
+        ])
+    
+    return response
+
+
+def export_completions_data(format_type):
+    """Export completions data."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="completions.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['User', 'Room', 'Completed At', 'Final Score'])
+    
+    completions = RoomCompletion.objects.filter(is_completed=True).select_related('user', 'room')
+    for completion in completions:
+        writer.writerow([
+            completion.user.username,
+            completion.room.title,
+            completion.completed_at,
+            completion.final_exam_score,
+        ])
+    
+    return response
 
 
 # Roadmap Management Views
