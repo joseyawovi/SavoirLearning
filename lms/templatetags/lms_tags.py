@@ -87,17 +87,30 @@ def abs_filter(value):
         return 0
 
 
+@register.filter(name='abs')
+def abs_builtin(value):
+    """Return the absolute value."""
+    try:
+        return abs(float(value))
+    except (ValueError, TypeError):
+        return 0
+
+
 @register.filter
 def room_progress_percentage(room, user):
     """Calculate progress percentage for a room."""
+    from lms.models import SectionCompletion
+    
     total_sections = room.sections.filter(is_active=True).count()
     if total_sections == 0:
         return 0
     
-    completed_sections = 0
-    for section in room.sections.filter(is_active=True):
-        if section.section_completions.filter(user=user, is_completed=True).exists():
-            completed_sections += 1
+    completed_sections = SectionCompletion.objects.filter(
+        user=user,
+        section__room=room,
+        section__is_active=True,
+        is_completed=True
+    ).count()
     
     return round((completed_sections / total_sections) * 100)
 
@@ -176,6 +189,17 @@ def user_section_status(user, section):
         return 'accessible' if prev_completed else 'locked'
     
     return 'accessible'
+
+
+@register.simple_tag
+def get_room_completion(user, room):
+    """Get room completion status for user."""
+    from lms.models import RoomCompletion
+    try:
+        completion = RoomCompletion.objects.get(user=user, room=room)
+        return completion
+    except RoomCompletion.DoesNotExist:
+        return None
 
 
 @register.filter
