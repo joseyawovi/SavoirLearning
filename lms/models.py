@@ -119,8 +119,14 @@ class Section(models.Model):
         if not self.room.is_accessible_by_user(user):
             return False
         
-        # For the first section in a room, it's always accessible if room is accessible
-        if self.order == 0:
+        # Get the first section in this room
+        first_section = Section.objects.filter(
+            room=self.room,
+            is_active=True
+        ).order_by('order').first()
+        
+        # If this is the first section in the room, it's always accessible if room is accessible
+        if first_section and self.id == first_section.id:
             return True
         
         # For other sections, check if previous sections are completed

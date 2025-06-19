@@ -174,8 +174,9 @@ def user_section_status(user, section):
     if is_completed:
         return 'completed'
     
-    # Check if accessible (simplified logic)
-    if section.order == 1:  # First section is always accessible
+    # Check if accessible - find the first section in the room
+    first_section = section.room.sections.filter(is_active=True).order_by('order').first()
+    if first_section and section.id == first_section.id:  # First section is always accessible
         return 'accessible'
     
     # Check if previous section is completed
