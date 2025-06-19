@@ -50,6 +50,47 @@ body {
     font-variant-ligatures: common-ligatures;
 }
 
+/* Dashboard Layout Fixes */
+.dashboard-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Tab Content Layout */
+.tab-content {
+    width: 100%;
+    display: block;
+}
+
+/* Grid Layout Fixes */
+.grid {
+    width: 100%;
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .grid-cols-1 {
+        grid-template-columns: 1fr;
+    }
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .grid-cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;

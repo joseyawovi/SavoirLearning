@@ -33,6 +33,7 @@ def trial_days_remaining(user):
 @register.filter
 def roadmap_progress_percentage(roadmap, user):
     """Calculate progress percentage for a roadmap."""
+    from lms.models import SectionCompletion
     total_sections = 0
     completed_sections = 0
     
@@ -41,7 +42,7 @@ def roadmap_progress_percentage(roadmap, user):
         total_sections += room_sections.count()
         
         for section in room_sections:
-            if section.section_completions.filter(user=user, is_completed=True).exists():
+            if SectionCompletion.objects.filter(user=user, section=section, is_completed=True).exists():
                 completed_sections += 1
     
     if total_sections == 0:
@@ -99,6 +100,82 @@ def room_progress_percentage(room, user):
             completed_sections += 1
     
     return round((completed_sections / total_sections) * 100)
+
+
+@register.simple_tag
+def get_room_progress(user, room):
+    """Get room progress as a simple tag."""
+    return room_progress_percentage(room, user)
+
+
+@register.simple_tag
+def get_roadmap_progress(user, roadmap):
+    """Get roadmap progress as a simple tag."""
+    return roadmap_progress_percentage(roadmap, user)
+
+
+@register.simple_tag
+def is_section_completed(user, section):
+    """Check if section is completed by user."""
+    from lms.models import SectionCompletion
+    return SectionCompletion.objects.filter(user=user, section=section, is_completed=True).exists()
+
+
+@register.simple_tag
+def get_user_answer(user, question):
+    """Get user's answer for a question."""
+    from lms.models import UserAnswer
+    try:
+        answer = UserAnswer.objects.get(user=user, question=question)
+        return answer.answer
+    except UserAnswer.DoesNotExist:
+        return ""
+
+
+@register.simple_tag
+def get_next_section(current_section):
+    """Get the next section in the room."""
+    try:
+        return current_section.room.sections.filter(
+            order__gt=current_section.order,
+            is_active=True
+        ).order_by('order').first()
+    except:
+        return None
+
+
+@register.simple_tag
+def is_user_enrolled(user, roadmap):
+    """Check if user is enrolled in roadmap."""
+    from lms.models import Enrollment
+    return Enrollment.objects.filter(user=user, roadmap=roadmap, is_active=True).exists()
+
+
+@register.simple_tag
+def user_section_status(user, section):
+    """Get user's status for a section (completed, accessible, locked)."""
+    from lms.models import SectionCompletion
+    
+    # Check if completed
+    is_completed = SectionCompletion.objects.filter(user=user, section=section, is_completed=True).exists()
+    if is_completed:
+        return 'completed'
+    
+    # Check if accessible (simplified logic)
+    if section.order == 1:  # First section is always accessible
+        return 'accessible'
+    
+    # Check if previous section is completed
+    prev_section = section.room.sections.filter(
+        order__lt=section.order,
+        is_active=True
+    ).order_by('-order').first()
+    
+    if prev_section:
+        prev_completed = SectionCompletion.objects.filter(user=user, section=prev_section, is_completed=True).exists()
+        return 'accessible' if prev_completed else 'locked'
+    
+    return 'accessible'
 
 
 @register.filter
