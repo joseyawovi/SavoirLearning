@@ -196,9 +196,11 @@
                         
                         <!-- View All Rooms Button -->
                         <div class="mt-6 text-center">
+                            {% if enrollment.roadmap and enrollment.roadmap.id %}
                             <a href="{% url 'roadmap_detail' enrollment.roadmap.id %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
                                 <i class="fas fa-eye mr-2"></i>{% trans "View Full Roadmap" %}
                             </a>
+                            {% endif %}
                         </div>
                         </div>
                     </div>
@@ -282,9 +284,15 @@
                             <i class="fas fa-play mr-2"></i>{% trans "Continue Learning" %}
                         </button>
                         {% else %}
+                        {% if roadmap and roadmap.id %}
                         <a href="{% url 'enroll_roadmap' roadmap.id %}" class="btn-enhanced w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 group-hover:scale-105">
                             <i class="fas fa-plus mr-2"></i>{% trans "Enroll Now" %}
                         </a>
+                        {% else %}
+                        <span class="w-full inline-flex items-center justify-center px-6 py-3 bg-gray-600/20 border border-gray-600/30 text-gray-400 font-semibold rounded-xl cursor-not-allowed">
+                            <i class="fas fa-lock mr-2"></i>{% trans "Unavailable" %}
+                        </span>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>
