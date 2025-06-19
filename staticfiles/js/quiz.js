@@ -186,7 +186,9 @@
             const submitBtn = form.querySelector('.quiz-submit');
 
             if (data.success) {
-                if (data.is_correct) {
+                // Check both possible field names for compatibility
+                const isCorrect = data.is_correct || data.correct;
+                if (isCorrect) {
                     this.showSuccess(resultDiv, data.message || 'Correct!');
                     this.markQuestionAsCorrect(questionDiv, answerInput, submitBtn);
                     this.state.completedQuestions.add(questionId);

@@ -31,6 +31,55 @@ def trial_days_remaining(user):
 
 
 @register.filter
+def roadmap_progress_percentage(roadmap, user):
+    """Calculate progress percentage for a roadmap."""
+    total_sections = 0
+    completed_sections = 0
+    
+    for room in roadmap.rooms.filter(is_active=True):
+        room_sections = room.sections.filter(is_active=True)
+        total_sections += room_sections.count()
+        
+        for section in room_sections:
+            if section.section_completions.filter(user=user, is_completed=True).exists():
+                completed_sections += 1
+    
+    if total_sections == 0:
+        return 0
+    
+    return round((completed_sections / total_sections) * 100)
+
+
+@register.filter
+def room_progress_percentage(room, user):
+    """Calculate progress percentage for a room."""
+    total_sections = room.sections.filter(is_active=True).count()
+    if total_sections == 0:
+        return 0
+    
+    completed_sections = 0
+    for section in room.sections.filter(is_active=True):
+        if section.section_completions.filter(user=user, is_completed=True).exists():
+            completed_sections += 1
+    
+    return round((completed_sections / total_sections) * 100)
+
+
+@register.filter
+def room_completion(room, user):
+    """Check if room is completed by user."""
+    from lms.models import RoomCompletion
+    return RoomCompletion.objects.filter(room=room, user=user, is_completed=True).exists()
+
+
+@register.filter
+def user_achievements(roadmap, user):
+    """Get user achievements for a roadmap (placeholder)."""
+    # Placeholder for achievements system
+    return []
+
+
+@register.filter
 def format_duration(seconds):
     """Format duration in human readable format."""
     if seconds < 60:
