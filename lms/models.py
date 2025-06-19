@@ -182,11 +182,6 @@ class UserAnswer(models.Model):
         verbose_name = _('User Answer')
         verbose_name_plural = _('User Answers')
         unique_together = ['user', 'question']
-        indexes = [
-            models.Index(fields=['user', 'is_correct']),
-            models.Index(fields=['question', 'is_correct']),
-            models.Index(fields=['answered_at']),
-        ]
     
     def __str__(self):
         return f"{self.user.username} - {self.question.prompt[:30]}"
@@ -203,11 +198,6 @@ class SectionCompletion(models.Model):
         verbose_name = _('Section Completion')
         verbose_name_plural = _('Section Completions')
         unique_together = ['user', 'section']
-        indexes = [
-            models.Index(fields=['user', 'is_completed']),
-            models.Index(fields=['section', 'is_completed']),
-            models.Index(fields=['completed_at']),
-        ]
     
     def __str__(self):
         return f"{self.user.username} - {self.section.title}"
@@ -226,12 +216,6 @@ class RoomCompletion(models.Model):
         verbose_name = _('Room Completion')
         verbose_name_plural = _('Room Completions')
         unique_together = ['user', 'room']
-        indexes = [
-            models.Index(fields=['user', 'is_completed']),
-            models.Index(fields=['room', 'is_completed']),
-            models.Index(fields=['completed_at']),
-            models.Index(fields=['final_exam_score']),
-        ]
     
     def __str__(self):
         return f"{self.user.username} - {self.room.title}"

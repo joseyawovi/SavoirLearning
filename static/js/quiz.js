@@ -1,453 +1,547 @@
 /**
- * Savoir+ Quiz System - Optimized
- * Enhanced performance and user experience
+ * Quiz functionality for Savoir+ LMS
+ * Handles quiz interactions, AJAX submissions, and user feedback
  */
 
-class SavoirQuizSystem {
-    constructor() {
-        this.debounceDelay = 300;
-        this.cache = new Map();
-        this.init();
-        console.log('Savoir+ Quiz system initialized');
-    }
+(function() {
+    'use strict';
 
-    init() {
-        // Use event delegation for better performance
-        document.addEventListener('DOMContentLoaded', () => {
-            this.setupEventListeners();
-            this.loadSavedAnswers();
-            this.enhanceUI();
-        });
-    }
+    // Global quiz manager
+    window.SavoirQuiz = {
+        // Configuration
+        config: {
+            submitUrl: '/quiz/answer/',
+            csrfToken: '',
+            animationSpeed: 300,
+            autoSubmitDelay: 1500
+        },
 
-    setupEventListeners() {
-        // Event delegation for submit buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('.submit-answer-btn')) {
-                e.preventDefault();
-                this.handleSubmission(e.target);
+        // State management
+        state: {
+            submittingQuestions: new Set(),
+            completedQuestions: new Set(),
+            currentUser: null
+        },
+
+        // Initialize quiz functionality
+        init: function() {
+            this.loadCSRFToken();
+            this.bindEvents();
+            this.initializeQuestionStates();
+            this.setupFormValidation();
+            console.log('Savoir+ Quiz system initialized');
+        },
+
+        // Load CSRF token
+        loadCSRFToken: function() {
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfInput) {
+                this.config.csrfToken = csrfInput.value;
             }
-        });
+        },
 
-        // Debounced auto-save for answers
-        document.addEventListener('input', (e) => {
-            if (e.target.matches('.answer-input')) {
-                this.debounce(() => this.autoSaveAnswer(e.target), this.debounceDelay)();
-            }
-        });
+        // Bind event listeners
+        bindEvents: function() {
+            // Quiz form submissions
+            document.addEventListener('submit', (e) => {
+                if (e.target.classList.contains('quiz-form')) {
+                    e.preventDefault();
+                    this.handleQuizSubmission(e.target);
+                }
+            });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                const activeInput = document.activeElement;
-                if (activeInput && activeInput.matches('.answer-input')) {
-                    const submitBtn = activeInput.closest('.question')
-                        ?.querySelector('.submit-answer-btn');
-                    if (submitBtn) {
-                        submitBtn.click();
+            // Input change events for real-time validation
+            document.addEventListener('input', (e) => {
+                if (e.target.classList.contains('quiz-answer')) {
+                    this.handleAnswerInput(e.target);
+                }
+            });
+
+            // Enter key submission
+            document.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.target.classList.contains('quiz-answer')) {
+                    e.preventDefault();
+                    const form = e.target.closest('.quiz-form');
+                    if (form) {
+                        this.handleQuizSubmission(form);
                     }
                 }
+            });
+
+            // Final exam modal events
+            const finalExamModal = document.getElementById('finalExamModal');
+            if (finalExamModal) {
+                finalExamModal.addEventListener('show.bs.modal', () => {
+                    this.prepareFinalExam();
+                });
             }
-        });
-    }
+        },
 
-    async handleSubmission(button) {
-        const question = button.closest('.question');
-        const questionId = button.dataset.questionId;
-        const answerInput = question.querySelector('.answer-input');
-        const answer = answerInput.value.trim();
+        // Initialize question states from existing data
+        initializeQuestionStates: function() {
+            document.querySelectorAll('.quiz-question').forEach(questionDiv => {
+                const questionId = this.extractQuestionId(questionDiv);
+                const resultDiv = questionDiv.querySelector('.quiz-result');
+                
+                if (resultDiv && resultDiv.querySelector('.alert-success')) {
+                    this.state.completedQuestions.add(questionId);
+                    this.markQuestionAsCompleted(questionDiv);
+                }
+            });
+        },
 
-        if (!answer) {
-            this.showMessage('Please provide an answer.', 'warning');
-            answerInput.focus();
-            return;
-        }
+        // Setup form validation
+        setupFormValidation: function() {
+            document.querySelectorAll('.quiz-answer').forEach(input => {
+                // Add placeholder animation
+                this.addPlaceholderAnimation(input);
+                
+                // Add character counter if needed
+                this.addCharacterCounter(input);
+            });
+        },
 
-        // Disable button and show loading state
-        this.setButtonLoading(button, true);
+        // Handle quiz form submission
+        handleQuizSubmission: function(form) {
+            const questionId = form.dataset.questionId;
+            const answerInput = form.querySelector('.quiz-answer');
+            const submitBtn = form.querySelector('.quiz-submit');
+            const resultDiv = document.getElementById('result-' + questionId);
 
-        try {
-            const response = await this.submitAnswer(questionId, answer);
-            this.handleResponse(response, question, button);
-        } catch (error) {
-            console.error('Submission error:', error);
-            this.showMessage('An error occurred. Please try again.', 'error');
-        } finally {
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    async submitAnswer(questionId, answer) {
-        const cacheKey = `${questionId}_${answer}`;
-
-        // Check cache first
-        if (this.cache.has(cacheKey)) {
-            return this.cache.get(cacheKey);
-        }
-
-        const formData = new FormData();
-        formData.append('answer', answer);
-        formData.append('csrfmiddlewaretoken', this.getCSRFToken());
-
-        const response = await fetch(`/quiz/submit/${questionId}/`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+            // Validation
+            if (!this.validateAnswer(answerInput)) {
+                this.showError(resultDiv, 'Please enter an answer.');
+                this.shakeElement(answerInput);
+                return;
             }
-        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+            // Prevent double submission
+            if (this.state.submittingQuestions.has(questionId)) {
+                return;
+            }
 
-        const data = await response.json();
+            // Mark as submitting
+            this.state.submittingQuestions.add(questionId);
+            this.setSubmissionState(submitBtn, true);
 
-        // Cache successful responses
-        if (data.success) {
-            this.cache.set(cacheKey, data);
-        }
+            // Submit answer
+            this.submitAnswer(questionId, answerInput.value.trim())
+                .then(response => this.handleSubmissionResponse(response, questionId, form))
+                .catch(error => this.handleSubmissionError(error, questionId, resultDiv))
+                .finally(() => {
+                    this.state.submittingQuestions.delete(questionId);
+                    this.setSubmissionState(submitBtn, false);
+                });
+        },
 
-        return data;
-    }
+        // Validate answer input
+        validateAnswer: function(input) {
+            const value = input.value.trim();
+            
+            if (!value) {
+                return false;
+            }
 
-    handleResponse(data, question, button) {
-        const feedbackContainer = question.querySelector('.answer-feedback') || 
-            this.createFeedbackContainer(question);
+            // Check minimum length if specified
+            const minLength = input.dataset.minLength;
+            if (minLength && value.length < parseInt(minLength)) {
+                return false;
+            }
 
-        if (data.success) {
-            if (data.is_correct) {
-                this.showSuccess(feedbackContainer, data.message);
-                this.disableQuestion(question);
-                this.animateSuccess(question);
+            // Check pattern if specified
+            const pattern = input.dataset.pattern;
+            if (pattern && !new RegExp(pattern).test(value)) {
+                return false;
+            }
 
-                if (data.section_completed) {
-                    this.handleSectionCompletion(data.completion_message);
+            return true;
+        },
+
+        // Submit answer via AJAX
+        submitAnswer: function(questionId, answer) {
+            const url = this.config.submitUrl.replace('0', questionId);
+            
+            return fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': this.config.csrfToken
+                },
+                body: new URLSearchParams({
+                    'answer': answer
+                })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            });
+        },
+
+        // Handle submission response
+        handleSubmissionResponse: function(data, questionId, form) {
+            const resultDiv = document.getElementById('result-' + questionId);
+            const questionDiv = document.getElementById('question-' + questionId);
+            const answerInput = form.querySelector('.quiz-answer');
+            const submitBtn = form.querySelector('.quiz-submit');
+
+            if (data.success) {
+                // Check both possible field names for compatibility
+                const isCorrect = data.is_correct || data.correct;
+                if (isCorrect) {
+                    this.showSuccess(resultDiv, data.message || 'Correct!');
+                    this.markQuestionAsCorrect(questionDiv, answerInput, submitBtn);
+                    this.state.completedQuestions.add(questionId);
+                    
+                    // Celebrate correct answer
+                    this.celebrateCorrectAnswer(questionDiv);
+                    
+                    // Auto-reload after delay to update completion status
+                    setTimeout(() => {
+                        if (this.shouldReloadPage()) {
+                            window.location.reload();
+                        }
+                    }, this.config.autoSubmitDelay);
+                } else {
+                    this.showError(resultDiv, data.message || 'Incorrect. Try again.');
+                    this.markQuestionAsIncorrect(questionDiv);
+                    this.shakeElement(answerInput);
+                    
+                    // Clear input for retry
+                    setTimeout(() => {
+                        answerInput.focus();
+                        answerInput.select();
+                    }, 500);
                 }
             } else {
-                this.showError(feedbackContainer, data.message);
-                this.focusInput(question);
+                this.showError(resultDiv, data.error || 'An error occurred. Please try again.');
+                this.shakeElement(form);
             }
-        } else {
-            this.showError(feedbackContainer, data.error || 'An error occurred');
-        }
-    }
+        },
 
-    showSuccess(container, message) {
-        container.className = 'answer-feedback correct fade-in';
-        container.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            <span>${message}</span>
-        `;
-        container.style.display = 'block';
-    }
+        // Handle submission error
+        handleSubmissionError: function(error, questionId, resultDiv) {
+            console.error('Quiz submission error:', error);
+            this.showError(resultDiv, 'Network error. Please check your connection and try again.');
+            
+            // Retry option for network errors
+            this.addRetryOption(resultDiv, questionId);
+        },
 
-    showError(container, message) {
-        container.className = 'answer-feedback incorrect fade-in';
-        container.innerHTML = `
-            <i class="fas fa-times-circle"></i>
-            <span>${message}</span>
-        `;
-        container.style.display = 'block';
-    }
+        // Mark question as correct
+        markQuestionAsCorrect: function(questionDiv, answerInput, submitBtn) {
+            const card = questionDiv.querySelector('.card');
+            card.className = 'card border-success';
+            answerInput.readOnly = true;
+            answerInput.classList.add('is-valid');
+            submitBtn.style.display = 'none';
+            
+            // Add success icon
+            this.addSuccessIcon(answerInput);
+        },
 
-    createFeedbackContainer(question) {
-        const container = document.createElement('div');
-        container.className = 'answer-feedback';
-        container.style.display = 'none';
+        // Mark question as incorrect
+        markQuestionAsIncorrect: function(questionDiv) {
+            const card = questionDiv.querySelector('.card');
+            card.className = 'card border-danger';
+            
+            // Remove incorrect styling after delay
+            setTimeout(() => {
+                card.className = 'card';
+            }, 3000);
+        },
 
-        const submitButton = question.querySelector('.submit-answer-btn');
-        submitButton.parentNode.insertBefore(container, submitButton.nextSibling);
-
-        return container;
-    }
-
-    disableQuestion(question) {
-        const input = question.querySelector('.answer-input');
-        const button = question.querySelector('.submit-answer-btn');
-
-        input.disabled = true;
-        input.classList.add('disabled');
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-check"></i> Completed';
-        button.classList.add('btn-success');
-    }
-
-    animateSuccess(question) {
-        question.classList.add('question-completed');
-
-        // Add success animation
-        const successIcon = document.createElement('div');
-        successIcon.className = 'success-animation';
-        successIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-        question.appendChild(successIcon);
-
-        setTimeout(() => {
-            successIcon.remove();
-        }, 2000);
-    }
-
-    handleSectionCompletion(message) {
-        // Show celebration animation
-        this.showCelebration();
-
-        // Show completion message
-        this.showMessage(message, 'success', 5000);
-
-        // Scroll to next section button if available
-        setTimeout(() => {
-            const nextButton = document.querySelector('.next-section-btn');
-            if (nextButton) {
-                nextButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                nextButton.classList.add('pulse-animation');
+        // Mark question as completed (from server state)
+        markQuestionAsCompleted: function(questionDiv) {
+            const answerInput = questionDiv.querySelector('.quiz-answer');
+            const submitBtn = questionDiv.querySelector('.quiz-submit');
+            
+            if (answerInput && submitBtn) {
+                answerInput.readOnly = true;
+                answerInput.classList.add('is-valid');
+                submitBtn.style.display = 'none';
+                this.addSuccessIcon(answerInput);
             }
-        }, 1000);
-    }
+        },
 
-    showCelebration() {
-        // Create confetti effect
-        for (let i = 0; i < 50; i++) {
-            this.createConfetti();
-        }
-    }
-
-    createConfetti() {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.cssText = `
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: ${this.getRandomColor()};
-            left: ${Math.random() * 100}vw;
-            top: -10px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            animation: confetti-fall 3s linear forwards;
-        `;
-
-        document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), 3000);
-    }
-
-    getRandomColor() {
-        const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
-        return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    setButtonLoading(button, loading) {
-        if (loading) {
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            button.classList.add('loading');
-        } else {
-            button.disabled = false;
-            button.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Answer';
-            button.classList.remove('loading');
-        }
-    }
-
-    focusInput(question) {
-        const input = question.querySelector('.answer-input');
-        input.focus();
-        input.select();
-    }
-
-    showMessage(message, type = 'info', duration = 3000) {
-        // Remove existing messages
-        const existing = document.querySelector('.toast-message');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = `toast-message toast-${type} slide-up`;
-        toast.innerHTML = `
-            <div class="toast-content">
-                <i class="fas fa-${this.getIconForType(type)}"></i>
-                <span>${message}</span>
-                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-
-        document.body.appendChild(toast);
-
-        // Auto remove after duration
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, duration);
-    }
-
-    getIconForType(type) {
-        const icons = {
-            success: 'check-circle',
-            error: 'exclamation-circle',
-            warning: 'exclamation-triangle',
-            info: 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-
-    autoSaveAnswer(input) {
-        const questionId = input.closest('.question')
-            ?.querySelector('.submit-answer-btn')
-            ?.dataset.questionId;
-
-        if (questionId) {
-            localStorage.setItem(`answer_${questionId}`, input.value);
-        }
-    }
-
-    loadSavedAnswers() {
-        document.querySelectorAll('.answer-input').forEach(input => {
-            const questionId = input.closest('.question')
-                ?.querySelector('.submit-answer-btn')
-                ?.dataset.questionId;
-
-            if (questionId) {
-                const saved = localStorage.getItem(`answer_${questionId}`);
-                if (saved && !input.value) {
-                    input.value = saved;
+        // Set submission state (loading)
+        setSubmissionState: function(button, isSubmitting) {
+            if (isSubmitting) {
+                button.disabled = true;
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+            } else {
+                button.disabled = false;
+                if (button.dataset.originalText) {
+                    button.innerHTML = button.dataset.originalText;
                 }
             }
-        });
-    }
+        },
 
-    enhanceUI() {
-        // Add loading styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .question-completed {
-                background: rgba(16, 185, 129, 0.05);
-                border: 1px solid rgba(16, 185, 129, 0.2);
-                border-radius: 0.5rem;
-                transition: all 0.3s ease;
-            }
-
-            .success-animation {
-                position: absolute;
-                top: 50%;
-                right: 1rem;
-                transform: translateY(-50%);
-                color: #10b981;
-                font-size: 2rem;
-                animation: bounceIn 0.6s ease-out;
-            }
-
-            .pulse-animation {
-                animation: pulse 2s infinite;
-            }
-
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-
-            @keyframes confetti-fall {
-                to {
-                    transform: translateY(100vh) rotate(360deg);
-                    opacity: 0;
-                }
-            }
-
-            .toast-message {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                z-index: 10000;
-                max-width: 400px;
-            }
-
-            .toast-content {
-                display: flex;
-                align-items: center;
-                padding: 1rem;
-                gap: 0.75rem;
-            }
-
-            .toast-success { border-left: 4px solid #10b981; }
-            .toast-error { border-left: 4px solid #ef4444; }
-            .toast-warning { border-left: 4px solid #f59e0b; }
-            .toast-info { border-left: 4px solid #3b82f6; }
-
-            .toast-close {
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #64748b;
-                margin-left: auto;
-            }
-
-            .btn.loading {
-                opacity: 0.7;
-                cursor: not-allowed;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Add progress indicators
-        this.addProgressIndicators();
-    }
-
-    addProgressIndicators() {
-        const questions = document.querySelectorAll('.question');
-        if (questions.length > 1) {
-            const progressContainer = document.createElement('div');
-            progressContainer.className = 'quiz-progress';
-            progressContainer.innerHTML = `
-                <div class="progress-header">
-                    <span>Question Progress</span>
-                    <span class="progress-text">0 of ${questions.length} completed</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
+        // Show success message
+        showSuccess: function(container, message) {
+            container.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             `;
+            this.animateIn(container);
+        },
 
-            const firstQuestion = questions[0];
-            firstQuestion.parentNode.insertBefore(progressContainer, firstQuestion);
+        // Show error message
+        showError: function(container, message) {
+            container.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-times-circle me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            this.animateIn(container);
+        },
 
-            this.updateProgress();
+        // Add success icon to input
+        addSuccessIcon: function(input) {
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-check-circle text-success position-absolute';
+            icon.style.right = '10px';
+            icon.style.top = '50%';
+            icon.style.transform = 'translateY(-50%)';
+            icon.style.zIndex = '10';
+            
+            const inputGroup = input.closest('.input-group');
+            if (inputGroup) {
+                inputGroup.style.position = 'relative';
+                inputGroup.appendChild(icon);
+            }
+        },
+
+        // Add retry option for failed requests
+        addRetryOption: function(container, questionId) {
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'btn btn-sm btn-outline-primary mt-2';
+            retryBtn.innerHTML = '<i class="fas fa-redo me-1"></i>Retry';
+            retryBtn.onclick = () => {
+                const form = document.querySelector(`[data-question-id="${questionId}"]`);
+                if (form) {
+                    this.handleQuizSubmission(form);
+                }
+            };
+            
+            container.appendChild(retryBtn);
+        },
+
+        // Celebrate correct answer with animation
+        celebrateCorrectAnswer: function(questionDiv) {
+            questionDiv.classList.add('pulse');
+            setTimeout(() => {
+                questionDiv.classList.remove('pulse');
+            }, 1000);
+            
+            // Confetti effect (simple)
+            this.createConfetti(questionDiv);
+        },
+
+        // Create simple confetti effect
+        createConfetti: function(element) {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
+            
+            for (let i = 0; i < 6; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: absolute;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[i % colors.length]};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1000;
+                        animation: confetti-fall 2s ease-out forwards;
+                    `;
+                    
+                    const rect = element.getBoundingClientRect();
+                    confetti.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    confetti.style.top = rect.top + 'px';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 2000);
+                }, i * 100);
+            }
+        },
+
+        // Shake element animation
+        shakeElement: function(element) {
+            element.classList.add('shake');
+            setTimeout(() => {
+                element.classList.remove('shake');
+            }, 500);
+        },
+
+        // Animate element in
+        animateIn: function(element) {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                element.style.transition = 'all 0.3s ease';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 50);
+        },
+
+        // Handle answer input changes
+        handleAnswerInput: function(input) {
+            // Real-time validation feedback
+            const isValid = this.validateAnswer(input);
+            
+            if (input.value.trim()) {
+                input.classList.toggle('is-valid', isValid);
+                input.classList.toggle('is-invalid', !isValid);
+            } else {
+                input.classList.remove('is-valid', 'is-invalid');
+            }
+            
+            // Update character counter
+            this.updateCharacterCounter(input);
+        },
+
+        // Add placeholder animation
+        addPlaceholderAnimation: function(input) {
+            const originalPlaceholder = input.placeholder;
+            let animationTimer;
+            
+            input.addEventListener('focus', () => {
+                if (animationTimer) clearInterval(animationTimer);
+                
+                if (originalPlaceholder.includes('_')) {
+                    let current = '';
+                    let index = 0;
+                    
+                    animationTimer = setInterval(() => {
+                        if (index < originalPlaceholder.length) {
+                            current += originalPlaceholder[index];
+                            input.placeholder = current;
+                            index++;
+                        } else {
+                            clearInterval(animationTimer);
+                        }
+                    }, 50);
+                }
+            });
+            
+            input.addEventListener('blur', () => {
+                if (animationTimer) clearInterval(animationTimer);
+                input.placeholder = originalPlaceholder;
+            });
+        },
+
+        // Add character counter
+        addCharacterCounter: function(input) {
+            const maxLength = input.getAttribute('maxlength');
+            if (!maxLength) return;
+            
+            const counter = document.createElement('small');
+            counter.className = 'text-muted character-counter';
+            counter.style.display = 'block';
+            counter.style.textAlign = 'right';
+            counter.style.marginTop = '4px';
+            
+            input.parentNode.appendChild(counter);
+            this.updateCharacterCounter(input);
+        },
+
+        // Update character counter
+        updateCharacterCounter: function(input) {
+            const counter = input.parentNode.querySelector('.character-counter');
+            if (!counter) return;
+            
+            const maxLength = input.getAttribute('maxlength');
+            const currentLength = input.value.length;
+            
+            counter.textContent = `${currentLength}/${maxLength}`;
+            counter.style.color = currentLength > maxLength * 0.8 ? '#dc3545' : '#6c757d';
+        },
+
+        // Prepare final exam
+        prepareFinalExam: function() {
+            const modal = document.getElementById('finalExamModal');
+            const inputs = modal.querySelectorAll('input[type="text"]');
+            
+            // Add validation to all inputs
+            inputs.forEach(input => {
+                this.addPlaceholderAnimation(input);
+                input.addEventListener('input', (e) => {
+                    this.handleAnswerInput(e.target);
+                });
+            });
+            
+            // Focus first input
+            if (inputs.length > 0) {
+                setTimeout(() => inputs[0].focus(), 300);
+            }
+        },
+
+        // Extract question ID from element
+        extractQuestionId: function(element) {
+            const id = element.id || element.dataset.questionId;
+            return id ? id.replace('question-', '') : null;
+        },
+
+        // Check if page should reload
+        shouldReloadPage: function() {
+            // Reload if all visible questions are completed
+            const totalQuestions = document.querySelectorAll('.quiz-question').length;
+            return this.state.completedQuestions.size >= totalQuestions;
+        },
+
+        // Utility: Debounce function
+        debounce: function(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
-    }
+    };
 
-    updateProgress() {
-        const questions = document.querySelectorAll('.question');
-        const completed = document.querySelectorAll('.question-completed');
-        const progressFill = document.querySelector('.progress-fill');
-        const progressText = document.querySelector('.progress-text');
-
-        if (progressFill && progressText) {
-            const percentage = (completed.length / questions.length) * 100;
-            progressFill.style.width = `${percentage}%`;
-            progressText.textContent = `${completed.length} of ${questions.length} completed`;
+    // CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
         }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.SavoirQuiz.init();
+        });
+    } else {
+        window.SavoirQuiz.init();
     }
 
-    debounce(func, delay) {
-        let timeoutId;
-        return (...args) => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-               document.querySelector('meta[name="csrf-token"]')?.content ||
-               '';
-    }
-}
-
-// Initialize the quiz system
-new SavoirQuizSystem();
+})();
 
 // Additional utility functions for the LMS
 window.SavoirUtils = {
