@@ -113,6 +113,19 @@ def dashboard(request):
         user=request.user, is_completed=True
     ).select_related('section').order_by('-completed_at')[:5]
     
+    # Add progress percentage to enrollments
+    enrollments_with_progress = []
+    for enrollment in enrolled_roadmaps:
+        roadmap = enrollment.roadmap
+        roadmap_rooms = roadmap.rooms.filter(is_active=True)
+        total_roadmap_rooms = roadmap_rooms.count()
+        completed_roadmap_rooms = len([room_id for room_id in completed_rooms if room_id in roadmap_rooms.values_list('id', flat=True)])
+        progress_percentage = (completed_roadmap_rooms / total_roadmap_rooms * 100) if total_roadmap_rooms > 0 else 0
+        
+        # Add progress to enrollment object
+        enrollment.progress_percentage = round(progress_percentage)
+        enrollments_with_progress.append(enrollment)
+    
     # Organize roadmap data with progress
     roadmap_data = []
     for roadmap in roadmaps:
@@ -162,13 +175,14 @@ def dashboard(request):
         })
     
     context = {
-        'roadmaps': roadmap_data,  # Changed key name to match template
+        'enrolled_roadmaps': enrollments_with_progress,  # Pass enrollments with progress
+        'roadmaps': roadmap_data,
         'roadmap_data': roadmap_data,
         'user': request.user,
         'certificates': certificates,
         'certificates_count': certificates.count(),
         'overall_progress': overall_progress,
-        'completed_rooms': completed_count,  # Changed key name to match template
+        'completed_rooms': completed_count,
         'total_completed_rooms': completed_count,
         'total_rooms': total_rooms,
         'recent_completions': recent_completions,

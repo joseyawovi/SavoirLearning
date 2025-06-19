@@ -156,8 +156,7 @@
                             
                             <!-- Progress -->
                             <div class="text-right">
-                                {% get_roadmap_progress user enrollment.roadmap as progress %}
-                                <div class="text-2xl font-bold text-white mb-1">{{ progress }}%</div>
+                                <div class="text-2xl font-bold text-white mb-1">{{ enrollment.progress_percentage }}%</div>
                                 <div class="text-sm text-gray-400">{% trans "Complete" %}</div>
                             </div>
                         </div>
@@ -166,94 +165,41 @@
                         <div class="mb-6">
                             <div class="flex justify-between text-sm text-gray-400 mb-2">
                                 <span>{% trans "Progress" %}</span>
-                                <span>{{ progress }}%</span>
+                                <span>{{ enrollment.progress_percentage }}%</span>
                             </div>
                             <div class="w-full bg-dark-card rounded-full h-3">
-                                <div class="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: {{ progress }}%"></div>
+                                <div class="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: {{ enrollment.progress_percentage }}%"></div>
                             </div>
                         </div>
 
-                        <!-- Rooms Grid -->
+                        <!-- Rooms Preview Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {% for room in enrollment.roadmap.rooms.all %}
+                            {% for room in enrollment.roadmap.rooms.all|slice:":6" %}
                             <div class="group relative">
-                                {% user_room_status user room as room_status %}
-                                
                                 <!-- Room Card -->
-                                <div class="glass rounded-xl p-6 border border-dark-border transition-all duration-300 
-                                    {% if room_status == 'completed' %}
-                                        hover:border-green-500/50 bg-green-600/5
-                                    {% elif room_status == 'available' %}
-                                        hover:border-blue-500/50 cursor-pointer
-                                    {% else %}
-                                        opacity-60 cursor-not-allowed
-                                    {% endif %}">
-                                    
-                                    <!-- Status Icon -->
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div class="w-12 h-12 rounded-xl flex items-center justify-center
-                                            {% if room_status == 'completed' %}
-                                                bg-gradient-to-r from-green-600 to-teal-600
-                                            {% elif room_status == 'available' %}
-                                                bg-gradient-to-r from-blue-600 to-cyan-600
-                                            {% else %}
-                                                bg-gray-600
-                                            {% endif %}">
-                                            {% if room_status == 'completed' %}
-                                                <i class="fas fa-check text-white text-lg"></i>
-                                            {% elif room_status == 'available' %}
-                                                <i class="fas fa-play text-white text-lg"></i>
-                                            {% else %}
-                                                <i class="fas fa-lock text-white text-lg"></i>
-                                            {% endif %}
+                                <a href="{% url 'room_detail' room.id %}" class="block glass rounded-xl p-4 border border-dark-border hover:border-blue-500/50 transition-all duration-300">
+                                    <!-- Room Icon -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-play text-white text-sm"></i>
                                         </div>
-                                        
-                                        {% if room_status == 'completed' %}
-                                        <span class="px-2 py-1 bg-green-600/20 text-green-400 text-xs font-medium rounded-full border border-green-600/30">
-                                            {% trans "Completed" %}
-                                        </span>
-                                        {% elif room_status == 'available' %}
-                                        <span class="px-2 py-1 bg-blue-600/20 text-blue-400 text-xs font-medium rounded-full border border-blue-600/30">
-                                            {% trans "Available" %}
-                                        </span>
-                                        {% else %}
-                                        <span class="px-2 py-1 bg-gray-600/20 text-gray-400 text-xs font-medium rounded-full border border-gray-600/30">
-                                            {% trans "Locked" %}
-                                        </span>
-                                        {% endif %}
+                                        <span class="text-xs text-gray-400">#{{ room.order }}</span>
                                     </div>
-
+                                    
                                     <!-- Room Info -->
-                                    <h4 class="text-white font-semibold mb-2 group-hover:text-blue-400 transition-colors">
-                                        {{ room.title }}
-                                    </h4>
-                                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">
-                                        {{ room.description|truncatewords:10 }}
-                                    </p>
-
-                                    <!-- Room Stats -->
-                                    <div class="flex items-center justify-between text-sm text-gray-400 mb-4">
-                                        <span><i class="fas fa-list mr-1"></i>{{ room.sections.count }} sections</span>
-                                        <span><i class="fas fa-clock mr-1"></i>~{{ room.sections.count|add:room.sections.count }}h</span>
-                                    </div>
-
-                                    <!-- Action Button -->
-                                    {% if room_status == 'available' %}
-                                    <a href="{% url 'room_detail' room.id %}" class="btn-enhanced w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all duration-300">
-                                        <i class="fas fa-play mr-2"></i>{% trans "Continue" %}
-                                    </a>
-                                    {% elif room_status == 'completed' %}
-                                    <a href="{% url 'room_detail' room.id %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 hover:border-green-500 text-green-400 hover:text-green-300 font-semibold rounded-lg transition-all duration-300">
-                                        <i class="fas fa-eye mr-2"></i>{% trans "Review" %}
-                                    </a>
-                                    {% else %}
-                                    <div class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600/20 border border-gray-600/30 text-gray-400 font-semibold rounded-lg cursor-not-allowed">
-                                        <i class="fas fa-lock mr-2"></i>{% trans "Locked" %}
-                                    </div>
-                                    {% endif %}
-                                </div>
+                                    <h4 class="text-white font-semibold mb-2 group-hover:text-blue-400 transition-colors">{{ room.title|truncatechars:30 }}</h4>
+                                    <p class="text-gray-400 text-sm">{{ room.description|truncatewords:8 }}</p>
+                                </a>
                             </div>
                             {% endfor %}
+                        </div>
+                        
+                        <!-- View All Rooms Button -->
+                        <div class="mt-6 text-center">
+                            <a href="{% url 'roadmap_detail' enrollment.roadmap.id %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+                                <i class="fas fa-eye mr-2"></i>{% trans "View Full Roadmap" %}
+                            </a>
+                        </div>
                         </div>
                     </div>
                     {% endfor %}
