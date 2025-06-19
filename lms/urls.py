@@ -35,8 +35,8 @@ urlpatterns = [
     # Management URLs (Admin Dashboard)
     path('manage/', views.admin_dashboard, name='admin_dashboard'),
     path('manage/analytics/', views.admin_analytics, name='admin_analytics'),
-    path('manage/users/', views.admin_users, name='admin_user_management'),
-    path('manage/courses/', views.admin_courses, name='admin_course_management'),
+    path('manage/users/', views.admin_users, name='admin_users'),
+    path('manage/courses/', views.admin_courses, name='admin_courses'),
     path('manage/export/', views.admin_export, name='admin_export_data'),
 
     # CRUD Operations for Admin

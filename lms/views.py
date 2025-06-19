@@ -69,46 +69,57 @@ def register(request):
 @login_required
 def dashboard(request):
     """User dashboard showing enrolled roadmaps and progress."""
-    # Get user's enrolled roadmaps only
+    # Optimized query with select_related and prefetch_related
     enrolled_roadmaps = Enrollment.objects.filter(
         user=request.user, is_active=True
-    ).select_related('roadmap').prefetch_related('roadmap__rooms')
+    ).select_related('roadmap').prefetch_related(
+        'roadmap__rooms__sections',
+        'roadmap__rooms__roomcompletion_set'
+    )
     
     # If no enrollments, auto-enroll in all active roadmaps for trial users
     if not enrolled_roadmaps.exists():
         active_roadmaps = Roadmap.objects.filter(is_active=True)
+        enrollments_to_create = []
         for roadmap in active_roadmaps:
-            Enrollment.objects.get_or_create(
-                user=request.user,
-                roadmap=roadmap
+            enrollments_to_create.append(
+                Enrollment(user=request.user, roadmap=roadmap)
             )
+        Enrollment.objects.bulk_create(enrollments_to_create, ignore_conflicts=True)
+        
         enrolled_roadmaps = Enrollment.objects.filter(
             user=request.user, is_active=True
-        ).select_related('roadmap').prefetch_related('roadmap__rooms')
+        ).select_related('roadmap').prefetch_related(
+            'roadmap__rooms__sections',
+            'roadmap__rooms__roomcompletion_set'
+        )
     
     # Get roadmaps from enrollments
     roadmaps = [enrollment.roadmap for enrollment in enrolled_roadmaps]
     
-    # Get user's completed rooms
-    completed_rooms = RoomCompletion.objects.filter(
+    # Optimized query for completed rooms
+    completed_rooms = set(RoomCompletion.objects.filter(
         user=request.user, is_completed=True
-    ).values_list('room_id', flat=True)
+    ).values_list('room_id', flat=True))
     
-    # Get user's certificates
-    certificates = Certificate.objects.filter(user=request.user, is_valid=True)
+    # Optimized certificates query
+    certificates = Certificate.objects.filter(
+        user=request.user, is_valid=True
+    ).select_related('room')
     
-    # Calculate overall progress only for enrolled courses
-    enrolled_rooms = Room.objects.filter(
-        roadmap__in=roadmaps, is_active=True
-    )
-    total_rooms = enrolled_rooms.count()
-    completed_count = len([room_id for room_id in completed_rooms if room_id in enrolled_rooms.values_list('id', flat=True)])
+    # Calculate overall progress more efficiently
+    enrolled_room_ids = []
+    for roadmap in roadmaps:
+        enrolled_room_ids.extend([room.id for room in roadmap.rooms.filter(is_active=True)])
+    
+    total_rooms = len(enrolled_room_ids)
+    completed_count = len([room_id for room_id in completed_rooms if room_id in enrolled_room_ids])
     overall_progress = (completed_count / total_rooms * 100) if total_rooms > 0 else 0
     
-    # Get recent section completions for activity feed
+    # Optimized recent completions query
     recent_completions = SectionCompletion.objects.filter(
         user=request.user, is_completed=True
-    ).select_related('section').order_by('-completed_at')[:5]
+    ).select_related('section__room').order_by('-completed_at')[:5]
     
     # Organize roadmap data with progress
     roadmap_data = []
