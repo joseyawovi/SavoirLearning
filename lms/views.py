@@ -2,6 +2,7 @@
 Views for Savoir+ LMS.
 """
 import uuid
+import json
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login

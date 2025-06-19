@@ -1,0 +1,634 @@
+<!-- Adaptive Learning Recommendations Engine -->
+<div class="card-enhanced" id="recommendations-engine">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold gradient-text">
+            <i class="fas fa-brain mr-2"></i>{% trans "Personalized Recommendations" %}
+        </h2>
+        <div class="flex items-center space-x-2">
+            <div class="recommendation-badge">
+                <i class="fas fa-robot text-primary mr-1"></i>
+                <span class="text-xs text-gray-400">{% trans "AI-Powered" %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Path Suggestions -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-route text-blue-400 mr-2"></i>
+            {% trans "Recommended Learning Path" %}
+        </h3>
+        
+        <div class="learning-path-timeline">
+            <div class="timeline-item active" data-recommendation="current">
+                <div class="timeline-marker current">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="timeline-content">
+                    <h4 class="font-semibold text-white">{% trans "Continue Current Course" %}</h4>
+                    <p class="text-gray-400 text-sm">{{ current_course_title|default:"Web Security Fundamentals" }}</p>
+                    <div class="mt-2">
+                        <span class="badge-enhanced badge-warning text-xs">
+                            {% trans "In Progress" %} • 73% {% trans "Complete" %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item recommended" data-recommendation="next">
+                <div class="timeline-marker recommended">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="timeline-content">
+                    <h4 class="font-semibold text-white">{% trans "Recommended Next" %}</h4>
+                    <p class="text-gray-400 text-sm">{% trans "Advanced Penetration Testing" %}</p>
+                    <div class="mt-2">
+                        <span class="badge-enhanced badge-primary text-xs">
+                            {% trans "Recommended" %} • 8 {% trans "hours" %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-item future" data-recommendation="future">
+                <div class="timeline-marker future">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="timeline-content">
+                    <h4 class="font-semibold text-white">{% trans "Future Suggestion" %}</h4>
+                    <p class="text-gray-400 text-sm">{% trans "Cloud Security Architecture" %}</p>
+                    <div class="mt-2">
+                        <span class="badge-enhanced badge-success text-xs">
+                            {% trans "Unlock after completion" %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Gap Analysis -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-chart-line text-green-400 mr-2"></i>
+            {% trans "Skill Gap Analysis" %}
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="skill-analysis-card strong">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-white">{% trans "Your Strengths" %}</h4>
+                    <i class="fas fa-thumbs-up text-green-400"></i>
+                </div>
+                <div class="space-y-2">
+                    <div class="skill-item">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">{% trans "Web Security" %}</span>
+                            <span class="text-green-400 font-semibold">92%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress bg-green-400" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">{% trans "Network Security" %}</span>
+                            <span class="text-green-400 font-semibold">88%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress bg-green-400" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skill-analysis-card improvement">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-white">{% trans "Areas for Growth" %}</h4>
+                    <i class="fas fa-arrow-up text-yellow-400"></i>
+                </div>
+                <div class="space-y-2">
+                    <div class="skill-item">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">{% trans "Cryptography" %}</span>
+                            <span class="text-yellow-400 font-semibold">64%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress bg-yellow-400" style="width: 64%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">{% trans "Incident Response" %}</span>
+                            <span class="text-yellow-400 font-semibold">52%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress bg-yellow-400" style="width: 52%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personalized Study Plan -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-calendar-alt text-purple-400 mr-2"></i>
+            {% trans "Your Study Plan This Week" %}
+        </h3>
+        
+        <div class="study-plan-grid">
+            <div class="study-day today" data-day="today">
+                <div class="day-header">
+                    <div class="day-name">{% trans "Today" %}</div>
+                    <div class="day-date">{{ today_date|date:"M d" }}</div>
+                </div>
+                <div class="study-tasks">
+                    <div class="task-item priority-high">
+                        <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
+                        <span>{% trans "Complete Section 4.2" %}</span>
+                        <div class="task-time">30 min</div>
+                    </div>
+                    <div class="task-item priority-medium">
+                        <i class="fas fa-book text-blue-400 mr-2"></i>
+                        <span>{% trans "Review weak areas" %}</span>
+                        <div class="task-time">15 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="study-day" data-day="tomorrow">
+                <div class="day-header">
+                    <div class="day-name">{% trans "Tomorrow" %}</div>
+                    <div class="day-date">{{ tomorrow_date|date:"M d" }}</div>
+                </div>
+                <div class="study-tasks">
+                    <div class="task-item priority-medium">
+                        <i class="fas fa-quiz text-yellow-400 mr-2"></i>
+                        <span>{% trans "Practice Quiz" %}</span>
+                        <div class="task-time">20 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="study-day" data-day="this-week">
+                <div class="day-header">
+                    <div class="day-name">{% trans "This Week" %}</div>
+                    <div class="day-date">{% trans "Remaining" %}</div>
+                </div>
+                <div class="study-tasks">
+                    <div class="task-item priority-low">
+                        <i class="fas fa-project-diagram text-green-400 mr-2"></i>
+                        <span>{% trans "Start new module" %}</span>
+                        <div class="task-time">2 hours</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Recommendations -->
+    <div class="smart-recommendations">
+        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-magic text-yellow-400 mr-2"></i>
+            {% trans "Smart Recommendations" %}
+        </h3>
+        
+        <div class="recommendations-grid">
+            <div class="recommendation-card study-time" onclick="applyRecommendation('optimal-time')">
+                <div class="recommendation-icon">
+                    <i class="fas fa-clock text-blue-400"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4 class="font-medium text-white">{% trans "Optimal Study Time" %}</h4>
+                    <p class="text-gray-400 text-sm">{% trans "You learn best between 9-11 AM. Schedule your next session?" %}</p>
+                </div>
+                <div class="recommendation-action">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="recommendation-card difficulty" onclick="applyRecommendation('difficulty-adjustment')">
+                <div class="recommendation-icon">
+                    <i class="fas fa-chart-bar text-green-400"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4 class="font-medium text-white">{% trans "Difficulty Adjustment" %}</h4>
+                    <p class="text-gray-400 text-sm">{% trans "Based on your progress, we recommend increasing challenge level." %}</p>
+                </div>
+                <div class="recommendation-action">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="recommendation-card review" onclick="applyRecommendation('review-session')">
+                <div class="recommendation-icon">
+                    <i class="fas fa-repeat text-purple-400"></i>
+                </div>
+                <div class="recommendation-content">
+                    <h4 class="font-medium text-white">{% trans "Review Session" %}</h4>
+                    <p class="text-gray-400 text-sm">{% trans "It's been 3 days since Section 3. Consider a quick review." %}</p>
+                </div>
+                <div class="recommendation-action">
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.recommendation-badge {
+    @apply flex items-center px-3 py-1 glass rounded-full border border-primary/30;
+}
+
+.learning-path-timeline {
+    @apply space-y-4;
+}
+
+.timeline-item {
+    @apply flex items-start space-x-4 p-4 glass rounded-lg border border-dark-border transition-all duration-300;
+}
+
+.timeline-item.active {
+    @apply border-blue-400 bg-blue-400/5;
+}
+
+.timeline-item.recommended {
+    @apply border-yellow-400 bg-yellow-400/5;
+}
+
+.timeline-marker {
+    @apply w-10 h-10 rounded-full flex items-center justify-center text-white font-bold;
+}
+
+.timeline-marker.current {
+    @apply bg-blue-500;
+}
+
+.timeline-marker.recommended {
+    @apply bg-yellow-500;
+}
+
+.timeline-marker.future {
+    @apply bg-gray-600;
+}
+
+.skill-analysis-card {
+    @apply p-4 glass rounded-lg border border-dark-border;
+}
+
+.skill-item {
+    @apply space-y-1;
+}
+
+.skill-bar {
+    @apply w-full bg-gray-700 rounded-full h-2 overflow-hidden;
+}
+
+.skill-progress {
+    @apply h-full rounded-full transition-all duration-500;
+}
+
+.study-plan-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.study-day {
+    @apply glass rounded-lg border border-dark-border p-4;
+}
+
+.study-day.today {
+    @apply border-blue-400 bg-blue-400/5;
+}
+
+.day-header {
+    @apply text-center pb-3 border-b border-gray-700 mb-3;
+}
+
+.day-name {
+    @apply font-semibold text-white;
+}
+
+.day-date {
+    @apply text-xs text-gray-400;
+}
+
+.task-item {
+    @apply flex items-center justify-between p-2 rounded border-l-4 mb-2;
+}
+
+.task-item.priority-high {
+    @apply border-red-400 bg-red-400/10;
+}
+
+.task-item.priority-medium {
+    @apply border-yellow-400 bg-yellow-400/10;
+}
+
+.task-item.priority-low {
+    @apply border-green-400 bg-green-400/10;
+}
+
+.task-time {
+    @apply text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded;
+}
+
+.recommendations-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.recommendation-card {
+    @apply flex items-center space-x-4 p-4 glass rounded-lg border border-dark-border cursor-pointer hover:border-primary transition-all duration-300;
+}
+
+.recommendation-card:hover {
+    @apply bg-primary/5;
+}
+
+.recommendation-icon {
+    @apply w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center;
+}
+
+.recommendation-content {
+    @apply flex-1;
+}
+
+.recommendation-action {
+    @apply opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+}
+</style>
+
+<script>
+class AdaptiveRecommendations {
+    constructor() {
+        this.userProfile = this.loadUserProfile();
+        this.recommendations = [];
+        this.init();
+    }
+
+    init() {
+        this.generateRecommendations();
+        this.setupInteractions();
+        this.startAdaptiveLearning();
+    }
+
+    loadUserProfile() {
+        // Load user learning profile from localStorage or API
+        const stored = localStorage.getItem('userLearningProfile');
+        return stored ? JSON.parse(stored) : {
+            preferredTime: '09:00',
+            learningStyle: 'visual',
+            difficultyPreference: 'progressive',
+            weakAreas: ['cryptography', 'incident-response'],
+            strongAreas: ['web-security', 'network-security'],
+            studyStreak: 0,
+            avgSessionTime: 30,
+            completionRate: 0.75
+        };
+    }
+
+    generateRecommendations() {
+        const recommendations = [];
+
+        // Time-based recommendations
+        if (this.shouldRecommendStudyTime()) {
+            recommendations.push({
+                type: 'optimal-time',
+                priority: 'high',
+                title: 'Optimal Study Time',
+                description: `You perform best at ${this.userProfile.preferredTime}. Schedule your next session?`,
+                action: () => this.scheduleStudySession()
+            });
+        }
+
+        // Difficulty adjustment
+        if (this.shouldAdjustDifficulty()) {
+            recommendations.push({
+                type: 'difficulty-adjustment',
+                priority: 'medium',
+                title: 'Difficulty Adjustment',
+                description: 'Based on your progress, we recommend adjusting the challenge level.',
+                action: () => this.adjustDifficulty()
+            });
+        }
+
+        // Review sessions
+        if (this.shouldRecommendReview()) {
+            recommendations.push({
+                type: 'review-session',
+                priority: 'medium',
+                title: 'Review Session',
+                description: 'Consider reviewing previously completed sections.',
+                action: () => this.scheduleReview()
+            });
+        }
+
+        this.recommendations = recommendations;
+        this.displayRecommendations();
+    }
+
+    shouldRecommendStudyTime() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const preferredHour = parseInt(this.userProfile.preferredTime.split(':')[0]);
+        
+        return Math.abs(currentHour - preferredHour) <= 1;
+    }
+
+    shouldAdjustDifficulty() {
+        return this.userProfile.completionRate > 0.85 || this.userProfile.completionRate < 0.60;
+    }
+
+    shouldRecommendReview() {
+        // Recommend review if user hasn't studied for 2+ days
+        const lastStudy = localStorage.getItem('lastStudyDate');
+        if (!lastStudy) return false;
+        
+        const daysSinceLastStudy = (new Date() - new Date(lastStudy)) / (1000 * 60 * 60 * 24);
+        return daysSinceLastStudy >= 2;
+    }
+
+    setupInteractions() {
+        // Add click handlers for recommendation cards
+        document.querySelectorAll('.recommendation-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const recommendationType = card.querySelector('.recommendation-content h4').textContent;
+                this.trackRecommendationClick(recommendationType);
+            });
+        });
+
+        // Add timeline interaction
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const recommendation = item.dataset.recommendation;
+                this.handleTimelineClick(recommendation);
+            });
+        });
+    }
+
+    startAdaptiveLearning() {
+        // Monitor user behavior and adapt recommendations
+        this.monitorUserBehavior();
+        
+        // Update recommendations every 5 minutes
+        setInterval(() => {
+            this.updateAdaptiveRecommendations();
+        }, 5 * 60 * 1000);
+    }
+
+    monitorUserBehavior() {
+        // Track time spent on page
+        let startTime = Date.now();
+        
+        window.addEventListener('beforeunload', () => {
+            const sessionTime = Date.now() - startTime;
+            this.recordStudySession(sessionTime);
+        });
+
+        // Track scroll behavior
+        let maxScroll = 0;
+        window.addEventListener('scroll', () => {
+            const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            maxScroll = Math.max(maxScroll, scrollPercent);
+        });
+
+        // Track interaction patterns
+        document.addEventListener('click', (e) => {
+            this.recordInteraction(e.target);
+        });
+    }
+
+    recordStudySession(duration) {
+        const sessions = JSON.parse(localStorage.getItem('studySessions') || '[]');
+        sessions.push({
+            date: new Date().toISOString(),
+            duration: duration,
+            engagementScore: this.calculateEngagement()
+        });
+        
+        // Keep only last 30 sessions
+        if (sessions.length > 30) {
+            sessions.shift();
+        }
+        
+        localStorage.setItem('studySessions', JSON.stringify(sessions));
+        this.updateUserProfile(sessions);
+    }
+
+    calculateEngagement() {
+        // Calculate engagement based on interactions, scroll depth, time spent
+        const interactions = parseInt(localStorage.getItem('sessionInteractions') || '0');
+        const scrollDepth = parseInt(localStorage.getItem('maxScrollDepth') || '0');
+        
+        return Math.min(100, (interactions * 10) + (scrollDepth * 0.5));
+    }
+
+    updateUserProfile(sessions) {
+        // Update user profile based on recent sessions
+        if (sessions.length > 0) {
+            const avgSessionTime = sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length;
+            this.userProfile.avgSessionTime = Math.round(avgSessionTime / (1000 * 60)); // Convert to minutes
+            
+            const avgEngagement = sessions.reduce((sum, s) => sum + (s.engagementScore || 0), 0) / sessions.length;
+            this.userProfile.engagementScore = avgEngagement;
+        }
+        
+        localStorage.setItem('userLearningProfile', JSON.stringify(this.userProfile));
+    }
+
+    recordInteraction(element) {
+        const interactions = parseInt(localStorage.getItem('sessionInteractions') || '0');
+        localStorage.setItem('sessionInteractions', (interactions + 1).toString());
+    }
+
+    updateAdaptiveRecommendations() {
+        // Regenerate recommendations based on current context
+        this.generateRecommendations();
+        
+        // Update UI with new recommendations
+        this.displayRecommendations();
+    }
+
+    displayRecommendations() {
+        // Update recommendation cards with current recommendations
+        const cards = document.querySelectorAll('.recommendation-card');
+        cards.forEach((card, index) => {
+            if (this.recommendations[index]) {
+                const rec = this.recommendations[index];
+                const titleEl = card.querySelector('.recommendation-content h4');
+                const descEl = card.querySelector('.recommendation-content p');
+                
+                if (titleEl) titleEl.textContent = rec.title;
+                if (descEl) descEl.textContent = rec.description;
+            }
+        });
+    }
+
+    trackRecommendationClick(type) {
+        // Track recommendation interactions for analytics
+        const clicks = JSON.parse(localStorage.getItem('recommendationClicks') || '[]');
+        clicks.push({
+            type: type,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('recommendationClicks', JSON.stringify(clicks));
+    }
+
+    handleTimelineClick(recommendation) {
+        switch (recommendation) {
+            case 'current':
+                // Navigate to current course
+                window.location.href = '/course/current';
+                break;
+            case 'next':
+                // Show recommended next course
+                this.showRecommendedCourse();
+                break;
+            case 'future':
+                // Show future learning path
+                this.showFuturePath();
+                break;
+        }
+    }
+
+    scheduleStudySession() {
+        // Open study session scheduler
+        notifications.info('Study session scheduled for your optimal time!');
+    }
+
+    adjustDifficulty() {
+        // Adjust difficulty settings
+        notifications.info('Difficulty level adjusted based on your performance!');
+    }
+
+    scheduleReview() {
+        // Schedule review session
+        notifications.info('Review session added to your study plan!');
+    }
+
+    showRecommendedCourse() {
+        notifications.info('Loading recommended course details...');
+    }
+
+    showFuturePath() {
+        notifications.info('Exploring your future learning opportunities...');
+    }
+}
+
+function applyRecommendation(type) {
+    const engine = window.adaptiveRecommendations;
+    if (engine) {
+        const recommendation = engine.recommendations.find(r => r.type === type);
+        if (recommendation && recommendation.action) {
+            recommendation.action();
+        }
+    }
+}
+
+// Initialize adaptive recommendations
+document.addEventListener('DOMContentLoaded', () => {
+    window.adaptiveRecommendations = new AdaptiveRecommendations();
+});
+</script>

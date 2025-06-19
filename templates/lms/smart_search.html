@@ -1,0 +1,350 @@
+<!-- Smart Search Component with AI-powered suggestions -->
+<div class="relative mb-6">
+    <div class="card-enhanced">
+        <div class="flex items-center space-x-4">
+            <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" 
+                       id="smartSearch"
+                       class="input-enhanced pl-12 pr-20 py-4 w-full text-lg" 
+                       placeholder="{% trans 'Ask anything about your learning...' %}"
+                       autocomplete="off">
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center space-x-2">
+                    <div id="searchLoading" class="hidden">
+                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                    </div>
+                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs font-medium text-gray-400 bg-gray-700 border border-gray-600 rounded">
+                        /
+                    </kbd>
+                </div>
+            </div>
+            <button class="btn-primary-enhanced px-6 py-4" onclick="performSmartSearch()">
+                <i class="fas fa-magic mr-2"></i>{% trans "Search" %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Smart Search Results -->
+    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-2 z-50">
+        <div class="card-enhanced border border-primary/30">
+            <div class="divide-y divide-gray-700">
+                <!-- Quick Actions -->
+                <div class="p-4">
+                    <div class="text-sm text-gray-400 mb-3 uppercase tracking-wide">{% trans "Quick Actions" %}</div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button class="quick-action-btn" data-action="continue-learning">
+                            <i class="fas fa-play text-green-400"></i>
+                            <span>{% trans "Continue Learning" %}</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="view-progress">
+                            <i class="fas fa-chart-line text-blue-400"></i>
+                            <span>{% trans "View Progress" %}</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="certificates">
+                            <i class="fas fa-certificate text-yellow-400"></i>
+                            <span>{% trans "Certificates" %}</span>
+                        </button>
+                        <button class="quick-action-btn" data-action="achievements">
+                            <i class="fas fa-trophy text-purple-400"></i>
+                            <span>{% trans "Achievements" %}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div id="searchSuggestions" class="p-4">
+                    <div class="text-sm text-gray-400 mb-3 uppercase tracking-wide">{% trans "Suggestions" %}</div>
+                    <div class="space-y-2" id="suggestionsList">
+                        <!-- Dynamic suggestions will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Recent Searches -->
+                <div id="recentSearches" class="p-4">
+                    <div class="text-sm text-gray-400 mb-3 uppercase tracking-wide">{% trans "Recent Searches" %}</div>
+                    <div class="space-y-2" id="recentSearchesList">
+                        <!-- Recent searches will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.quick-action-btn {
+    @apply flex items-center space-x-2 p-3 rounded-lg border border-gray-600 hover:border-primary transition-all duration-300 text-gray-300 hover:text-white cursor-pointer;
+}
+
+.quick-action-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.search-suggestion-item {
+    @apply flex items-center p-3 rounded-lg hover:bg-gray-700 cursor-pointer transition-all duration-200;
+}
+
+.search-suggestion-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+</style>
+
+<script>
+class SmartSearch {
+    constructor() {
+        this.searchInput = document.getElementById('smartSearch');
+        this.searchResults = document.getElementById('searchResults');
+        this.searchLoading = document.getElementById('searchLoading');
+        this.recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        this.init();
+    }
+
+    init() {
+        // Search input handlers
+        this.searchInput.addEventListener('focus', () => this.showResults());
+        this.searchInput.addEventListener('input', debounce(() => this.handleInput(), 300));
+        this.searchInput.addEventListener('keydown', (e) => this.handleKeydown(e));
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!this.searchInput.contains(e.target) && !this.searchResults.contains(e.target)) {
+                this.hideResults();
+            }
+        });
+
+        // Quick action handlers
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.handleQuickAction(btn.dataset.action));
+        });
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                this.searchInput.focus();
+            }
+        });
+
+        // Load recent searches
+        this.displayRecentSearches();
+        this.generateSuggestions();
+    }
+
+    showResults() {
+        this.searchResults.classList.remove('hidden');
+    }
+
+    hideResults() {
+        this.searchResults.classList.add('hidden');
+    }
+
+    handleInput() {
+        const query = this.searchInput.value.trim();
+        if (query.length > 2) {
+            this.performSearch(query);
+        } else if (query.length === 0) {
+            this.generateSuggestions();
+        }
+    }
+
+    handleKeydown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.performSmartSearch();
+        } else if (e.key === 'Escape') {
+            this.hideResults();
+            this.searchInput.blur();
+        }
+    }
+
+    async performSearch(query) {
+        this.showLoading();
+        
+        try {
+            // Simulate AI-powered search
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const suggestions = this.generateSmartSuggestions(query);
+            this.displaySuggestions(suggestions);
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    generateSmartSuggestions(query) {
+        const suggestions = [];
+        const lowerQuery = query.toLowerCase();
+
+        // Course suggestions
+        if (lowerQuery.includes('course') || lowerQuery.includes('learn')) {
+            suggestions.push({
+                icon: 'fas fa-book',
+                title: 'Continue Current Course',
+                description: 'Resume your in-progress courses',
+                action: 'continue-course'
+            });
+        }
+
+        // Progress suggestions
+        if (lowerQuery.includes('progress') || lowerQuery.includes('status')) {
+            suggestions.push({
+                icon: 'fas fa-chart-line',
+                title: 'View Learning Progress',
+                description: 'See detailed progress across all courses',
+                action: 'view-progress'
+            });
+        }
+
+        // Certificate suggestions
+        if (lowerQuery.includes('certificate') || lowerQuery.includes('completion')) {
+            suggestions.push({
+                icon: 'fas fa-certificate',
+                title: 'Download Certificates',
+                description: 'Access your earned certificates',
+                action: 'certificates'
+            });
+        }
+
+        // Default suggestions
+        if (suggestions.length === 0) {
+            suggestions.push({
+                icon: 'fas fa-search',
+                title: `Search for "${query}"`,
+                description: 'Find courses, sections, and content',
+                action: 'search',
+                query: query
+            });
+        }
+
+        return suggestions;
+    }
+
+    displaySuggestions(suggestions) {
+        const container = document.getElementById('suggestionsList');
+        container.innerHTML = suggestions.map(suggestion => `
+            <div class="search-suggestion-item" onclick="smartSearch.handleSuggestion('${suggestion.action}', '${suggestion.query || ''}')">
+                <i class="${suggestion.icon} text-primary mr-3"></i>
+                <div>
+                    <div class="font-medium text-white">${suggestion.title}</div>
+                    <div class="text-sm text-gray-400">${suggestion.description}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    generateSuggestions() {
+        const defaultSuggestions = [
+            {
+                icon: 'fas fa-play',
+                title: 'Continue where you left off',
+                description: 'Resume your latest course progress',
+                action: 'continue-learning'
+            },
+            {
+                icon: 'fas fa-star',
+                title: 'View your achievements',
+                description: 'See badges and milestones earned',
+                action: 'achievements'
+            },
+            {
+                icon: 'fas fa-calendar',
+                title: 'Check learning streak',
+                description: 'Maintain your daily learning habit',
+                action: 'streak'
+            }
+        ];
+
+        this.displaySuggestions(defaultSuggestions);
+    }
+
+    displayRecentSearches() {
+        const container = document.getElementById('recentSearchesList');
+        if (this.recentSearches.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm">{% trans "No recent searches" %}</p>';
+            return;
+        }
+
+        container.innerHTML = this.recentSearches.slice(0, 5).map(search => `
+            <div class="search-suggestion-item" onclick="smartSearch.searchInput.value = '${search}'; smartSearch.performSearch('${search}')">
+                <i class="fas fa-history text-gray-400 mr-3"></i>
+                <span class="text-gray-300">${search}</span>
+            </div>
+        `).join('');
+    }
+
+    handleQuickAction(action) {
+        switch (action) {
+            case 'continue-learning':
+                this.scrollToSection('roadmaps');
+                break;
+            case 'view-progress':
+                this.scrollToSection('stats');
+                break;
+            case 'certificates':
+                this.scrollToSection('certificates');
+                break;
+            case 'achievements':
+                this.scrollToSection('achievements');
+                break;
+        }
+        this.hideResults();
+    }
+
+    handleSuggestion(action, query) {
+        if (query) {
+            this.addToRecentSearches(query);
+        }
+        this.handleQuickAction(action);
+    }
+
+    scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId) || document.querySelector(`[data-section="${sectionId}"]`);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    addToRecentSearches(query) {
+        this.recentSearches = [query, ...this.recentSearches.filter(s => s !== query)].slice(0, 10);
+        localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
+        this.displayRecentSearches();
+    }
+
+    showLoading() {
+        this.searchLoading.classList.remove('hidden');
+    }
+
+    hideLoading() {
+        this.searchLoading.classList.add('hidden');
+    }
+}
+
+function performSmartSearch() {
+    const query = document.getElementById('smartSearch').value.trim();
+    if (query) {
+        smartSearch.performSearch(query);
+        smartSearch.addToRecentSearches(query);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.smartSearch = new SmartSearch();
+});
+</script>
