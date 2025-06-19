@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Certificate Verification" %} - Savoir+{% endblock %}
+{% block page_title %}{% trans "Certificate Verification" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="glass rounded-2xl p-8 border border-dark-border">
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-certificate text-white text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">{% trans "Certificate Verification" %}</h1>
+            <p class="text-gray-400">{% trans "Verify the authenticity of Savoir+ certificates" %}</p>
+        </div>
+
+        {% if is_valid %}
+        <div class="bg-green-600/20 border border-green-600/30 rounded-xl p-6 mb-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-green-400 mb-2">{% trans "Valid Certificate" %}</h3>
+                    <p class="text-gray-300">{% trans "This certificate is authentic and valid." %}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Certificate ID" %}</label>
+                    <p class="text-white font-mono bg-dark-card px-3 py-2 rounded-lg">{{ certificate.certificate_id }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Recipient" %}</label>
+                    <p class="text-white">{{ certificate.user.get_full_name|default:certificate.user.username }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Course" %}</label>
+                    <p class="text-white">{{ certificate.room.title }}</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Issue Date" %}</label>
+                    <p class="text-white">{{ certificate.issued_at|date:"F d, Y" }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Status" %}</label>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-600/20 text-green-400">
+                        <i class="fas fa-check mr-2"></i>{% trans "Valid" %}
+                    </span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">{% trans "Verification" %}</label>
+                    <p class="text-green-400 text-sm">
+                        <i class="fas fa-shield-check mr-1"></i>
+                        {% trans "Verified by Savoir+" %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-red-600/20 border border-red-600/30 rounded-xl p-6 text-center">
+            <div class="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-times-circle text-red-400 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-red-400 mb-2">{% trans "Invalid Certificate" %}</h3>
+            <p class="text-gray-300">{% trans "This certificate ID could not be verified. Please check the ID and try again." %}</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'home' %}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300">
+                <i class="fas fa-home mr-2"></i>{% trans "Back to Home" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
