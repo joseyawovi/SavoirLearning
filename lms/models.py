@@ -119,23 +119,31 @@ class Section(models.Model):
         if not self.room.is_accessible_by_user(user):
             return False
         
-        # Get the first section in this room
-        first_section = Section.objects.filter(
+        # Get all sections in this room ordered by order field
+        room_sections = Section.objects.filter(
             room=self.room,
             is_active=True
-        ).order_by('order').first()
+        ).order_by('order')
         
-        # If this is the first section in the room, it's always accessible if room is accessible
-        if first_section and self.id == first_section.id:
+        # If no sections exist, this shouldn't happen but just in case
+        if not room_sections.exists():
             return True
         
-        # For other sections, check if previous sections are completed
-        previous_sections = Section.objects.filter(
-            room=self.room,
-            is_active=True,
-            order__lt=self.order
-        )
+        # Get the first section (lowest order number)
+        first_section = room_sections.first()
         
+        # If this is the first section in the room, it's always accessible if room is accessible
+        if self.id == first_section.id:
+            return True
+        
+        # For other sections, check if ALL previous sections (by order) are completed
+        previous_sections = room_sections.filter(order__lt=self.order)
+        
+        if not previous_sections.exists():
+            # If no previous sections, this is effectively the first section
+            return True
+        
+        # Check if all previous sections are completed
         completed_previous = SectionCompletion.objects.filter(
             user=user,
             section__in=previous_sections,
