@@ -192,6 +192,39 @@ def user_section_status(user, section):
 
 
 @register.simple_tag
+def user_room_status(user, room):
+    """Get user's status for a room (completed, available, locked, preview)."""
+    from lms.models import RoomCompletion, Enrollment
+    
+    # For unauthenticated users, only first room is preview
+    if not user.is_authenticated:
+        return 'preview' if room.order == 1 else 'locked'
+    
+    # Check if room is completed
+    room_completion = RoomCompletion.objects.filter(user=user, room=room, is_completed=True).exists()
+    if room_completion:
+        return 'completed'
+    
+    # Check if user is enrolled in the roadmap
+    is_enrolled = Enrollment.objects.filter(user=user, roadmap=room.roadmap, is_active=True).exists()
+    if not is_enrolled:
+        return 'preview' if room.order == 1 else 'locked'
+    
+    # Check if room is accessible based on prerequisites
+    if room.prerequisite_room:
+        prerequisite_completed = RoomCompletion.objects.filter(
+            user=user, 
+            room=room.prerequisite_room, 
+            is_completed=True
+        ).exists()
+        if not prerequisite_completed:
+            return 'locked'
+    
+    # If first room or prerequisites met, it's available
+    return 'available'
+
+
+@register.simple_tag
 def get_room_completion(user, room):
     """Get room completion status for user."""
     from lms.models import RoomCompletion
