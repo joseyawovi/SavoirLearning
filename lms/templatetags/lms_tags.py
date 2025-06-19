@@ -169,9 +169,15 @@ def user_section_status(user, section):
     """Get user's status for a section (completed, accessible, locked)."""
     from lms.models import SectionCompletion
     
+    # Get or create section completion record
+    section_completion, created = SectionCompletion.objects.get_or_create(
+        user=user,
+        section=section,
+        defaults={'is_completed': False}
+    )
+    
     # Check if completed
-    is_completed = SectionCompletion.objects.filter(user=user, section=section, is_completed=True).exists()
-    if is_completed:
+    if section_completion.is_completed:
         return 'completed'
     
     # Use the section's built-in accessibility method which already handles all the logic correctly

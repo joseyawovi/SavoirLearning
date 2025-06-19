@@ -457,18 +457,12 @@ def section_detail(request, section_id):
     )
     answer_dict = {ua.question_id: ua for ua in user_answers}
     
-    # Check if section is completed
-    section_completion = SectionCompletion.objects.filter(
-        user=request.user, section=section
-    ).first()
-    
-    # Create section completion if it doesn't exist but should be completed
-    if not section_completion:
-        section_completion = SectionCompletion.objects.create(
-            user=request.user,
-            section=section,
-            is_completed=False
-        )
+    # Get or create section completion record
+    section_completion, created = SectionCompletion.objects.get_or_create(
+        user=request.user,
+        section=section,
+        defaults={'is_completed': False}
+    )
     
     # Prepare questions with user answers
     questions_data = []
