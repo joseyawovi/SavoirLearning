@@ -1,402 +1,341 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load lms_tags %}
 
 {% block title %}{{ section.title }} - Savoir+{% endblock %}
+{% block page_title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-<!-- Breadcrumb Navigation -->
-<div class="mb-6">
-    <nav class="flex items-center space-x-2 text-sm">
-        <a href="{% url 'dashboard' %}" class="text-gray-400 hover:text-primary transition-colors">
-            <i class="fas fa-home mr-1"></i>{% trans "Dashboard" %}
-        </a>
-        <i class="fas fa-chevron-right text-gray-600"></i>
-        <a href="{% url 'roadmap_detail' section.room.roadmap.id %}" class="text-gray-400 hover:text-primary transition-colors">
-            {{ section.room.roadmap.title }}
-        </a>
-        <i class="fas fa-chevron-right text-gray-600"></i>
-        <a href="{% url 'room_detail' section.room.id %}" class="text-gray-400 hover:text-primary transition-colors">
-            {{ section.room.title }}
-        </a>
-        <i class="fas fa-chevron-right text-gray-600"></i>
-        <span class="text-white">{{ section.title }}</span>
-    </nav>
-</div>
-
-<!-- Section Header -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
-                <i class="fas fa-book-open text-white text-xl"></i>
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Section Header -->
+    <div class="glass rounded-2xl p-8 border border-dark-border">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <a href="{% url 'room_detail' section.room.id %}" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors mr-4">
+                    <i class="fas fa-arrow-left mr-2"></i>{{ section.room.title }}
+                </a>
+                <span class="px-3 py-1 bg-blue-600/20 text-blue-400 text-sm font-medium rounded-full border border-blue-600/30">
+                    Section {{ section.order }}
+                </span>
             </div>
-            <div>
-                <h1 class="text-2xl font-bold text-white">{{ section.title }}</h1>
-                <p class="text-gray-400">{{ section.room.title }}</p>
+            
+            <!-- Progress Indicator -->
+            {% is_section_completed user section as section_completed %}
+            <div class="flex items-center space-x-2">
+                {% if section_completed %}
+                <span class="inline-flex items-center px-3 py-1 bg-green-600/20 text-green-400 text-sm font-medium rounded-full border border-green-600/30">
+                    <i class="fas fa-check mr-2"></i>{% trans "Completed" %}
+                </span>
+                {% else %}
+                <span class="inline-flex items-center px-3 py-1 bg-orange-600/20 text-orange-400 text-sm font-medium rounded-full border border-orange-600/30">
+                    <i class="fas fa-play mr-2"></i>{% trans "In Progress" %}
+                </span>
+                {% endif %}
             </div>
         </div>
-        <div class="flex items-center space-x-4">
-            {% if section_completion.is_completed %}
-            <div class="inline-flex items-center px-4 py-2 bg-success rounded-lg">
-                <i class="fas fa-check mr-2"></i>
-                <span class="font-medium">{% trans "Completed" %}</span>
+
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4" id="section-title">{{ section.title }}</h1>
+        
+        <!-- Language Toggle -->
+        <div class="flex items-center space-x-4 mb-6">
+            <span class="text-sm text-gray-400">{% trans "Content Language:" %}</span>
+            <div class="flex bg-dark-card rounded-lg p-1 border border-dark-border">
+                <button onclick="toggleLanguage('en')" id="lang-en" class="px-4 py-2 text-sm font-medium rounded-md transition-colors bg-blue-600 text-white">
+                    <i class="fas fa-flag-usa mr-1"></i>English
+                </button>
+                <button onclick="toggleLanguage('fr')" id="lang-fr" class="px-4 py-2 text-sm font-medium rounded-md transition-colors text-gray-400 hover:text-white">
+                    <i class="fas fa-flag mr-1"></i>Français
+                </button>
             </div>
-            {% else %}
-            <div class="inline-flex items-center px-4 py-2 bg-warning text-dark-bg rounded-lg">
-                <i class="fas fa-play mr-2"></i>
-                <span class="font-medium">In Progress</span>
+        </div>
+    </div>
+
+    <!-- Video Section (if available) -->
+    {% if section.video_url %}
+    <div class="glass rounded-2xl border border-dark-border overflow-hidden">
+        <div class="bg-dark-card/50 p-4 border-b border-dark-border">
+            <h2 class="text-xl font-bold text-white flex items-center">
+                <i class="fas fa-play-circle mr-3 text-blue-400"></i>{% trans "Section Video" %}
+            </h2>
+        </div>
+        <div class="relative" style="padding-bottom: 56.25%; height: 0;">
+            <iframe 
+                src="{{ section.video_url }}" 
+                class="absolute top-0 left-0 w-full h-full"
+                frameborder="0" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Learning Content -->
+    <div class="glass rounded-2xl border border-dark-border">
+        <div class="bg-dark-card/50 p-6 border-b border-dark-border">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-book-open mr-3 text-blue-400"></i>{% trans "Learning Material" %}
+            </h2>
+        </div>
+        
+        <div class="p-8">
+            <!-- English Content -->
+            <div class="lang-content lang-en">
+                <div class="prose prose-invert prose-blue max-w-none">
+                    {{ section.content|safe }}
+                </div>
+            </div>
+            
+            <!-- French Content -->
+            {% if section.content_fr %}
+            <div class="lang-content lang-fr hidden">
+                <div class="prose prose-invert prose-blue max-w-none">
+                    {{ section.content_fr|safe }}
+                </div>
             </div>
             {% endif %}
         </div>
     </div>
-</div>
 
-<!-- Video Content -->
-{% if section.video_url %}
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
-    <h2 class="text-xl font-semibold text-white mb-4">
-        <i class="fas fa-video text-primary mr-2"></i>
-        {% trans "Video Lesson" %}
-    </h2>
-    <div class="aspect-video bg-dark-bg rounded-lg overflow-hidden">
-        {% if "youtube.com" in section.video_url or "youtu.be" in section.video_url %}
-        <iframe 
-            src="{{ section.video_url|safe }}" 
-            class="w-full h-full" 
-            frameborder="0" 
-            allowfullscreen>
-        </iframe>
-        {% else %}
-        <div class="flex items-center justify-center h-full">
-            <div class="text-center">
-                <i class="fas fa-external-link-alt text-gray-500 text-3xl mb-4"></i>
-                <p class="text-gray-400 mb-4">External video content</p>
-                <a href="{{ section.video_url }}" target="_blank" 
-                   class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors">
-                    <i class="fas fa-play mr-2"></i>
-                    Watch Video
-                </a>
-            </div>
+    <!-- Quiz Section -->
+    {% if section.questions.all %}
+    <div class="glass rounded-2xl border border-dark-border">
+        <div class="bg-dark-card/50 p-6 border-b border-dark-border">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-question-circle mr-3 text-purple-400"></i>{% trans "Practice Questions" %}
+            </h2>
+            <p class="text-gray-400 mt-2">{% trans "Test your understanding with these interactive questions" %}</p>
         </div>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Text Content -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
-    <h2 class="text-xl font-semibold text-white mb-4">
-        <i class="fas fa-file-text text-primary mr-2"></i>
-        {% trans "Lesson Content" %}
-    </h2>
-    <div class="prose prose-invert max-w-none">
-        <div class="text-gray-300 leading-relaxed">
-            {{ section.content|linebreaks }}
-        </div>
-    </div>
-</div>
-
-<!-- Quiz Section -->
-{% if questions %}
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold text-white">
-            <i class="fas fa-brain text-primary mr-2"></i>
-            Section Quiz
-        </h2>
-        {% if not user.can_access_quizzes %}
-        <div class="inline-flex items-center px-3 py-1 bg-warning text-dark-bg rounded-lg text-sm">
-            <i class="fas fa-lock mr-1"></i>
-            Premium Required
-        </div>
-        {% endif %}
-    </div>
-
-    {% if user.can_access_quizzes %}
-    <!-- Quiz Progress -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-sm text-gray-400">{% trans "Progress" %}</span>
-            <span class="text-sm text-gray-300">{{ answered_questions.count }}/{{ questions.count }} questions</span>
-        </div>
-        <div class="w-full h-2 bg-dark-bg rounded-full">
-            <div class="h-2 bg-primary rounded-full transition-all duration-500" 
-                 style="width: {% widthratio answered_questions.count questions.count 100 %}%"></div>
-        </div>
-    </div>
-
-    <!-- Questions -->
-    <div class="space-y-6">
-        {% for question in questions %}
-        <div class="quiz-question bg-dark-bg border border-dark-border rounded-lg p-6" data-question-id="{{ question.id }}">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                    <h3 class="text-lg font-medium text-white mb-2">
-                        <span class="inline-flex items-center justify-center w-8 h-8 bg-primary rounded-full text-sm font-bold mr-3">
+        
+        <div class="p-8 space-y-8">
+            {% for question in section.questions.all %}
+            <div class="quiz-question border border-dark-border rounded-xl p-6 bg-dark-card/30">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">
                             {{ forloop.counter }}
                         </span>
-                        {{ question.prompt }}
+                        {% trans "Question" %} {{ forloop.counter }}
                     </h3>
-                    {% if question.placeholder_hint %}
-                    <p class="text-gray-400 text-sm mb-4">
-                        <i class="fas fa-lightbulb mr-1"></i>
-                        Format: <span class="font-mono bg-gray-800 px-2 py-1 rounded">{{ question.placeholder_hint }}</span>
+                    <span class="px-3 py-1 bg-purple-600/20 text-purple-400 text-sm font-medium rounded-full border border-purple-600/30">
+                        {{ question.question_type|capfirst }}
+                    </span>
+                </div>
+                
+                <!-- Question Content -->
+                <div class="mb-6">
+                    <div class="lang-content lang-en">
+                        <p class="text-gray-300 text-lg leading-relaxed">{{ question.prompt|safe }}</p>
+                    </div>
+                    {% if question.prompt_fr %}
+                    <div class="lang-content lang-fr hidden">
+                        <p class="text-gray-300 text-lg leading-relaxed">{{ question.prompt_fr|safe }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Answer Form -->
+                <form method="post" action="{% url 'submit_quiz_answer' question.id %}" class="quiz-form" data-question-id="{{ question.id }}">
+                    {% csrf_token %}
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                            <input 
+                                type="text" 
+                                name="answer" 
+                                placeholder="{{ question.placeholder_hint|default:'Enter your answer here...' }}"
+                                class="w-full px-4 py-3 bg-dark-bg border border-dark-border rounded-xl text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                                required
+                            >
+                        </div>
+                        <button 
+                            type="submit" 
+                            class="btn-enhanced px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 whitespace-nowrap">
+                            <i class="fas fa-check mr-2"></i>{% trans "Submit" %}
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Answer Result -->
+                <div class="answer-result mt-4 hidden">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Previous Answer (if exists) -->
+                {% get_user_answer user question as user_answer %}
+                {% if user_answer %}
+                <div class="mt-4 p-4 rounded-xl border {% if user_answer.is_correct %}border-green-600/30 bg-green-600/10{% else %}border-red-600/30 bg-red-600/10{% endif %}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            {% if user_answer.is_correct %}
+                                <i class="fas fa-check-circle text-green-400 mr-3 text-xl"></i>
+                                <span class="text-green-400 font-semibold">{% trans "Correct!" %}</span>
+                            {% else %}
+                                <i class="fas fa-times-circle text-red-400 mr-3 text-xl"></i>
+                                <span class="text-red-400 font-semibold">{% trans "Incorrect" %}</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-sm text-gray-400">{{ user_answer.answered_at|timesince }} {% trans "ago" %}</span>
+                    </div>
+                    <p class="text-gray-300 mt-2">
+                        <strong>{% trans "Your answer:" %}</strong> {{ user_answer.answer }}
+                    </p>
+                    {% if not user_answer.is_correct %}
+                    <p class="text-gray-300 mt-1">
+                        <strong>{% trans "Correct answer:" %}</strong> {{ question.correct_answer }}
                     </p>
                     {% endif %}
                 </div>
-                {% with user_answer=question.user_answer %}
-                {% if user_answer %}
-                <div class="ml-4">
-                    {% if user_answer.is_correct %}
-                    <div class="inline-flex items-center px-3 py-1 bg-success rounded-lg text-sm">
-                        <i class="fas fa-check mr-1"></i>
-                        {% trans "Correct!" %}
-                    </div>
-                    {% else %}
-                    <div class="inline-flex items-center px-3 py-1 bg-danger rounded-lg text-sm">
-                        <i class="fas fa-times mr-1"></i>
-                        Try Again
-                    </div>
-                    {% endif %}
-                </div>
                 {% endif %}
-                {% endwith %}
             </div>
-
-            <!-- Answer Input -->
-            <form class="quiz-form" data-question-id="{{ question.id }}">
-                {% csrf_token %}
-                <div class="flex gap-3">
-                    <div class="flex-1">
-                        <input type="text" 
-                               name="answer" 
-                               placeholder="{% trans 'Enter your answer...' %}"
-                               value="{% with user_answer=question.user_answer %}{% if user_answer %}{{ user_answer.answer }}{% endif %}{% endwith %}"
-                               class="w-full px-4 py-3 bg-dark-card border border-dark-border rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-primary transition-colors font-mono"
-                               {% with user_answer=question.user_answer %}{% if user_answer.is_correct %}disabled{% endif %}{% endwith %}
-                               autocomplete="off">
-                    </div>
-                    <button type="submit" 
-                            class="px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                            {% with user_answer=question.user_answer %}{% if user_answer.is_correct %}disabled{% endif %}{% endwith %}>
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        {% trans "Submit" %}
-                    </button>
-                </div>
-            </form>
-
-            <!-- Feedback Area -->
-            <div class="quiz-feedback mt-4 hidden">
-                <div class="p-4 rounded-lg">
-                    <div class="flex items-center">
-                        <div class="feedback-icon mr-3"></div>
-                        <div class="feedback-message"></div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-
-    <!-- Section Completion Status -->
-    <div class="mt-8 p-6 bg-dark-bg border border-dark-border rounded-lg">
-        {% if section_completion.is_completed %}
-        <div class="text-center">
-            <div class="w-16 h-16 bg-success rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-white text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-white mb-2">{% trans "Section Completed!" %}</h3>
-            <p class="text-gray-400 mb-4">Great job! You've successfully completed this section.</p>
-            <a href="{% url 'room_detail' section.room.id %}" 
-               class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
-                <i class="fas fa-arrow-left mr-2"></i>
-                {% trans "Back to Room" %}
-            </a>
-        </div>
-        {% elif all_questions_answered %}
-        <div class="text-center">
-            <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-exclamation text-dark-bg text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-white mb-2">Almost There!</h3>
-            <p class="text-gray-400 mb-4">{% trans "Complete all quiz questions to finish this section." %}</p>
-        </div>
-        {% else %}
-        <div class="text-center">
-            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-brain text-white text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-white mb-2">Keep Learning!</h3>
-            <p class="text-gray-400 mb-4">Answer all quiz questions correctly to complete this section.</p>
-        </div>
-        {% endif %}
-    </div>
-    {% else %}
-    <!-- Premium Upgrade Prompt -->
-    <div class="text-center py-12">
-        <div class="w-16 h-16 bg-warning rounded-full flex items-center justify-center mx-auto mb-6">
-            <i class="fas fa-crown text-dark-bg text-2xl"></i>
-        </div>
-        <h3 class="text-xl font-semibold text-white mb-4">{% trans "Quiz access requires a premium subscription." %}</h3>
-        <p class="text-gray-400 mb-6">Upgrade to access interactive quizzes and test your knowledge with hands-on challenges.</p>
-        <a href="{% url 'upgrade_to_premium' %}" 
-           class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors transform hover:scale-105">
-            <i class="fas fa-star mr-2"></i>
-            {% trans "Upgrade Now" %}
-        </a>
     </div>
     {% endif %}
-</div>
-{% else %}
-<!-- No Quiz Section -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6 mb-6">
-    <div class="text-center py-8">
-        <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-book text-white text-2xl"></i>
-        </div>
-        <h3 class="text-lg font-semibold text-white mb-2">Content Only Section</h3>
-        <p class="text-gray-400">{% trans "This section has no quiz questions." %}</p>
-    </div>
-</div>
-{% endif %}
 
-<!-- Navigation -->
-<div class="bg-dark-card border border-dark-border rounded-xl p-6">
-    <h3 class="text-lg font-semibold text-white mb-4">
-        <i class="fas fa-compass text-primary mr-2"></i>
-        {% trans "Navigation" %}
-    </h3>
-    <div class="flex items-center justify-between">
-        <a href="{% url 'room_detail' section.room.id %}" 
-           class="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors">
-            <i class="fas fa-arrow-left mr-2"></i>
-            {% trans "Back to Room" %}
+    <!-- Section Completion -->
+    {% if section_completed %}
+    <div class="glass rounded-2xl p-8 border border-green-600/30 bg-green-600/5 text-center">
+        <div class="w-20 h-20 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-trophy text-white text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-white mb-4">{% trans "Section Completed!" %}</h2>
+        <p class="text-gray-300 mb-6">
+            {% trans "Great job! You've successfully completed this section." %}
+        </p>
+        
+        <!-- Next Section Button -->
+        {% get_next_section section as next_section %}
+        {% if next_section %}
+        <a href="{% url 'section_detail' next_section.id %}" class="btn-enhanced inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+            {% trans "Next Section" %}<i class="fas fa-arrow-right ml-2"></i>
+        </a>
+        {% else %}
+        <a href="{% url 'room_detail' section.room.id %}" class="btn-enhanced inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105">
+            <i class="fas fa-graduation-cap mr-2"></i>{% trans "Complete Room" %}
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="flex justify-between items-center pt-8">
+        <a href="{% url 'room_detail' section.room.id %}" class="inline-flex items-center px-6 py-3 bg-dark-card hover:bg-dark-hover border border-dark-border hover:border-blue-500 text-white font-semibold rounded-xl transition-all duration-300">
+            <i class="fas fa-arrow-left mr-2"></i>{% trans "Back to Room" %}
         </a>
         
+        {% get_next_section section as next_section %}
         {% if next_section %}
-        <a href="{% url 'section_detail' next_section.id %}" 
-           class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors">
-            Next Section
-            <i class="fas fa-arrow-right ml-2"></i>
-        </a>
-        {% elif section_completion.is_completed %}
-        <a href="{% url 'room_detail' section.room.id %}" 
-           class="inline-flex items-center px-4 py-2 bg-success hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
-            Continue Course
-            <i class="fas fa-arrow-right ml-2"></i>
+        <a href="{% url 'section_detail' next_section.id %}" class="btn-enhanced inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibent rounded-xl transition-all duration-300 transform hover:scale-105">
+            {% trans "Next Section" %}<i class="fas fa-arrow-right ml-2"></i>
         </a>
         {% endif %}
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Quiz form submission
-    document.querySelectorAll('.quiz-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const questionId = this.dataset.questionId;
-            const answerInput = this.querySelector('input[name="answer"]');
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const feedbackDiv = this.parentElement.querySelector('.quiz-feedback');
-            
-            if (!answerInput.value.trim()) {
-                showFeedback(feedbackDiv, 'error', '{% trans "Please enter an answer." %}');
-                return;
-            }
-            
-            // Disable form during submission
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{% trans "Submitting..." %}';
-            
-            // Submit answer
-            fetch(`/quiz/submit/${questionId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: `answer=${encodeURIComponent(answerInput.value)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.correct) {
-                        showFeedback(feedbackDiv, 'success', '{% trans "Correct!" %}');
-                        answerInput.disabled = true;
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Correct';
-                        submitBtn.className = submitBtn.className.replace('bg-primary hover:bg-primary-dark', 'bg-success');
-                        
-                        // Update question status
-                        const questionDiv = this.closest('.quiz-question');
-                        const statusDiv = questionDiv.querySelector('.ml-4') || document.createElement('div');
-                        statusDiv.className = 'ml-4';
-                        statusDiv.innerHTML = '<div class="inline-flex items-center px-3 py-1 bg-success rounded-lg text-sm"><i class="fas fa-check mr-1"></i>{% trans "Correct!" %}</div>';
-                        if (!questionDiv.querySelector('.ml-4')) {
-                            questionDiv.querySelector('.flex-1').parentElement.appendChild(statusDiv);
-                        }
-                        
-                        // Update progress bar
-                        updateProgress();
-                        
-                        // Check if section is completed
-                        setTimeout(() => {
-                            if (data.section_completed) {
-                                location.reload();
-                            }
-                        }, 1500);
-                    } else {
-                        showFeedback(feedbackDiv, 'error', '{% trans "Incorrect. Try again." %}');
-                    }
-                } else {
-                    showFeedback(feedbackDiv, 'error', data.error || '{% trans "An error occurred. Please try again." %}');
-                }
-            })
-            .catch(error => {
-                showFeedback(feedbackDiv, 'error', '{% trans "An error occurred. Please try again." %}');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>{% trans "Submit" %}';
-            });
-        });
+function toggleLanguage(lang) {
+    // Update button styles
+    document.querySelectorAll('[id^="lang-"]').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-gray-400');
     });
     
-    function showFeedback(feedbackDiv, type, message) {
-        const iconClass = type === 'success' ? 'fas fa-check text-success' : 'fas fa-times text-danger';
-        const bgClass = type === 'success' ? 'bg-green-900 border-green-700' : 'bg-red-900 border-red-700';
-        
-        feedbackDiv.innerHTML = `
-            <div class="p-4 rounded-lg border ${bgClass}">
-                <div class="flex items-center">
-                    <i class="${iconClass} mr-3"></i>
-                    <div class="text-white">${message}</div>
-                </div>
-            </div>
-        `;
-        feedbackDiv.classList.remove('hidden');
-        
-        setTimeout(() => {
-            feedbackDiv.classList.add('hidden');
-        }, 3000);
-    }
+    document.getElementById('lang-' + lang).classList.remove('text-gray-400');
+    document.getElementById('lang-' + lang).classList.add('bg-blue-600', 'text-white');
     
-    function updateProgress() {
-        const totalQuestions = document.querySelectorAll('.quiz-question').length;
-        const answeredQuestions = document.querySelectorAll('.quiz-question input:disabled').length;
-        const progressBar = document.querySelector('.w-full.h-2 .h-2');
-        const progressText = document.querySelector('.text-sm.text-gray-300');
+    // Update content visibility
+    document.querySelectorAll('.lang-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.lang-' + lang).forEach(content => {
+        content.classList.remove('hidden');
+    });
+}
+
+// Handle quiz form submissions
+document.querySelectorAll('.quiz-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        if (progressBar && progressText) {
-            const percentage = (answeredQuestions / totalQuestions) * 100;
-            progressBar.style.width = percentage + '%';
-            progressText.textContent = `${answeredQuestions}/${totalQuestions} questions`;
-        }
-    }
+        const formData = new FormData(this);
+        const button = this.querySelector('button[type="submit"]');
+        const resultDiv = this.parentElement.querySelector('.answer-result');
+        
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+        button.disabled = true;
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Show result
+            resultDiv.classList.remove('hidden');
+            
+            if (data.is_correct) {
+                resultDiv.innerHTML = `
+                    <div class="p-4 rounded-xl border border-green-600/30 bg-green-600/10">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-3 text-xl"></i>
+                            <span class="text-green-400 font-semibold">Correct! Well done!</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="p-4 rounded-xl border border-red-600/30 bg-red-600/10">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-times-circle text-red-400 mr-3 text-xl"></i>
+                            <span class="text-red-400 font-semibold">Incorrect</span>
+                        </div>
+                        <p class="text-gray-300">
+                            <strong>Correct answer:</strong> ${data.correct_answer}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Reset button
+            button.innerHTML = '<i class="fas fa-redo mr-2"></i>Try Again';
+            button.disabled = false;
+            
+            // Clear input
+            this.querySelector('input[name="answer"]').value = '';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            button.innerHTML = '<i class="fas fa-check mr-2"></i>Submit';
+            button.disabled = false;
+        });
+    });
+});
+
+// Initialize default language
+document.addEventListener('DOMContentLoaded', function() {
+    toggleLanguage('en');
 });
 </script>
+
+<style>
+/* Prose styles for content */
+.prose h1 { @apply text-3xl font-bold text-white mb-6; }
+.prose h2 { @apply text-2xl font-bold text-white mb-4 mt-8; }
+.prose h3 { @apply text-xl font-bold text-white mb-3 mt-6; }
+.prose h4 { @apply text-lg font-semibold text-white mb-2 mt-4; }
+.prose p { @apply text-gray-300 mb-4 leading-relaxed; }
+.prose ul { @apply list-disc list-inside text-gray-300 mb-4 space-y-2; }
+.prose ol { @apply list-decimal list-inside text-gray-300 mb-4 space-y-2; }
+.prose li { @apply text-gray-300; }
+.prose strong { @apply text-white font-semibold; }
+.prose em { @apply text-blue-400 italic; }
+.prose code { @apply bg-dark-card px-2 py-1 rounded text-blue-400 font-mono text-sm; }
+.prose pre { @apply bg-dark-card p-4 rounded-xl text-gray-300 font-mono text-sm overflow-x-auto mb-4; }
+.prose blockquote { @apply border-l-4 border-blue-500 pl-4 italic text-gray-400 mb-4; }
+.prose a { @apply text-blue-400 hover:text-blue-300 transition-colors; }
+</style>
 {% endblock %}

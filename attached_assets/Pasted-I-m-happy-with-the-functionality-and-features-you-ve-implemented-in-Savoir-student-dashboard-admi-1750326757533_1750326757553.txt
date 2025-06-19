@@ -1,0 +1,83 @@
+I’m happy with the functionality and features you’ve implemented in Savoir+ (student dashboard, admin panel, roadmap, quizzes, trial system, certificates, etc.).
+
+But the design and user interface are poor and do not reflect the quality of the platform.
+
+🎯 I want you to redesign the full frontend using Tailwind CSS and improve the user experience (UX).
+
+🎨 Redesign Instructions:
+Use a modern, dark-themed UI, like TryHackMe or Hack The Box.
+
+Make the layout fully responsive (mobile + desktop).
+
+Use Tailwind CSS components: cards, grids, navbars, buttons with hover, shadows, spacing.
+
+Focus on clarity and minimalism: don’t overcrowd the screen.
+
+Replace any generic or unstyled sections with professional component-based layouts.
+
+Pages to Redesign (No Logic Change):
+Landing Page (/)
+
+Big hero header: Savoir+ name + subtitle + CTA buttons
+
+Feature highlights: Roadmap-based learning, certificates, mobile payment
+
+Testimonials or quote area
+
+Footer with links, language switcher
+
+Student Dashboard (/dashboard/)
+
+Welcome banner with name and progress summary
+
+Cards for each enrolled room with:
+
+Thumbnail or icon
+
+Progress bar
+
+Button to “Continue”
+
+Tabs or sections: "Your Rooms", "Certificates", "Roadmap", "Upgrade"
+
+Admin Dashboard (/manage/)
+
+Sidebar with sections: Users, Rooms, Sections, Roadmaps, Payments
+
+Tables styled with Tailwind: search, filter, edit/delete
+
+Modals or popup forms for creating/editing content
+
+Room Page (student view)
+
+Video player at the top
+
+Bilingual lesson text in tabs or toggles
+
+Quiz input field with placeholder style (____)
+
+Submit button with success/fail feedback
+
+Roadmap Page
+
+Visual stepper/grid of rooms
+
+Use icons and color indicators:
+
+Green = completed
+
+Blue = current
+
+Gray = locked
+
+Button to jump into the next section
+
+Notes:
+Don’t change the backend logic or URL routing
+
+Keep CSRF protection and multilingual support working
+
+Reuse existing models and views — just improve design and layout
+
+✅ Focus 100% on making it look and feel clean, modern, and intuitive.
+I want users to enjoy using it and feel like they’re on a premium learning platform.
