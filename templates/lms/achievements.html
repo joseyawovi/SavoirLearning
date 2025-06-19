@@ -1,0 +1,29 @@
+<!-- Achievements Section -->
+{% if achievements %}
+<div class="card-enhanced">
+    <div class="flex items-center mb-6">
+        <i class="fas fa-trophy text-yellow-400 text-2xl mr-3"></i>
+        <h2 class="text-2xl font-bold gradient-text">{% trans "Achievements" %}</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for achievement in achievements %}
+        <div class="glass rounded-xl p-4 border border-dark-border hover:border-yellow-400 transition-all duration-300">
+            <div class="flex items-center mb-3">
+                <div class="p-3 rounded-full bg-gradient-to-r 
+                    {% if achievement.color == 'success' %}from-green-400 to-green-600
+                    {% elif achievement.color == 'primary' %}from-blue-400 to-blue-600
+                    {% elif achievement.color == 'warning' %}from-yellow-400 to-yellow-600
+                    {% elif achievement.color == 'danger' %}from-red-400 to-red-600
+                    {% endif %} mr-3">
+                    <i class="{{ achievement.icon }} text-white text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white">{{ achievement.title }}</h3>
+                    <p class="text-gray-400 text-sm">{{ achievement.description }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

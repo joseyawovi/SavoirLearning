@@ -1,0 +1,95 @@
+<!-- Enhanced Roadmap Card Component -->
+{% for stat in roadmap_stats %}
+{% with roadmap=stat.roadmap %}
+<div class="card-enhanced hover:border-primary transition-all duration-300 group" data-roadmap-id="{{ roadmap.id }}">
+    <div class="flex items-start justify-between mb-4">
+        <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:gradient-text transition-all duration-300">
+                {{ roadmap.title }}
+            </h3>
+            <p class="text-gray-400 text-sm line-clamp-2 mb-3">{{ roadmap.description|truncatewords:20 }}</p>
+            
+            <!-- Course Tags -->
+            <div class="flex flex-wrap gap-2 mb-3">
+                <span class="badge-enhanced badge-primary text-xs">
+                    <i class="fas fa-layer-group mr-1"></i>{{ stat.total_rooms }} Rooms
+                </span>
+                <span class="badge-enhanced badge-success text-xs">
+                    <i class="fas fa-bookmark mr-1"></i>{{ stat.total_sections }} Sections
+                </span>
+            </div>
+        </div>
+        
+        <!-- Status Badge -->
+        <span class="badge-enhanced ml-4
+            {% if stat.status == 'completed' %}badge-success
+            {% elif stat.status == 'in_progress' %}badge-warning
+            {% else %}badge-primary
+            {% endif %}">
+            {% if stat.status == 'completed' %}
+                <i class="fas fa-check mr-1"></i>{% trans "Completed" %}
+            {% elif stat.status == 'in_progress' %}
+                <i class="fas fa-play mr-1"></i>{% trans "In Progress" %}
+            {% else %}
+                <i class="fas fa-rocket mr-1"></i>{% trans "Ready to Start" %}
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- Enhanced Progress Section -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-3">
+            <span class="text-sm text-gray-400">{% trans "Overall Progress" %}</span>
+            <span class="text-sm font-medium text-white">{{ stat.progress|floatformat:0 }}%</span>
+        </div>
+        <div class="progress-enhanced">
+            <div class="progress-bar-enhanced" 
+                 style="width: {{ stat.progress }}%" 
+                 data-stat="roadmap_{{ roadmap.id }}_progress"></div>
+        </div>
+    </div>
+
+    <!-- Detailed Progress Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="text-center p-3 glass rounded-lg border border-dark-border">
+            <div class="text-lg font-bold gradient-text" data-stat-value="rooms_{{ roadmap.id }}">
+                {{ stat.completed_rooms }}/{{ stat.total_rooms }}
+            </div>
+            <div class="text-xs text-gray-400 uppercase tracking-wide">{% trans "Rooms" %}</div>
+        </div>
+        <div class="text-center p-3 glass rounded-lg border border-dark-border">
+            <div class="text-lg font-bold gradient-text" data-stat-value="sections_{{ roadmap.id }}">
+                {{ stat.completed_sections }}/{{ stat.total_sections }}
+            </div>
+            <div class="text-xs text-gray-400 uppercase tracking-wide">{% trans "Sections" %}</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3">
+        <a href="/roadmap/{{ roadmap.id }}/" 
+           class="btn-primary-enhanced flex-1 justify-center group-hover:scale-105 transition-transform duration-300"
+           data-action="continue"
+           data-roadmap-id="{{ roadmap.id }}">
+            {% if stat.status == 'completed' %}
+                <i class="fas fa-redo mr-2"></i>{% trans "Review Content" %}
+            {% elif stat.status == 'in_progress' %}
+                <i class="fas fa-play mr-2"></i>{% trans "Continue Learning" %}
+            {% else %}
+                <i class="fas fa-rocket mr-2"></i>{% trans "Start Journey" %}
+            {% endif %}
+        </a>
+        
+        {% if stat.progress > 0 %}
+        <button class="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:border-gray-500 hover:text-white transition-all duration-300"
+                title="{% trans 'View Details' %}">
+            <i class="fas fa-info-circle"></i>
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Hover Overlay Effect -->
+    <div class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none"></div>
+</div>
+{% endwith %}
+{% endfor %}

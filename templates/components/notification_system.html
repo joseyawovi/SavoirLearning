@@ -1,0 +1,134 @@
+<!-- Enhanced Notification System -->
+<div id="notification-container" class="fixed top-4 right-4 space-y-2 z-50">
+    <!-- Notifications will be dynamically inserted here -->
+</div>
+
+<script>
+class NotificationSystem {
+    constructor() {
+        this.container = document.getElementById('notification-container');
+        this.notifications = [];
+    }
+
+    show(message, type = 'info', duration = 5000) {
+        const id = 'notification-' + Date.now();
+        const notification = this.createNotification(id, message, type);
+        
+        this.container.appendChild(notification);
+        this.notifications.push({ id, element: notification, timeout: null });
+
+        // Animate in
+        setTimeout(() => {
+            notification.classList.add('translate-x-0');
+            notification.classList.remove('translate-x-full');
+        }, 10);
+
+        // Auto remove
+        if (duration > 0) {
+            const timeout = setTimeout(() => {
+                this.remove(id);
+            }, duration);
+            
+            const notificationObj = this.notifications.find(n => n.id === id);
+            if (notificationObj) {
+                notificationObj.timeout = timeout;
+            }
+        }
+
+        return id;
+    }
+
+    createNotification(id, message, type) {
+        const notification = document.createElement('div');
+        notification.id = id;
+        notification.className = `
+            transform translate-x-full transition-all duration-300 ease-in-out
+            max-w-sm w-full shadow-lg rounded-lg pointer-events-auto
+            card-enhanced border-l-4
+            ${type === 'success' ? 'border-green-400' : ''}
+            ${type === 'error' ? 'border-red-400' : ''}
+            ${type === 'warning' ? 'border-yellow-400' : ''}
+            ${type === 'info' ? 'border-blue-400' : ''}
+        `;
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-green-400',
+            error: 'fas fa-exclamation-circle text-red-400',
+            warning: 'fas fa-exclamation-triangle text-yellow-400',
+            info: 'fas fa-info-circle text-blue-400'
+        };
+
+        notification.innerHTML = `
+            <div class="flex items-start p-4">
+                <div class="flex-shrink-0">
+                    <i class="${iconMap[type] || iconMap.info}"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1">
+                    <p class="text-sm font-medium text-white">${message}</p>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex">
+                    <button onclick="notifications.remove('${id}')" 
+                            class="text-gray-400 hover:text-white focus:outline-none">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        return notification;
+    }
+
+    remove(id) {
+        const notificationObj = this.notifications.find(n => n.id === id);
+        if (!notificationObj) return;
+
+        // Clear timeout
+        if (notificationObj.timeout) {
+            clearTimeout(notificationObj.timeout);
+        }
+
+        // Animate out
+        notificationObj.element.classList.add('translate-x-full');
+        notificationObj.element.classList.remove('translate-x-0');
+
+        // Remove from DOM
+        setTimeout(() => {
+            if (notificationObj.element.parentNode) {
+                notificationObj.element.parentNode.removeChild(notificationObj.element);
+            }
+            this.notifications = this.notifications.filter(n => n.id !== id);
+        }, 300);
+    }
+
+    success(message, duration = 5000) {
+        return this.show(message, 'success', duration);
+    }
+
+    error(message, duration = 8000) {
+        return this.show(message, 'error', duration);
+    }
+
+    warning(message, duration = 6000) {
+        return this.show(message, 'warning', duration);
+    }
+
+    info(message, duration = 5000) {
+        return this.show(message, 'info', duration);
+    }
+}
+
+// Global instance
+const notifications = new NotificationSystem();
+
+// Django messages integration
+document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+        {% for message in messages %}
+            notifications.show(
+                "{{ message|escapejs }}", 
+                "{{ message.tags|default:'info' }}"
+            );
+        {% endfor %}
+    {% endif %}
+});
+</script>

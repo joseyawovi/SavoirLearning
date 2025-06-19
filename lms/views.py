@@ -173,6 +173,150 @@ def dashboard(request):
     return render(request, 'lms/dashboard.html', context)
 
 
+def calculate_learning_streak(user):
+    """Calculate user's current learning streak."""
+    completions = SectionCompletion.objects.filter(
+        user=user,
+        is_completed=True
+    ).order_by('-completed_at')
+    
+    if not completions:
+        return 0
+    
+    streak = 0
+    current_date = timezone.now().date()
+    
+    for completion in completions:
+        completion_date = completion.completed_at.date()
+        days_diff = (current_date - completion_date).days
+        
+        if days_diff == streak:
+            streak += 1
+        elif days_diff == streak + 1:
+            streak += 1
+            current_date = completion_date
+        else:
+            break
+    
+    return streak
+
+
+def calculate_user_achievements(user, completed_rooms, certificate_count, learning_streak):
+    """Calculate user achievements and badges."""
+    achievements = []
+    
+    # Room completion achievements
+    if completed_rooms >= 1:
+        achievements.append({
+            'title': 'First Steps',
+            'description': 'Completed your first room',
+            'icon': 'fas fa-baby',
+            'color': 'success'
+        })
+    
+    if completed_rooms >= 5:
+        achievements.append({
+            'title': 'Getting Started',
+            'description': 'Completed 5 rooms',
+            'icon': 'fas fa-rocket',
+            'color': 'primary'
+        })
+    
+    if completed_rooms >= 10:
+        achievements.append({
+            'title': 'Dedicated Learner',
+            'description': 'Completed 10 rooms',
+            'icon': 'fas fa-medal',
+            'color': 'warning'
+        })
+    
+    # Certificate achievements
+    if certificate_count >= 1:
+        achievements.append({
+            'title': 'Certified',
+            'description': 'Earned your first certificate',
+            'icon': 'fas fa-certificate',
+            'color': 'success'
+        })
+    
+    # Streak achievements
+    if learning_streak >= 7:
+        achievements.append({
+            'title': 'Week Warrior',
+            'description': f'{learning_streak} day learning streak',
+            'icon': 'fas fa-fire',
+            'color': 'danger'
+        })
+    
+    if learning_streak >= 30:
+        achievements.append({
+            'title': 'Monthly Master',
+            'description': f'{learning_streak} day learning streak',
+            'icon': 'fas fa-crown',
+            'color': 'warning'
+        })
+    
+    return achievements
+
+
+@require_POST
+@csrf_exempt
+def api_track_action(request):
+    """API endpoint to track user actions for analytics."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        
+        # Log the action (you could store this in a database)
+        print(f"User {request.user.username} performed action: {action}")
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@require_POST
+@csrf_exempt  
+def api_dashboard_stats(request):
+    """API endpoint to get updated dashboard statistics."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    user = request.user
+    
+    # Calculate updated stats
+    enrolled_roadmaps = Roadmap.objects.filter(
+        enrollments__user=user,
+        enrollments__is_active=True,
+        is_active=True
+    )
+    
+    total_rooms = 0
+    completed_rooms = 0
+    
+    for roadmap in enrolled_roadmaps:
+        roadmap_rooms = roadmap.rooms.filter(is_active=True)
+        total_rooms += roadmap_rooms.count()
+        completed_rooms += RoomCompletion.objects.filter(
+            user=user,
+            room__in=roadmap_rooms,
+            is_completed=True
+        ).count()
+    
+    overall_progress = (completed_rooms / total_rooms * 100) if total_rooms > 0 else 0
+    learning_streak = calculate_learning_streak(user)
+    
+    return JsonResponse({
+        'overall_progress': overall_progress,
+        'completed_rooms': completed_rooms,
+        'total_rooms': total_rooms,
+        'learning_streak': learning_streak,
+    })
+
+
 @login_required
 def roadmap_detail(request, roadmap_id):
     """Detailed view of a specific roadmap."""

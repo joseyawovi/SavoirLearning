@@ -6,48 +6,83 @@
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Welcome Header -->
-    <div class="glass rounded-2xl p-6 border border-dark-border">
+    <!-- Enhanced Welcome Header -->
+    <div class="card-enhanced">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div class="mb-4 lg:mb-0">
-                <h1 class="text-3xl font-bold gradient-text mb-2">
+            <div class="mb-6 lg:mb-0">
+                <h1 class="text-4xl font-bold gradient-text mb-3">
                     {% trans "Welcome back" %}, {{ user.first_name|default:user.username }}!
                 </h1>
-                <p class="text-gray-400">{% trans "Continue your learning journey" %}</p>
+                <p class="text-gray-400 text-lg">{% trans "Continue your learning journey" %}</p>
+                {% if learning_streak > 0 %}
+                <div class="mt-2 flex items-center text-orange-400">
+                    <i class="fas fa-fire mr-2"></i>
+                    <span class="font-semibold">{{ learning_streak }} {% trans "day learning streak" %}!</span>
+                </div>
+                {% endif %}
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {% if not user.is_paid_user %}
                 <div class="text-center">
-                    <p class="text-sm text-gray-400">{% trans "Trial Status" %}</p>
+                    <p class="text-sm text-gray-400 mb-2">{% trans "Trial Status" %}</p>
                     {% if user.is_trial_active %}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900">
+                        <span class="badge-enhanced badge-warning">
                             <i class="fas fa-clock mr-1"></i>
                             {% with days_left=user.trial_end_date|timeuntil %}
-                                {{ days_left }} {% trans "left" %}
+                                {{ days_left|truncatechars:10 }}
                             {% endwith %}
                         </span>
                     {% else %}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-red-400 to-red-600 text-red-100">
+                        <span class="badge-enhanced badge-danger">
                             <i class="fas fa-exclamation-triangle mr-1"></i>{% trans "Expired" %}
                         </span>
                     {% endif %}
                 </div>
                 {% endif %}
                 <div class="text-center">
-                    <p class="text-sm text-gray-400">{% trans "Overall Progress" %}</p>
-                    <div class="text-2xl font-bold text-white">{{ overall_progress|floatformat:0 }}%</div>
+                    <p class="text-sm text-gray-400 mb-2">{% trans "Overall Progress" %}</p>
+                    <div class="text-3xl font-bold gradient-text">{{ overall_progress|floatformat:0 }}%</div>
+                    <div class="progress-enhanced mt-2">
+                        <div class="progress-bar-enhanced" style="width: {{ overall_progress }}%"></div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-400 mb-2">{% trans "Certificates" %}</p>
+                    <div class="text-3xl font-bold text-yellow-400">{{ certificates.count }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Stats -->
+    <!-- Enhanced Quick Stats -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="glass rounded-xl p-4 border border-dark-border">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-2xl font-bold text-white">{{ total_completed_rooms }}</h3>
-                    <p class="text-gray-400 text-sm">{% trans "Completed" %}</p>
+        <div class="card-enhanced text-center">
+            <div class="text-3xl font-bold gradient-text mb-2">{{ total_completed_rooms }}</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">{% trans "Rooms Completed" %}</p>
+            <div class="mt-2">
+                <i class="fas fa-check-circle text-green-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="card-enhanced text-center">
+            <div class="text-3xl font-bold gradient-text mb-2">{{ completed_sections }}</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">{% trans "Sections Completed" %}</p>
+            <div class="mt-2">
+                <i class="fas fa-bookmark text-blue-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="card-enhanced text-center">
+            <div class="text-3xl font-bold gradient-text mb-2">{{ in_progress_rooms }}</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">{% trans "In Progress" %}</p>
+            <div class="mt-2">
+                <i class="fas fa-play-circle text-yellow-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="card-enhanced text-center">
+            <div class="text-3xl font-bold gradient-text mb-2">{{ learning_streak }}</div>
+            <p class="text-gray-400 text-sm uppercase tracking-wide">{% trans "Day Streak" %}</p>
+            <div class="mt-2">
+                <i class="fas fa-fire text-orange-400 text-xl"></i>
+            </div>
                 </div>
                 <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                     <i class="fas fa-check text-white"></i>

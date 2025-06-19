@@ -1,0 +1,62 @@
+<!-- Enhanced Search Bar Component -->
+<div class="relative">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="fas fa-search text-gray-400"></i>
+    </div>
+    <input type="text" 
+           id="searchInput"
+           class="input-enhanced pl-10 pr-4 py-3 w-full" 
+           placeholder="{% trans 'Search courses, users, or content...' %}"
+           autocomplete="off">
+    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <kbd class="hidden sm:inline-block px-2 py-1 text-xs font-medium text-gray-400 bg-gray-700 border border-gray-600 rounded">
+            ⌘K
+        </kbd>
+    </div>
+</div>
+
+<!-- Search Results Dropdown -->
+<div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-2 bg-dark-card border border-dark-border rounded-lg shadow-xl z-50">
+    <div class="p-3">
+        <div class="text-sm text-gray-400 mb-2">Quick Actions</div>
+        <div class="space-y-1">
+            <a href="/manage/users/" class="flex items-center p-2 rounded hover:bg-dark-hover text-gray-300 hover:text-white">
+                <i class="fas fa-users mr-3 w-4"></i>
+                <span>Manage Users</span>
+            </a>
+            <a href="/manage/courses/" class="flex items-center p-2 rounded hover:bg-dark-hover text-gray-300 hover:text-white">
+                <i class="fas fa-book mr-3 w-4"></i>
+                <span>Course Management</span>
+            </a>
+            <a href="/manage/analytics/" class="flex items-center p-2 rounded hover:bg-dark-hover text-gray-300 hover:text-white">
+                <i class="fas fa-chart-bar mr-3 w-4"></i>
+                <span>View Analytics</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    searchInput.addEventListener('focus', function() {
+        searchResults.classList.remove('hidden');
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
+    
+    // Keyboard shortcut
+    document.addEventListener('keydown', function(e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+});
+</script>
