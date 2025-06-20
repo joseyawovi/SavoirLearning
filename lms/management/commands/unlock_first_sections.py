@@ -26,8 +26,8 @@ class Command(BaseCommand):
                 # Get all users enrolled in this room's roadmap
                 from lms.models import Enrollment
                 enrolled_users = User.objects.filter(
-                    enrollments__roadmap=room.roadmap,
-                    enrollments__is_active=True
+                    enrollment__roadmap=room.roadmap,
+                    enrollment__is_active=True
                 ).distinct()
                 
                 for user in enrolled_users:
