@@ -105,53 +105,53 @@ class Command(BaseCommand):
                     self.stdout.write(f'    Created section: {section.title}')
 
                     # Create quiz questions for each section
+                    # Create quiz questions for each section
                     questions_data = [
                         {
-                            'text': f'What is the primary focus of {section_data["title"]}?',
-                            'choices': [
-                                {'text': 'Data encryption methods', 'is_correct': False},
-                                {'text': 'Hardware maintenance', 'is_correct': False},
-                                {'text': 'Software development', 'is_correct': False}
-                            ]
+                            'prompt': f'What is the main benefit of {section_data["title"]}?',
+                            'correct_answer': 'enhanced security posture',
+                            'placeholder_hint': 'enhanced _______ posture'
                         },
                         {
-                            'text': f'Which skill is most important for {section_data["title"]}?',
-                            'choices': [
-                                {'text': 'Technical analysis', 'is_correct': True},
-                                {'text': 'Graphic design', 'is_correct': False},
-                                {'text': 'Marketing', 'is_correct': False},
-                                {'text': 'Sales', 'is_correct': False}
-                            ]
+                            'prompt': f'Which concept is central to {section_data["title"]}?',
+                            'correct_answer': section_data['title'].split()[0].lower(),
+                            'placeholder_hint': '_______ concept'
                         }
                     ]
-                    #The following code block was commented out to resolve runtime errors.
 
-                    #for q_data in questions_data:
-                    #    question = Question.objects.create(
-                    #        section=section,
-                    #        text=q_data['text'],
-                    #        question_type='multiple_choice',
-                    #        order=len(questions_data)
-                    #    )
+                    for i, q_data in enumerate(questions_data, 1):
+                        Question.objects.create(
+                            section=section,
+                            prompt=q_data['prompt'],
+                            correct_answer=q_data['correct_answer'],
+                            placeholder_hint=q_data['placeholder_hint'],
+                            question_type='section',
+                            order=i
+                        )
 
-                    #    for choice_data in q_data['choices']:
-                    #        QuestionChoice.objects.create(
-                    #            question=question,
-                    #            text=choice_data['text'],
-                    #            is_correct=choice_data['is_correct']
-                    #        )
-
-            # Create final exam for the room
-            final_exam, created = Section.objects.get_or_create(
-                title=f'{room.title} - Final Exam',
-                room=room,
-                defaults={
-                    'content': f'<h2>Final Exam: {room.title}</h2><p>Test your knowledge of all concepts covered in this room.</p>',
-                    'is_final_exam': True,
-                    'order': 999,
-                    'is_active': True
+            # Create final exam questions for the room
+            final_questions = [
+                {
+                    'prompt': f'What are the key security principles covered in {room.title}?',
+                    'correct_answer': 'confidentiality integrity availability',
+                    'placeholder_hint': 'confidentiality _______ _______'
+                },
+                {
+                    'prompt': f'How does {room.title} help protect organizations?',
+                    'correct_answer': 'threat prevention and risk mitigation',
+                    'placeholder_hint': 'threat _______ and risk _______'
                 }
-            )
+            ]
+
+            for i, q_data in enumerate(final_questions, 1):
+                Question.objects.create(
+                    room=room,
+                    prompt=q_data['prompt'],
+                    correct_answer=q_data['correct_answer'],
+                    placeholder_hint=q_data['placeholder_hint'],
+                    question_type='final',
+                    order=i
+                )
 
         # Enroll admin user in the roadmap
         try:
