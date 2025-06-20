@@ -157,31 +157,29 @@ class Section(models.Model):
         first_section = room_sections.first()
         print(f"DEBUG: First section: {first_section.title} (order: {first_section.order}, id: {first_section.id})")
         
-        # If this is the first section in the room, it's always accessible if room is accessible
-        if self.id == first_section.id:
+        # If this is the first section in the room, it's ALWAYS accessible if room is accessible
+        if self.order == first_section.order or self.id == first_section.id:
             print(f"DEBUG: This is the first section, returning True")
             return True
         
-        # For other sections, check if ALL previous sections (by order) are completed
-        previous_sections = room_sections.filter(order__lt=self.order)
-        print(f"DEBUG: Previous sections count: {previous_sections.count()}")
+        # For other sections, check if the IMMEDIATE previous section is completed
+        previous_section = room_sections.filter(order__lt=self.order).order_by('-order').first()
         
-        if not previous_sections.exists():
+        if not previous_section:
             # If no previous sections, this is effectively the first section
             print("DEBUG: No previous sections, returning True")
             return True
         
-        # Check if all previous sections are completed
-        completed_previous = SectionCompletion.objects.filter(
+        # Check if immediate previous section is completed
+        previous_completed = SectionCompletion.objects.filter(
             user=user,
-            section__in=previous_sections,
+            section=previous_section,
             is_completed=True
-        ).count()
+        ).exists()
         
-        print(f"DEBUG: Completed previous sections: {completed_previous}/{previous_sections.count()}")
-        result = completed_previous == previous_sections.count()
-        print(f"DEBUG: Final result: {result}")
-        return result
+        print(f"DEBUG: Previous section {previous_section.title} completed: {previous_completed}")
+        print(f"DEBUG: Final result: {previous_completed}")
+        return previous_completed
 
 
 class Question(models.Model):
