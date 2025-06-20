@@ -1,8 +1,10 @@
 
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-from lms.models import Roadmap, Room, Section, Question, RoadmapEnrollment, QuestionChoice
+from django.contrib.auth import get_user_model
+from lms.models import Roadmap, Room, Section, Question, Enrollment
 import random
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Create Cybersecurity Fundamentals roadmap with 5 rooms and comprehensive content'
@@ -157,7 +159,7 @@ class Command(BaseCommand):
         # Enroll admin user in the roadmap
         try:
             admin_user = User.objects.get(username='admin')
-            enrollment, created = RoadmapEnrollment.objects.get_or_create(
+            enrollment, created = Enrollment.objects.get_or_create(
                 user=admin_user,
                 roadmap=roadmap
             )

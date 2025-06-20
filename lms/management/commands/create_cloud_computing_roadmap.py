@@ -1,8 +1,10 @@
 
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-from lms.models import Roadmap, Room, Section, Question, RoadmapEnrollment, QuestionChoice
+from django.contrib.auth import get_user_model
+from lms.models import Roadmap, Room, Section, Question, Enrollment
 import random
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Create Cloud Computing roadmap with 5 rooms and comprehensive content'
@@ -107,57 +109,55 @@ class Command(BaseCommand):
                     # Create quiz questions for each section
                     questions_data = [
                         {
-                            'text': f'What is the main benefit of {section_data["title"]}?',
-                            'choices': [
-                                {'text': 'Scalability and flexibility', 'is_correct': True},
-                                {'text': 'Higher hardware costs', 'is_correct': False},
-                                {'text': 'Reduced security', 'is_correct': False},
-                                {'text': 'Limited accessibility', 'is_correct': False}
-                            ]
+                            'prompt': f'What is the main benefit of {section_data["title"]}?',
+                            'correct_answer': 'scalability and flexibility',
+                            'placeholder_hint': 'scalability and _______'
                         },
                         {
-                            'text': f'Which concept is central to {section_data["title"]}?',
-                            'choices': [
-                                {'text': section_data['description'].split()[0], 'is_correct': True},
-                                {'text': 'Traditional hosting', 'is_correct': False},
-                                {'text': 'Desktop applications', 'is_correct': False},
-                                {'text': 'Local storage', 'is_correct': False}
-                            ]
+                            'prompt': f'Which concept is central to {section_data["title"]}?',
+                            'correct_answer': section_data['description'].split()[0].lower(),
+                            'placeholder_hint': '_______ concept'
                         }
                     ]
 
-                    for q_data in questions_data:
-                        question = Question.objects.create(
+                    for i, q_data in enumerate(questions_data, 1):
+                        Question.objects.create(
                             section=section,
-                            text=q_data['text'],
-                            question_type='multiple_choice',
-                            order=len(questions_data)
+                            prompt=q_data['prompt'],
+                            correct_answer=q_data['correct_answer'],
+                            placeholder_hint=q_data['placeholder_hint'],
+                            question_type='section',
+                            order=i
                         )
 
-                        for choice_data in q_data['choices']:
-                            QuestionChoice.objects.create(
-                                question=question,
-                                text=choice_data['text'],
-                                is_correct=choice_data['is_correct']
-                            )
-
-            # Create final exam for the room
-            final_exam, created = Section.objects.get_or_create(
-                title=f'{room.title} - Final Exam',
-                room=room,
-                defaults={
-                    'description': f'Final assessment for {room.title}',
-                    'content': f'<h2>Final Exam: {room.title}</h2><p>Comprehensive test covering all {room.title} concepts.</p>',
-                    'is_final_exam': True,
-                    'order': 999,
-                    'is_active': True
+            # Create final exam questions for the room
+            final_questions = [
+                {
+                    'prompt': f'What are the key concepts covered in {room.title}?',
+                    'correct_answer': 'cloud computing fundamentals',
+                    'placeholder_hint': 'cloud _______ fundamentals'
+                },
+                {
+                    'prompt': f'How does {room.title} benefit organizations?',
+                    'correct_answer': 'improved efficiency and scalability',
+                    'placeholder_hint': 'improved _______ and _______'
                 }
-            )
+            ]
+
+            for i, q_data in enumerate(final_questions, 1):
+                Question.objects.create(
+                    room=room,
+                    prompt=q_data['prompt'],
+                    correct_answer=q_data['correct_answer'],
+                    placeholder_hint=q_data['placeholder_hint'],
+                    question_type='final',
+                    order=i
+                )
 
         # Enroll admin user in the roadmap
         try:
             admin_user = User.objects.get(username='admin')
-            enrollment, created = RoadmapEnrollment.objects.get_or_create(
+            enrollment, created = Enrollment.objects.get_or_create(
                 user=admin_user,
                 roadmap=roadmap
             )
