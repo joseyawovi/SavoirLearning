@@ -1,4 +1,3 @@
-
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from lms.models import Roadmap, Room, Section, Question, Enrollment
@@ -32,45 +31,45 @@ class Command(BaseCommand):
                 'title': 'Cloud Fundamentals',
                 'description': 'Learn the basic concepts of cloud computing, service models, and deployment models.',
                 'sections': [
-                    {'title': 'Introduction to Cloud Computing', 'description': 'History, benefits, and key characteristics of cloud computing'},
-                    {'title': 'Service Models (IaaS, PaaS, SaaS)', 'description': 'Understanding different cloud service delivery models'},
-                    {'title': 'Deployment Models', 'description': 'Public, private, hybrid, and multi-cloud strategies'}
+                    {'title': 'Introduction to Cloud Computing'},
+                    {'title': 'Service Models (IaaS, PaaS, SaaS)'},
+                    {'title': 'Deployment Models'}
                 ]
             },
             {
                 'title': 'AWS Essentials',
                 'description': 'Master Amazon Web Services core services, architecture, and best practices.',
                 'sections': [
-                    {'title': 'AWS Core Services', 'description': 'EC2, S3, RDS, and other fundamental AWS services'},
-                    {'title': 'AWS Networking', 'description': 'VPC, security groups, and network architecture'},
-                    {'title': 'AWS Security', 'description': 'IAM, security best practices, and compliance'}
+                    {'title': 'AWS Core Services'},
+                    {'title': 'AWS Networking'},
+                    {'title': 'AWS Security'}
                 ]
             },
             {
                 'title': 'Azure Platform',
                 'description': 'Explore Microsoft Azure services, Azure Active Directory, and enterprise integration.',
                 'sections': [
-                    {'title': 'Azure Core Services', 'description': 'Virtual machines, storage, and Azure SQL Database'},
-                    {'title': 'Azure Active Directory', 'description': 'Identity management and authentication services'},
-                    {'title': 'Azure DevOps', 'description': 'CI/CD pipelines and development tools'}
+                    {'title': 'Azure Core Services'},
+                    {'title': 'Azure Active Directory'},
+                    {'title': 'Azure DevOps'}
                 ]
             },
             {
                 'title': 'Container Orchestration',
                 'description': 'Learn Docker, Kubernetes, and container management in the cloud.',
                 'sections': [
-                    {'title': 'Docker Fundamentals', 'description': 'Containerization concepts and Docker basics'},
-                    {'title': 'Kubernetes Architecture', 'description': 'Container orchestration and cluster management'},
-                    {'title': 'Cloud-Native Development', 'description': 'Microservices and serverless architectures'}
+                    {'title': 'Docker Fundamentals'},
+                    {'title': 'Kubernetes Architecture'},
+                    {'title': 'Cloud-Native Development'}
                 ]
             },
             {
                 'title': 'Cloud Operations',
                 'description': 'Master monitoring, automation, and cost optimization in cloud environments.',
                 'sections': [
-                    {'title': 'Cloud Monitoring', 'description': 'Performance monitoring and alerting systems'},
-                    {'title': 'Infrastructure as Code', 'description': 'Terraform, CloudFormation, and automation'},
-                    {'title': 'Cost Optimization', 'description': 'Cloud cost management and optimization strategies'}
+                    {'title': 'Cloud Monitoring'},
+                    {'title': 'Infrastructure as Code'},
+                    {'title': 'Cost Optimization'}
                 ]
             }
         ]
@@ -86,7 +85,7 @@ class Command(BaseCommand):
                     'is_active': True
                 }
             )
-            
+
             if created:
                 self.stdout.write(f'  Created room: {room.title}')
 
@@ -96,13 +95,12 @@ class Command(BaseCommand):
                     title=section_data['title'],
                     room=room,
                     defaults={
-                        'description': section_data['description'],
-                        'content': f"<h2>{section_data['title']}</h2><p>{section_data['description']}</p><p>This section provides comprehensive coverage of cloud computing concepts and practical implementation.</p>",
+                        'content': f"<h2>{section_data['title']}</h2><p>This section provides comprehensive coverage of cloud computing concepts and practical implementation.</p>",
                         'order': j,
                         'is_active': True
                     }
                 )
-                
+
                 if created:
                     self.stdout.write(f'    Created section: {section.title}')
 
@@ -115,7 +113,7 @@ class Command(BaseCommand):
                         },
                         {
                             'prompt': f'Which concept is central to {section_data["title"]}?',
-                            'correct_answer': section_data['description'].split()[0].lower(),
+                            'correct_answer': section_data['title'].split()[0].lower(),
                             'placeholder_hint': '_______ concept'
                         }
                     ]
