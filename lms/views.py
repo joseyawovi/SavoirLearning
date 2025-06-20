@@ -77,20 +77,14 @@ def dashboard(request):
         user=request.user, is_active=True
     ).select_related('roadmap').prefetch_related('roadmap__rooms')
     
-    # If no enrollments, auto-enroll in all active roadmaps for trial users
-    if not enrolled_roadmaps.exists():
-        active_roadmaps = Roadmap.objects.filter(is_active=True)
-        for roadmap in active_roadmaps:
-            Enrollment.objects.get_or_create(
-                user=request.user,
-                roadmap=roadmap
-            )
-        enrolled_roadmaps = Enrollment.objects.filter(
-            user=request.user, is_active=True
-        ).select_related('roadmap').prefetch_related('roadmap__rooms')
-    
     # Get roadmaps from enrollments
-    roadmaps = [enrollment.roadmap for enrollment in enrolled_roadmaps]
+    enrolled_roadmap_objects = [enrollment.roadmap for enrollment in enrolled_roadmaps]
+    
+    # Get public roadmaps that user is NOT enrolled in
+    enrolled_roadmap_ids = [roadmap.id for roadmap in enrolled_roadmap_objects]
+    public_roadmaps = Roadmap.objects.filter(
+        is_active=True
+    ).exclude(id__in=enrolled_roadmap_ids)
     
     # Get user's completed rooms
     completed_rooms = RoomCompletion.objects.filter(
@@ -102,7 +96,7 @@ def dashboard(request):
     
     # Calculate overall progress only for enrolled courses
     enrolled_rooms = Room.objects.filter(
-        roadmap__in=roadmaps, is_active=True
+        roadmap__in=enrolled_roadmap_objects, is_active=True
     )
     total_rooms = enrolled_rooms.count()
     completed_count = len([room_id for room_id in completed_rooms if room_id in enrolled_rooms.values_list('id', flat=True)])
@@ -126,9 +120,9 @@ def dashboard(request):
         enrollment.progress_percentage = round(progress_percentage)
         enrollments_with_progress.append(enrollment)
     
-    # Organize roadmap data with progress
-    roadmap_data = []
-    for roadmap in roadmaps:
+    # Organize enrolled roadmap data with progress
+    enrolled_roadmap_data = []
+    for roadmap in enrolled_roadmap_objects:
         rooms = roadmap.rooms.filter(is_active=True).order_by('order')
         rooms_data = []
         roadmap_completed = 0
@@ -165,7 +159,7 @@ def dashboard(request):
         # Calculate stroke-dashoffset for SVG progress circle
         stroke_dashoffset = 175.93 - (roadmap_progress / 100 * 175.93)
         
-        roadmap_data.append({
+        enrolled_roadmap_data.append({
             'roadmap': roadmap,
             'rooms': rooms_data,
             'progress': roadmap_progress,
@@ -176,8 +170,8 @@ def dashboard(request):
     
     context = {
         'enrolled_roadmaps': enrollments_with_progress,  # Pass enrollments with progress
-        'roadmaps': roadmap_data,
-        'roadmap_data': roadmap_data,
+        'enrolled_roadmap_data': enrolled_roadmap_data,  # Enrolled roadmaps with progress data
+        'public_roadmaps': public_roadmaps,  # Public roadmaps not enrolled in
         'user': request.user,
         'certificates': certificates,
         'certificates_count': certificates.count(),
