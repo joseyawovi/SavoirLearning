@@ -23,6 +23,11 @@
                         <span class="px-3 py-1 bg-blue-600/20 text-blue-400 text-sm font-medium rounded-full border border-blue-600/30">
                             Room {{ room.order }}
                         </span>
+                        {% if user.is_staff %}
+                        <a href="{% url 'admin_edit_room' room.id %}" class="ml-3 inline-flex items-center px-3 py-1 bg-yellow-600/20 text-yellow-400 text-sm font-medium rounded-full border border-yellow-600/30 hover:bg-yellow-600/30 transition-colors">
+                            <i class="fas fa-edit mr-1"></i>Edit Room
+                        </a>
+                        {% endif %}
                     </div>
                     
                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">{{ room.title }}</h1>

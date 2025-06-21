@@ -23,7 +23,10 @@ from .models import (
     User, Roadmap, Room, Section, Question, UserAnswer,
     SectionCompletion, RoomCompletion, Certificate, Payment, Enrollment
 )
-from .forms import UserRegistrationForm, QuizAnswerForm
+from .forms import (
+    UserRegistrationForm, QuizAnswerForm, RoadmapForm, RoomForm, 
+    SectionForm, QuestionForm, UserEditForm
+)
 from .utils import generate_certificate_pdf
 
 
