@@ -90,15 +90,11 @@ class Room(models.Model):
             is_active=True
         ).exists()
         
-        print(f"DEBUG: User {user.username} enrolled in roadmap {self.roadmap.title}: {is_enrolled}")
-        
         if not is_enrolled:
-            print(f"DEBUG: User not enrolled in roadmap, room not accessible")
             return False
         
         # If no prerequisite room, it's accessible
         if not self.prerequisite_room:
-            print(f"DEBUG: No prerequisite room, returning True")
             return True
         
         # Check if user has completed the prerequisite room
@@ -108,7 +104,6 @@ class Room(models.Model):
             is_completed=True
         ).exists()
         
-        print(f"DEBUG: Prerequisite room {self.prerequisite_room.title} completed: {prerequisite_completed}")
         return prerequisite_completed
 
 
@@ -136,7 +131,6 @@ class Section(models.Model):
         """Check if user can access this section."""
         # First check if user can access the room
         if not self.room.is_accessible_by_user(user):
-            print(f"DEBUG: User {user.username} cannot access room {self.room.title}")
             return False
         
         # Get all sections in this room ordered by order field
@@ -145,21 +139,15 @@ class Section(models.Model):
             is_active=True
         ).order_by('order')
         
-        print(f"DEBUG: Room {self.room.title} has {room_sections.count()} sections")
-        print(f"DEBUG: Current section: {self.title} (order: {self.order}, id: {self.id})")
-        
         # If no sections exist, this shouldn't happen but just in case
         if not room_sections.exists():
-            print("DEBUG: No sections found, returning True")
             return True
         
         # Get the first section (lowest order number)
         first_section = room_sections.first()
-        print(f"DEBUG: First section: {first_section.title} (order: {first_section.order}, id: {first_section.id})")
         
         # If this is the first section in the room, it's ALWAYS accessible if room is accessible
-        if self.order == first_section.order or self.id == first_section.id:
-            print(f"DEBUG: This is the first section, returning True")
+        if self.id == first_section.id:
             return True
         
         # For other sections, check if the IMMEDIATE previous section is completed
@@ -167,7 +155,6 @@ class Section(models.Model):
         
         if not previous_section:
             # If no previous sections, this is effectively the first section
-            print("DEBUG: No previous sections, returning True")
             return True
         
         # Check if immediate previous section is completed
@@ -177,8 +164,6 @@ class Section(models.Model):
             is_completed=True
         ).exists()
         
-        print(f"DEBUG: Previous section {previous_section.title} completed: {previous_completed}")
-        print(f"DEBUG: Final result: {previous_completed}")
         return previous_completed
 
 
