@@ -6,8 +6,8 @@
 {% block page_title %}{% trans "Learning Dashboard" %}{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-<div class="dashboard-content">
+<div class="dashboard-container px-6 py-8">
+<div class="dashboard-content space-y-8">
     <!-- Welcome Hero Section -->
     <div class="relative overflow-hidden">
         <div class="glass rounded-2xl p-8 border border-dark-border relative">
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Progress Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Enrolled Roadmaps -->
         <div class="glass rounded-xl p-6 border border-dark-border group hover:border-blue-500/50 transition-all duration-300">
             <div class="flex items-center justify-between mb-4">
@@ -118,7 +118,7 @@
     </div>
 
     <!-- Main Content Tabs -->
-    <div class="space-y-6">
+    <div class="bg-dark-card rounded-2xl p-6 space-y-6">
         <!-- Tab Navigation -->
         <div class="flex flex-wrap gap-2 border-b border-dark-border">
             <button onclick="showTab('enrolled')" id="tab-enrolled" class="tab-button px-6 py-3 font-semibold rounded-t-lg transition-all duration-300 text-blue-400 border-b-2 border-blue-400">

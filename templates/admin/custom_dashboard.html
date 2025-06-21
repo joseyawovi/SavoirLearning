@@ -287,6 +287,42 @@
     </div>
 </div>
 
+<!-- Spacing Fix for Admin Dashboard -->
+<style>
+.admin-dashboard-container {
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+}
+
+.admin-dashboard-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    space-y: 2rem;
+}
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-card {
+    background: rgba(26, 35, 50, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+</style>
+
 <script>
 // Auto-refresh stats every 30 seconds
 setInterval(function() {

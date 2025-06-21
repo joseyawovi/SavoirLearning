@@ -3,6 +3,181 @@
  * Provides interactive features for the enhanced dashboard
  */
 
+// Enhanced Tab Management
+function showTab(tabName) {
+    // Hide all tab contents with smooth transition
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.opacity = '0';
+        content.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            content.classList.add('hidden');
+        }, 150);
+    });
+
+    // Remove active state from all tabs
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('text-blue-400', 'border-blue-400', 'bg-blue-600/10');
+        button.classList.add('text-gray-400');
+        button.classList.remove('border-b-2');
+    });
+
+    // Show selected tab content with animation
+    setTimeout(() => {
+        const targetContent = document.getElementById('content-' + tabName);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+            targetContent.style.opacity = '0';
+            targetContent.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                targetContent.style.opacity = '1';
+                targetContent.style.transform = 'translateY(0)';
+            }, 50);
+        }
+
+        // Add active state to selected tab
+        const activeTab = document.getElementById('tab-' + tabName);
+        if (activeTab) {
+            activeTab.classList.remove('text-gray-400');
+            activeTab.classList.add('text-blue-400', 'border-b-2', 'border-blue-400', 'bg-blue-600/10');
+        }
+    }, 150);
+
+    // Update sidebar active states
+    updateSidebarActive(tabName);
+}
+
+// Update sidebar navigation active states
+function updateSidebarActive(activeSection) {
+    document.querySelectorAll('.nav-link-enhanced').forEach(link => {
+        link.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'text-white', 'shadow-lg');
+        link.classList.add('text-gray-300');
+    });
+
+    // Add active state based on section
+    const sectionMappings = {
+        'enrolled': 'My Courses',
+        'roadmaps': 'Browse Courses',
+        'certificates': 'Certificates',
+        'upgrade': 'Upgrade'
+    };
+
+    const activeText = sectionMappings[activeSection];
+    if (activeText) {
+        document.querySelectorAll('.nav-link-enhanced').forEach(link => {
+            if (link.textContent.includes(activeText)) {
+                link.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'text-white', 'shadow-lg');
+                link.classList.remove('text-gray-300');
+            }
+        });
+    }
+}
+
+// Enhanced sidebar interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize smooth scrolling for dashboard sections
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add hover effects to dashboard cards
+    document.querySelectorAll('.glass, .card-enhanced, .admin-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Initialize progress bars with animation
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        bar.style.transition = 'width 1s ease-out';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 300);
+    });
+
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn-enhanced, .nav-link-enhanced').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    // Initialize default tab
+    showTab('enrolled');
+    
+    // Auto-update dashboard stats every 30 seconds
+    setInterval(updateDashboardStats, 30000);
+});
+
+// Auto-refresh dashboard statistics
+function updateDashboardStats() {
+    // This could be enhanced with AJAX calls to get real-time data
+    console.log('Dashboard stats updated');
+}
+
+// Add CSS for ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    .tab-content {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .nav-link-enhanced {
+        position: relative;
+        overflow: hidden;
+    }
+`;
+document.head.appendChild(style);
+
 class DashboardEnhancements {
     constructor() {
         this.init();
