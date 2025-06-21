@@ -182,7 +182,7 @@ def user_section_status(user, section):
     
     # Use the section's built-in accessibility method which already handles all the logic correctly
     if section.is_accessible_by_user(user):
-        return 'accessible'
+        return 'available'
     else:
         return 'locked'
 
