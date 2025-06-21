@@ -133,6 +133,25 @@ class Section(models.Model):
         if not self.room.is_accessible_by_user(user):
             return False
         
+        # Check if this is the first section of the first room in the roadmap
+        # Get the first room in the roadmap (no prerequisite)
+        first_room = Room.objects.filter(
+            roadmap=self.room.roadmap,
+            prerequisite_room__isnull=True,
+            is_active=True
+        ).order_by('order').first()
+        
+        if first_room and self.room.id == first_room.id:
+            # This is the first room, check if this is the first section
+            first_section = Section.objects.filter(
+                room=self.room,
+                is_active=True
+            ).order_by('order').first()
+            
+            if first_section and self.id == first_section.id:
+                # This is the first section of the first room - always accessible
+                return True
+        
         # Get all sections in this room ordered by order field
         room_sections = Section.objects.filter(
             room=self.room,
@@ -143,11 +162,12 @@ class Section(models.Model):
         if not room_sections.exists():
             return True
         
-        # Get the first section (lowest order number)
-        first_section = room_sections.first()
+        # Get the first section of this room
+        first_section_in_room = room_sections.first()
         
-        # If this is the first section in the room, it's ALWAYS accessible if room is accessible
-        if self.id == first_section.id:
+        # If this is the first section in the room, check if room prerequisites are met
+        if self.id == first_section_in_room.id:
+            # First section is accessible if the room is accessible
             return True
         
         # For other sections, check if the IMMEDIATE previous section is completed
